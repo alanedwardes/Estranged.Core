@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EstBuildConfig.h"
 #include "EstImpactEffect.h"
 #include "EstSave.h"
 #include "EstGameplayStatics.generated.h"
@@ -59,18 +58,6 @@ public:
 	/** Get the Estranged player controller for a specified player index. */
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static class AEstPlayerController* GetEstPlayerController(UObject* WorldContextObject, int32 PlayerIndex);
-
-	UFUNCTION(BlueprintPure, Category = Build)
-	static const FString GetBuildLabel() { return BUILD_LABEL; };
-
-	UFUNCTION(BlueprintPure, Category = Build)
-	static const FString GetBuildCommit() { return BUILD_COMMIT; };
-
-	UFUNCTION(BlueprintPure, Category = Build)
-	static const FString GetBuildFrontendEndpoint() { return BUILD_FRONTEND_ENDPOINT; };
-
-	UFUNCTION(BlueprintPure, Category = Build)
-	static const FString GetBuildBackendEndpoint() { return BUILD_API_ENDPOINT; };
 
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static bool IsEditor(UObject* WorldContextObject);

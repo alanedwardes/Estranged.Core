@@ -6,7 +6,6 @@
 #include "EstFirearmAmunition.h"
 #include "EstResourceComponent.h"
 #include "EstHealthComponent.h"
-#include "EstBuildConfig.h"
 #include "Kismet/KismetMathLibrary.h"
 
 extern ENGINE_API float GAverageFPS;
@@ -110,12 +109,12 @@ void AEstPlayerHUD::DrawBuildLabel()
 
 	const FVector2D CalculatedPosition = FVector2D(Canvas->SizeX * BuildLabelPosition.X, Canvas->SizeY * BuildLabelPosition.Y);
 
-	float BuildLabelWidth;
-	float BuildLabelHeight;
-	GetTextSize(BUILD_LABEL, BuildLabelWidth, BuildLabelHeight, BuildLabelFont);
+	//float BuildLabelWidth;
+	float BuildLabelHeight = 0.f;
+	//GetTextSize(BUILD_LABEL, BuildLabelWidth, BuildLabelHeight, BuildLabelFont);
 
-	const FVector2D BuildLabelTextPosition = FVector2D(CalculatedPosition.X - BuildLabelWidth, CalculatedPosition.Y - BuildLabelHeight);
-	DrawText(BUILD_LABEL, BuildLabelColor, BuildLabelTextPosition.X, BuildLabelTextPosition.Y, BuildLabelFont);
+	//const FVector2D BuildLabelTextPosition = FVector2D(CalculatedPosition.X - BuildLabelWidth, CalculatedPosition.Y - BuildLabelHeight);
+	//DrawText(BUILD_LABEL, BuildLabelColor, BuildLabelTextPosition.X, BuildLabelTextPosition.Y, BuildLabelFont);
 
 	FLinearColor FrameStatsColor = BuildLabelColor;
 	if (GAverageFPS < 45.f)

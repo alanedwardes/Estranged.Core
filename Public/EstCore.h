@@ -5,7 +5,7 @@
 #include "EstConstants.h"
 #include "Containers/Ticker.h"
 
-class FEstCoreModule : public IModuleInterface
+class ESTCORE_API FEstCoreModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule();
