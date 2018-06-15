@@ -128,6 +128,9 @@ public:
 	virtual void DrawHUD() override;
 
 	UFUNCTION()
+	virtual void DrawGameSpecificHUD();
+
+	UFUNCTION()
 	virtual void HandleDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UFUNCTION()
@@ -141,9 +144,6 @@ public:
 protected:
 	UFUNCTION()
 	virtual bool ShouldDrawHUD();
-
-	UFUNCTION()
-	virtual void DrawBuildLabel();
 
 	UFUNCTION()
 	virtual void DrawReticule();

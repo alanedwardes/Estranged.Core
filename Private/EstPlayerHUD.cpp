@@ -8,11 +8,6 @@
 #include "EstHealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-extern ENGINE_API float GAverageFPS;
-
-#define STATS_TEXT "%i (short) / %i (long)"
-#define STATS_TEXT_CHEATS "%i (short) / %i (long) / cheats"
-
 void AEstPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -65,8 +60,6 @@ void AEstPlayerHUD::DrawHUD()
 	const float HudFadeTime = 4.f;
 	HudColor.A = FMath::FInterpTo(HudColor.A, FadeTarget, GetWorld()->DeltaTimeSeconds, HudFadeTime);
 
-	DrawBuildLabel();
-
 	if (!Controller->bIsMenuVisible)
 	{
 		DrawReticule();
@@ -77,6 +70,12 @@ void AEstPlayerHUD::DrawHUD()
 		DrawHint();
 		DrawLoadingIndicator();
 	}
+
+	DrawGameSpecificHUD();
+}
+
+void AEstPlayerHUD::DrawGameSpecificHUD()
+{
 }
 
 bool AEstPlayerHUD::ShouldDrawHUD()
@@ -97,44 +96,6 @@ bool AEstPlayerHUD::ShouldDrawHUD()
 	}
 
 	return true;
-}
-
-void AEstPlayerHUD::DrawBuildLabel()
-{
-	// Cheats and screenshots force stats back on
-	if (!bEnableStatsForNerds && !Player->bHasCheatedThisSession && !FScreenshotRequest::IsScreenshotRequested())
-	{
-		return;
-	}
-
-	const FVector2D CalculatedPosition = FVector2D(Canvas->SizeX * BuildLabelPosition.X, Canvas->SizeY * BuildLabelPosition.Y);
-
-	//float BuildLabelWidth;
-	float BuildLabelHeight = 0.f;
-	//GetTextSize(BUILD_LABEL, BuildLabelWidth, BuildLabelHeight, BuildLabelFont);
-
-	//const FVector2D BuildLabelTextPosition = FVector2D(CalculatedPosition.X - BuildLabelWidth, CalculatedPosition.Y - BuildLabelHeight);
-	//DrawText(BUILD_LABEL, BuildLabelColor, BuildLabelTextPosition.X, BuildLabelTextPosition.Y, BuildLabelFont);
-
-	FLinearColor FrameStatsColor = BuildLabelColor;
-	if (GAverageFPS < 45.f)
-	{
-		FrameStatsColor = FLinearColor(1.f, 1.f, 0.f, BuildLabelColor.A);
-	}
-
-	if (GAverageFPS < 25.f)
-	{
-		FrameStatsColor = FLinearColor(1.f, 0.f, 0.f, BuildLabelColor.A);
-	}
-
-	const FString StatsText = FString::Printf(Player->bHasCheatedThisSession ? TEXT(STATS_TEXT_CHEATS) : TEXT(STATS_TEXT), FMath::RoundToInt(GAverageFPS), FMath::RoundToInt(FEstCoreModule::GetLongAverageFrameRate()));
-
-	float StatsLabelWidth;
-	float StatsLabelHeight;
-	GetTextSize(StatsText, StatsLabelWidth, StatsLabelHeight, BuildLabelFont);
-
-	const FVector2D StatsLabelPosition = FVector2D(CalculatedPosition.X - StatsLabelWidth, CalculatedPosition.Y - StatsLabelHeight);
-	DrawText(StatsText, FrameStatsColor, StatsLabelPosition.X, StatsLabelPosition.Y + BuildLabelHeight, BuildLabelFont);
 }
 
 void AEstPlayerHUD::DrawAmmoLabels()
