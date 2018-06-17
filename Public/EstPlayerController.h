@@ -26,8 +26,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	virtual void SetMenuVisible(bool bNewIsVisible);
 
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	virtual void SetMenuVisibleForever() { SetMenuVisible(true); bIsMenuPermanentlyVisible = true; };
+
 	UPROPERTY(BlueprintReadOnly, Category = "Menu")
 	bool bIsMenuVisible;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Menu")
+	bool bIsMenuPermanentlyVisible;
 
 	/** The menu widget to show when paused */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
