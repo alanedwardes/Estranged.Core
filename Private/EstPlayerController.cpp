@@ -5,7 +5,6 @@
 
 void AEstPlayerController::Destroyed()
 {
-	bIsMenuPermanentlyVisible = false;
 	SetMenuVisible(false);
 	Super::Destroyed();
 }
@@ -58,11 +57,6 @@ void AEstPlayerController::SetMenuVisible(bool bNewIsVisible)
 
 	UGameViewportClient* View = LocalPlayer->ViewportClient;
 	if (View == nullptr)
-	{
-		return;
-	}
-
-	if (!bNewIsVisible && bIsMenuPermanentlyVisible)
 	{
 		return;
 	}
