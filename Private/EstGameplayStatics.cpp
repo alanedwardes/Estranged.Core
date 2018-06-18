@@ -6,6 +6,7 @@
 #include "Internationalization/Internationalization.h"
 #include "GenericPlatform/GenericPlatformCrashContext.h"
 #include "AudioDevice.h"
+#include "EstGameMode.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -520,4 +521,9 @@ AActor* UEstGameplayStatics::FindActorByName(UObject* WorldContextObject, FName 
 	}
 
 	return nullptr;
+}
+
+AEstGameMode* UEstGameplayStatics::GetEstGameMode(UObject* WorldContextObject)
+{
+	return Cast<AEstGameMode>(UGameplayStatics::GetGameMode(WorldContextObject));
 }

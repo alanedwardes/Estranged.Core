@@ -60,7 +60,7 @@ void AEstPlayerHUD::DrawHUD()
 	const float HudFadeTime = 4.f;
 	HudColor.A = FMath::FInterpTo(HudColor.A, FadeTarget, GetWorld()->DeltaTimeSeconds, HudFadeTime);
 
-	if (!Controller->bIsMenuVisible)
+	if (!Controller->bShowMouseCursor)
 	{
 		DrawReticule();
 		DrawHealthIndicator();
