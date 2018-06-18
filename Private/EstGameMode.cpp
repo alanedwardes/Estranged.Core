@@ -6,7 +6,7 @@
 
 void AEstGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (MenuSlateWidget.IsValid())
+	if (MenuSlateWidget.IsValid() && GetWorld() && GetWorld()->GetGameViewport())
 	{
 		GetWorld()->GetGameViewport()->RemoveViewportWidgetContent(MenuSlateWidget.ToSharedRef());
 	}
