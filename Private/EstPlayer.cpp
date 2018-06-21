@@ -1021,6 +1021,13 @@ void AEstPlayer::JumpReleasedInput()
 	SwimmingUp = false;
 }
 
+void AEstPlayer::FellOutOfWorld(const class UDamageType& dmgType)
+{
+	ShowMenu();
+
+	Super::FellOutOfWorld(dmgType);
+}
+
 bool AEstPlayer::CanSprint()
 {
 	return Super::CanSprint() && !Stamina->IsDepleted();

@@ -57,6 +57,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	float StaminaConsumptionPerSecond;
 
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
+
 	UFUNCTION()
 	virtual bool CanSprint() override;
 
