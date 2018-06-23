@@ -105,7 +105,7 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 		}
 	}
 
-	if (GEngine->GameViewport->bIsPlayInEditorViewport)
+	if (EST_IN_VIEWPORT)
 	{
 		// Visualise impact point
 		DrawDebugPoint(Component->GetWorld(), Position, 10.f, FColor::Red, false, DEBUG_PERSIST_TIME);

@@ -123,7 +123,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	{
 		const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest->ImpactEffects, PhysicalMaterial, FEstImpactEffect());
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
-		if (GEngine->GameViewport->bIsPlayInEditorViewport)
+		if (EST_IN_VIEWPORT)
 		{
 			DrawDebugLine(GetWorld(), GetActorLocation(), EndTraceLocation, FColor::Green, false, DEBUG_PERSIST_TIME);
 			UE_LOG(LogEstFootsteps, Log, TEXT("Playing for %s from hit on component %s"), *PhysicalMaterial->GetName(), *OutHit.Component->GetName());
@@ -131,7 +131,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	}
 	else if (OutHit.bBlockingHit)
 	{
-		if (GEngine->GameViewport->bIsPlayInEditorViewport)
+		if (EST_IN_VIEWPORT)
 		{
 			DrawDebugLine(GetWorld(), GetActorLocation(), EndTraceLocation, FColor::Red, false, DEBUG_PERSIST_TIME);
 			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit but no footstep effect"));

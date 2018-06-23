@@ -497,7 +497,7 @@ void AEstPlayer::InFrontCheckSubTick()
 
 	if (GetWorld()->OverlapBlockingTestByChannel(TestLocation, Transform.Rotator().Quaternion(), CHANNEL_PLAYER_IN_FRONT, FCollisionShape::MakeBox(WeaponBox), Params))
 	{
-		if (GEngine->GameViewport->bIsPlayInEditorViewport)
+		if (EST_IN_VIEWPORT)
 		{
 			DrawDebugBox(GetWorld(), TestLocation, WeaponBox, FColor::Red, false, .25f);
 		}
@@ -506,7 +506,7 @@ void AEstPlayer::InFrontCheckSubTick()
 	else
 	{
 		SomethingInFront = false;
-		if (GEngine->GameViewport->bIsPlayInEditorViewport)
+		if (EST_IN_VIEWPORT)
 		{
 			DrawDebugBox(GetWorld(), TestLocation, WeaponBox, FColor::Green, false, .25f);
 		}
@@ -571,7 +571,7 @@ void AEstPlayer::BlurFocusCheckSubTick()
 	FocalHit = Hit;
 	FocalDistance = FVector::Distance(GetActorLocation(), FocalHit.Location);
 
-	if (GEngine->GameViewport->bIsPlayInEditorViewport)
+	if (EST_IN_VIEWPORT)
 	{
 		DrawDebugPoint(GetWorld(), FocalHit.Location, 10.f, FColor::Green, false, .5f);
 	}
@@ -765,7 +765,7 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 
 	if (OutHit.GetActor() && OutHit.IsValidBlockingHit())
 	{
-		if (GEngine->GameViewport->bIsPlayInEditorViewport)
+		if (EST_IN_VIEWPORT)
 		{
 			DrawDebugSphere(GetWorld(), OutHit.Location, TraceSphereRadius, 8, FColor::Green, false, 1.f);
 		}
