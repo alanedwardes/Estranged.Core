@@ -190,7 +190,7 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 		}
 		else
 		{
-			AActor* FoundActor = UEstGameplayStatics::FindActorByNameInLevel(StreamingLevel->GetLoadedLevel(), MovedActorState.ActorName);
+			AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(StreamingLevel->GetLoadedLevel(), MovedActorState.ActorName, MovedActorState.ActorClass);
 			RestoreActor(FoundActor, MovedActorState);
 			RestoredObjects.Add(FoundActor);
 		}
@@ -214,7 +214,7 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 	// Restore all actors
 	for (const FEstActorState ActorState : LevelState.ActorStates)
 	{
-		AActor* FoundActor = UEstGameplayStatics::FindActorByNameInLevel(Level, ActorState.ActorName);
+		AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(Level, ActorState.ActorName, ActorState.ActorClass);
 
 		if (!FoundActor && Level->IsPersistentLevel())
 		{

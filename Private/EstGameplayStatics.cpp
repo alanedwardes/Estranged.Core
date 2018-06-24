@@ -487,11 +487,16 @@ AActor* UEstGameplayStatics::SpawnActor(UObject* WorldContextObject, UClass* Act
 	return WorldContextObject->GetWorld()->SpawnActor<AActor>(ActorClass, ActorTransform, SpawnParameters);
 }
 
-AActor* UEstGameplayStatics::FindActorByNameInLevel(const ULevel* Level, FName ActorName)
+AActor* UEstGameplayStatics::FindActorByNameAndClassInLevel(const ULevel* Level, FName ActorName, UClass* ActorClass)
 {
 	for (AActor* Actor : Level->Actors)
 	{
 		if (!Actor)
+		{
+			continue;
+		}
+
+		if (Actor->GetClass() != ActorClass)
 		{
 			continue;
 		}

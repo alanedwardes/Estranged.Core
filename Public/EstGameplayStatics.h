@@ -93,7 +93,7 @@ public:
 	static AActor* SpawnActor(UObject* WorldContextObject, UClass* ActorClass, FName ActorName, const FTransform &ActorTransform);
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
-	static AActor* FindActorByNameInLevel(const ULevel* Level, FName ActorName);
+	static AActor* FindActorByNameAndClassInLevel(const ULevel* Level, FName ActorName, UClass* ActorClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AActor* FindActorByName(UObject* WorldContextObject, FName ActorName, UClass* ActorClass = nullptr);
