@@ -42,9 +42,6 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	RestingFieldOfView = Camera->FieldOfView;
 	ZoomFieldOfView = 40.f;
 
-	// Health
-	HealthComponent->SetChangePerSecond(1.f);
-
 	// Interaction
 	PlayerInteractionHeldUpdateSpeed = 20.f;
 	PlayerInteractionDistance = 150.f;
@@ -252,6 +249,9 @@ void AEstPlayer::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	SmoothZVelocity = FMath::FInterpConstantTo(SmoothZVelocity, FMath::Abs(GetVelocity().Z), DeltaSeconds, 1000.f);
+
+	// Regenerate health when below 50%
+	HealthComponent->SetChangePerSecond(HealthComponent->GetResource() < 50.f ? 1.f : 0.f);
 
 	if (GetWorld()->TimeSince(InFrontCheckSubTickTime) > .25f)
 	{
