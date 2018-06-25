@@ -12,7 +12,21 @@ void UEstGameInstance::Init()
 		MenuSlateWidget = MenuUserWidget->TakeWidget();
 	}
 
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UEstGameInstance::PreLoadMap);
+
 	Super::Init();
+}
+
+void UEstGameInstance::PreLoadMap(const FString & InMapName)
+{
+	SetMenuVisibleForever(false);
+}
+
+void UEstGameInstance::Shutdown()
+{
+	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
+
+	Super::Shutdown();
 }
 
 void UEstGameInstance::SetMenuVisibleForever(bool bNewIsMenuVisibleForever)
@@ -23,6 +37,11 @@ void UEstGameInstance::SetMenuVisibleForever(bool bNewIsMenuVisibleForever)
 
 void UEstGameInstance::SetMenuVisibility(bool bNewIsMenuVisible)
 {
+	if (!MenuSlateWidget.IsValid())
+	{
+		return;
+	}
+
 	if (bNewIsMenuVisible)
 	{
 		GetWorld()->GetGameViewport()->AddViewportWidgetContent(MenuSlateWidget.ToSharedRef());

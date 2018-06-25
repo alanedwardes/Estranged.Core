@@ -17,6 +17,10 @@ class ESTCORE_API UEstGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 
+	virtual void Shutdown() override;
+
+	virtual void PreLoadMap(const FString & InMapName);
+
 	UFUNCTION(BlueprintPure, Category = UI)
 	virtual bool GetMenuVisibleForever() { return bIsMenuVisibleForever; };
 
