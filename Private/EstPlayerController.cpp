@@ -1,6 +1,6 @@
 #include "EstCore.h"
 #include "EstSaveStatics.h"
-#include "EstGameMode.h"
+#include "EstGameInstance.h"
 #include "EstPlayerController.h"
 
 bool AEstPlayerController::InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad)
@@ -39,7 +39,7 @@ void AEstPlayerController::SetMenuFocusState(bool bNewIsFocussed)
 		bEnableMouseOverEvents = true;
 
 		FInputModeUIOnly InputMode = FInputModeUIOnly();
-		InputMode.SetWidgetToFocus(UEstGameplayStatics::GetEstGameMode(this)->GetRawWidget());
+		InputMode.SetWidgetToFocus(UEstGameplayStatics::GetEstGameInstance(this)->GetRawMenuWidget());
 		SetInputMode(InputMode);
 	}
 	else

@@ -100,4 +100,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static class AEstGameMode* GetEstGameMode(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	static class UEstGameInstance* GetEstGameInstance(UObject* WorldContextObject);
 };

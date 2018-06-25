@@ -7,7 +7,7 @@
 #include "EstInteractive.h"
 #include "EstCharacterMovementComponent.h"
 #include "EstHealthComponent.h"
-#include "EstGameMode.h"
+#include "EstGameInstance.h"
 #include "EstResourceComponent.h"
 #include "EstGameplaySave.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -664,7 +664,7 @@ void AEstPlayer::ShowMenu()
 {
 	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(Controller);
 	EstPlayerController->SetPause(true);
-	UEstGameplayStatics::GetEstGameMode(this)->SetMenuVisibility(true);
+	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(true);
 	EstPlayerController->SetMenuFocusState(true);
 }
 
