@@ -124,6 +124,7 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 		MovedActorState.OriginalLevelName = FName(*FromTag);
 
 		SerializeActor(Actor, MovedActorState);
+		MovedActorState.ActorTags.Remove(TAG_MOVED);
 		WorldState.PersistentLevelState.MovedActorStates.Add(MovedActorState);
 	}
 
