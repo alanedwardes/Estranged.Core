@@ -112,10 +112,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
 	bool bIsLoading;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
 	bool bDisableHUD;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
 	bool bEnableStatsForNerds;
 
 	UFUNCTION()
