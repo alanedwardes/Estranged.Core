@@ -193,6 +193,11 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 		{
 			AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(StreamingLevel->GetLoadedLevel(), MovedActorState.ActorName, MovedActorState.ActorClass);
 			RestoreActor(FoundActor, MovedActorState);
+			// Restore all components
+			for (FEstComponentState ComponentState : MovedActorState.ComponentStates)
+			{
+				RestoredObjects.Add(RestoreComponent(FoundActor, ComponentState));
+			}
 			RestoredObjects.Add(FoundActor);
 		}
 	}
