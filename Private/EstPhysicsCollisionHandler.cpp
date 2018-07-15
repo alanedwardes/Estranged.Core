@@ -3,6 +3,7 @@
 #include "EstCore.h"
 #include "EstImpactManifest.h"
 #include "PhysicsPublic.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "EstPhysicsCollisionHandler.h"
 
 void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(TArray<FCollisionNotifyInfo>& PendingCollisionNotifies)
@@ -46,19 +47,19 @@ UPhysicalMaterial* UEstPhysicsCollisionHandler::GetPhysicalMaterialFromCollision
 
 void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRigidBodyCollisionInfo& MyInfo, const FRigidBodyCollisionInfo& OtherInfo, const FCollisionImpactData& RigidCollisionData)
 {
-	FRigidBodyContactInfo ContactInfo = RigidCollisionData.ContactInfos[0];
+	const FRigidBodyContactInfo ContactInfo = RigidCollisionData.ContactInfos[0];
 
-	FBodyInstance* BodyInst0 = MyInfo.GetBodyInstance();
-	FBodyInstance* BodyInst1 = OtherInfo.GetBodyInstance();
+	const FBodyInstance* BodyInst0 = MyInfo.GetBodyInstance();
+	const FBodyInstance* BodyInst1 = OtherInfo.GetBodyInstance();
 
 	if (BodyInst0 && BodyInst1)
 	{
 		// Find relative velocity.
-		FVector Velocity0 = BodyInst0->GetUnrealWorldVelocityAtPoint_AssumesLocked(ContactInfo.ContactPosition);
-		FVector AngularVel0 = BodyInst0->GetUnrealWorldAngularVelocityInRadians_AssumesLocked();
+		const FVector Velocity0 = BodyInst0->GetUnrealWorldVelocityAtPoint_AssumesLocked(ContactInfo.ContactPosition);
+		const FVector AngularVel0 = BodyInst0->GetUnrealWorldAngularVelocityInRadians_AssumesLocked();
 
-		FVector Velocity1 = BodyInst1->GetUnrealWorldVelocityAtPoint_AssumesLocked(ContactInfo.ContactPosition);
-		FVector AngularVel1 = BodyInst1->GetUnrealWorldAngularVelocityInRadians_AssumesLocked();
+		const FVector Velocity1 = BodyInst1->GetUnrealWorldVelocityAtPoint_AssumesLocked(ContactInfo.ContactPosition);
+		const FVector AngularVel1 = BodyInst1->GetUnrealWorldAngularVelocityInRadians_AssumesLocked();
 
 		const FVector RelVel = Velocity1 - Velocity0;
 
@@ -76,11 +77,15 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 			return;
 		}
 
+		const float Intensity = FMath::Clamp(ImpactVelMag / 512.f, 0.1f, 1.f);
+
+		EST_DEBUG(FString::Printf(TEXT("Impact: Velocity %.2f, Intensity: %.2f"), ImpactVelMag, Intensity));
+
 		FEstImpactEffect DefaultImpactEffect;
 		DefaultImpactEffect.Sound = DefaultImpactSound;
 
 		UPhysicalMaterial* MyMaterial = GetPhysicalMaterialFromCollision(MyInfo);
-		if (MyMaterial != nullptr)
+		if (MyMaterial != nullptr && MyInfo.Component.IsValid() && MyInfo.Component->Mobility == EComponentMobility::Movable)
 		{
 			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, MyMaterial);
 			if (ImpactEffect == FEstImpactEffect::None)
@@ -88,11 +93,11 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 				ImpactEffect = DefaultImpactEffect;
 			}
 
-			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, MyInfo.Component.Get());
+			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, MyInfo.Component.Get(), Intensity);
 		}
 
 		UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromCollision(OtherInfo);
-		if (OtherMaterial != nullptr)
+		if (OtherMaterial != nullptr && OtherInfo.Component.IsValid() && OtherInfo.Component->Mobility == EComponentMobility::Movable)
 		{
 			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, OtherMaterial);
 			if (ImpactEffect == FEstImpactEffect::None)
@@ -100,7 +105,7 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 				ImpactEffect = DefaultImpactEffect;
 			}
 
-			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, OtherInfo.Component.Get());
+			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, OtherInfo.Component.Get(), Intensity);
 		}
 
 		LastImpactSoundTime = World->GetTimeSeconds();
