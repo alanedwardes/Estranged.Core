@@ -46,9 +46,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)
 	class TSubclassOf<AActor> AmunitionClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)
-	class TSubclassOf<class UCameraShake> PrimaryRecoilShake;
-
 	/** Primary ammunition */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)
 	class UEstFirearmAmunition* PrimaryAmmunition;

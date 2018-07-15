@@ -56,16 +56,6 @@ void AEstFirearmWeapon::PrimaryAttack()
 
 void AEstFirearmWeapon::PrimaryFireEffects()
 {
-	const APawn* Pawn = Cast<APawn>(GetOwner());
-	if (Pawn && PrimaryRecoilShake)
-	{
-		APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
-		if (PlayerController && PlayerController->GetViewTarget() == Pawn)
-		{
-			PlayerController->ClientPlayCameraShake(PrimaryRecoilShake);
-		}
-	}
-
 	MuzzleFlash->SetVisibility(true);
 
 	// Report the gunshot to the perception system

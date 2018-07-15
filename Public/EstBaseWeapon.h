@@ -85,6 +85,8 @@ public:
 	/** End the weapon's primary attack. */
 	UFUNCTION(BlueprintCallable, Category = Fighting)
 	virtual void PrimaryAttackEnd();
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)
+	class TSubclassOf<class UCameraShake> PrimaryAttackShake;
 
 	/** Internal func to call for secondary attack */
 	UFUNCTION()

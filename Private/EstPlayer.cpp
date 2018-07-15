@@ -1089,6 +1089,15 @@ void AEstPlayer::PlayPrimaryFire()
 	if (HasWeapon() && ViewModelMesh->GetAnimInstance())
 	{
 		ViewModelMesh->GetAnimInstance()->Montage_Play(EquippedWeapon->PlayerAnimManifest.PrimaryAttack);
+
+		if (EquippedWeapon->PrimaryAttackShake && IsViewTarget())
+		{
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			if (PlayerController)
+			{
+				PlayerController->ClientPlayCameraShake(EquippedWeapon->PrimaryAttackShake, bIsAiming ? 0.25f : 1.f);
+			}
+		}
 	}
 }
 
