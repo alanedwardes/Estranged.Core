@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static struct FEstImpactEffect FindImpactEffect(const TArray<struct FEstImpactEffect> ImpactEffects, const class UPhysicalMaterial* PhysicalMaterial, const struct FEstImpactEffect DefaultImpactEffect);
 
+	UFUNCTION(BlueprintPure, Category = Projectiles)
+	static FName FindClosestBoneName(UPrimitiveComponent * Component, FVector Location);
+
 	/** Pause or unpause all local player controllers. */
 	UFUNCTION(BlueprintCallable, Category = Game)
 	static void SetPause(bool bIsPaused);

@@ -64,6 +64,17 @@ struct FEstImpactEffect UEstGameplayStatics::FindImpactEffect(const TArray<FEstI
 	return DefaultImpactEffect;
 }
 
+FName UEstGameplayStatics::FindClosestBoneName(UPrimitiveComponent* Component, FVector Location)
+{
+	const USkinnedMeshComponent *SkinnedMesh = Cast<class USkinnedMeshComponent>(Component);
+	if (SkinnedMesh != nullptr)
+	{
+		return SkinnedMesh->FindClosestBone(Location);
+	}
+
+	return NAME_None;
+}
+
 void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, UPrimitiveComponent* Component, const float Scale, USoundAttenuation* AttenuationOverride)
 {
 	check(Component != nullptr);
@@ -71,39 +82,21 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 	const FVector Position = ImpactPoint;
 	const FVector Normal = -ImpactNormal;
 
+	FName ClosestBoneName = FindClosestBoneName(Component, Position);
+
 	if (ImpactEffect.Decal != nullptr)
 	{
-		// Skinned meshes require us to attach the decal to a specific part of the skeleton for it to look right.
-		const USkinnedMeshComponent *SkinnedMesh = Cast<class USkinnedMeshComponent>(Component);
-		if (SkinnedMesh != nullptr)
-		{
-			// TODO: Figure out how else we could tackle this problem.
-			// By attaching the decal to the bone we still experience a lot of 'texture swimming' issues.
-			FName BoneName = SkinnedMesh->FindClosestBone(Position);
-
-			UGameplayStatics::SpawnDecalAttached(ImpactEffect.Decal, ImpactEffect.DecalSize, Component, BoneName, Position, Normal.Rotation(), EAttachLocation::KeepWorldPosition);
-		}
-		else
-		{
-			UGameplayStatics::SpawnDecalAttached(ImpactEffect.Decal, ImpactEffect.DecalSize, Component, NAME_None, Position, Normal.Rotation(), EAttachLocation::KeepWorldPosition);
-		}
+		UGameplayStatics::SpawnDecalAttached(ImpactEffect.Decal, ImpactEffect.DecalSize, Component, ClosestBoneName, Position, Normal.Rotation(), EAttachLocation::KeepWorldPosition);
 	}
 
 	if (ImpactEffect.Sound != nullptr)
 	{
-		UGameplayStatics::SpawnSoundAttached(ImpactEffect.Sound, Component, NAME_None, Position, EAttachLocation::KeepWorldPosition, false, Scale, 1.f, 0.f, AttenuationOverride);
+		UGameplayStatics::SpawnSoundAttached(ImpactEffect.Sound, Component, ClosestBoneName, Position, EAttachLocation::KeepWorldPosition, false, Scale, 1.f, 0.f, AttenuationOverride);
 	}
 
 	if (ImpactEffect.ParticleSystem != nullptr)
 	{
-		if (Component->IsSimulatingPhysics())
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(Component, ImpactEffect.ParticleSystem, Position, ImpactNormal.Rotation());
-		}
-		else
-		{
-			UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, NAME_None, Position, ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition);
-		}
+		UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, ClosestBoneName, Position, ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition);
 	}
 
 	if (EST_IN_VIEWPORT)
