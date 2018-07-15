@@ -14,17 +14,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static FRotator RandomProjectileSpread(FRotator InRot, float MaxSpread);
 
-	/** Spawn impact effects, and make actors take damage from projectiles. */
-	UFUNCTION(BlueprintPure, Category = Projectiles)
-	static void HandleProjectileImpact(class UEstBallistics* Ballistics, const FHitResult& ImpactResult);
-
 	/** Deploy impact effects at a specified location. */
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
 	static void DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class UPrimitiveComponent* Component, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
 
 	/** Find physical impact effects based on a material with an optional default. */
 	UFUNCTION(BlueprintPure, Category = Projectiles)
-	static struct FEstImpactEffect FindImpactEffect(const TArray<struct FEstImpactEffect> ImpactEffects, const class UPhysicalMaterial* PhysicalMaterial, const struct FEstImpactEffect DefaultImpactEffect);
+	static struct FEstImpactEffect FindImpactEffect(const class UEstImpactManifest* ImpactEffects, const class UPhysicalMaterial* PhysicalMaterial);
 
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static FName FindClosestBoneName(UPrimitiveComponent * Component, FVector Location);

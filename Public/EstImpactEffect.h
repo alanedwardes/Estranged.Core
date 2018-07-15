@@ -10,16 +10,29 @@ struct ESTCORE_API FEstImpactEffect
 
 	FEstImpactEffect()
 	{
-		PhysicalMaterial = nullptr;
 		ParticleSystem = nullptr;
 		Decal = nullptr;
 		Sound = nullptr;
 		DecalSize = FVector(5.f);
 	}
 
-	/** The physical material linked to the decal and sound. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ImpactData)
-	class UPhysicalMaterial* PhysicalMaterial;
+	static const FEstImpactEffect None;
+
+	FORCEINLINE bool operator==(const FEstImpactEffect& Effect) const
+	{
+		return ParticleSystem == Effect.ParticleSystem &&
+			Decal == Effect.Decal &&
+			Sound == Effect.Sound &&
+			DecalSize == Effect.DecalSize;
+	}
+
+	FORCEINLINE bool operator!=(const FEstImpactEffect& Effect) const
+	{
+		return ParticleSystem != Effect.ParticleSystem ||
+			Decal != Effect.Decal ||
+			Sound != Effect.Sound ||
+			DecalSize != Effect.DecalSize;
+	}
 
 	/** The decal placed upon impact. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Decal)

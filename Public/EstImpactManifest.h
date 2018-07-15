@@ -15,6 +15,6 @@ public:
 	}
 
 	/** The sound effects, particles and sounds commenced upon impact. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Footsteps)
-	TArray<struct FEstImpactEffect> ImpactEffects;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effects)
+	TMap<class UPhysicalMaterial*, struct FEstImpactEffect> ImpactEffectMap;
 };

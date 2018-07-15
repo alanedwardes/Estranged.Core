@@ -1,7 +1,7 @@
 #include "EstCore.h"
 #include "EstGameplayStatics.h"
-#include "EstBallistics.h"
 #include "EstImpactEffect.h"
+#include "EstImpactManifest.h"
 #include "EstPlayerController.h"
 #include "Internationalization/Internationalization.h"
 #include "GenericPlatform/GenericPlatformCrashContext.h"
@@ -15,53 +15,14 @@ FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSp
 	return FRotator(InRot.Pitch + FMath::FRandRange(-MaxSpread, MaxSpread), InRot.Yaw + FMath::FRandRange(-MaxSpread, MaxSpread), InRot.Roll);
 }
 
-void UEstGameplayStatics::HandleProjectileImpact(UEstBallistics* Ballistics, const FHitResult& ImpactResult)
+struct FEstImpactEffect UEstGameplayStatics::FindImpactEffect(const UEstImpactManifest* ImpactEffects, const UPhysicalMaterial* PhysicalMaterial)
 {
-	if (Ballistics == nullptr)
+	if (PhysicalMaterial != nullptr && ImpactEffects != nullptr && ImpactEffects->ImpactEffectMap.Contains(PhysicalMaterial))
 	{
-		return;
+		return ImpactEffects->ImpactEffectMap[PhysicalMaterial];
 	}
 
-	// AETODO: Fill in nullptr parameters, look into adding radial damage in the ballistics info
-	UGameplayStatics::ApplyPointDamage(ImpactResult.Actor.Get(), Ballistics->Damage, ImpactResult.TraceStart, ImpactResult, nullptr, nullptr, nullptr);
-
-	if (ImpactResult.Component.IsValid())
-	{
-		const FEstImpactEffect ImpactEffects = FindImpactEffect(Ballistics->ImpactEffects, ImpactResult.PhysMaterial.Get(), Ballistics->DefaultImpactEffect);
-		DeployImpactEffect(ImpactEffects, ImpactResult.Location, ImpactResult.Normal, ImpactResult.Component.Get());
-	}
-}
-
-struct FEstImpactEffect UEstGameplayStatics::FindImpactEffect(const TArray<FEstImpactEffect> ImpactEffects, const UPhysicalMaterial* PhysicalMaterial, const FEstImpactEffect DefaultImpactEffect)
-{
-	// If we got a dud, use the default FX
-	if (PhysicalMaterial == nullptr)
-	{
-		return DefaultImpactEffect;
-	}
-
-	// If we don't have any data loaded, default
-	if (ImpactEffects.Num() == 0)
-	{
-		return DefaultImpactEffect;
-	}
-
-	// Loop our currently loaded impact data array,
-	// and check if we have a definition for the current
-	// physical material.
-	for (const FEstImpactEffect ImpactData : ImpactEffects)
-	{
-		if (ImpactData.PhysicalMaterial)
-		{
-			if (ImpactData.PhysicalMaterial == PhysicalMaterial)
-			{
-				return ImpactData;
-			}
-		}
-	}
-
-	// No match, default FX
-	return DefaultImpactEffect;
+	return FEstImpactEffect::None;
 }
 
 FName UEstGameplayStatics::FindClosestBoneName(UPrimitiveComponent* Component, FVector Location)

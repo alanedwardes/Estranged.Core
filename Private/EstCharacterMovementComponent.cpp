@@ -118,10 +118,10 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	GetWorld()->LineTraceSingleByChannel(OutHit, GetActorLocation(), EndTraceLocation, ECC_Visibility, TraceParams);
 
 	const UPhysicalMaterial* PhysicalMaterial = bFootstepMaterialOverride ? FootstepMaterialOverride : OutHit.PhysMaterial.Get();
+	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
 
-	if (PhysicalMaterial != nullptr && PhysicalMaterial != GEngine->DefaultPhysMaterial && OutHit.Component.IsValid())
+	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
 	{
-		const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest->ImpactEffects, PhysicalMaterial, FEstImpactEffect());
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
 		if (EST_IN_VIEWPORT)
 		{

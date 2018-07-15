@@ -82,14 +82,24 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 		UPhysicalMaterial* MyMaterial = GetPhysicalMaterialFromCollision(MyInfo);
 		if (MyMaterial != nullptr)
 		{
-			const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest->ImpactEffects, MyMaterial, DefaultImpactEffect);
+			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, MyMaterial);
+			if (ImpactEffect == FEstImpactEffect::None)
+			{
+				ImpactEffect = DefaultImpactEffect;
+			}
+
 			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, MyInfo.Component.Get());
 		}
 
 		UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromCollision(OtherInfo);
 		if (OtherMaterial != nullptr)
 		{
-			const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest->ImpactEffects, OtherMaterial, DefaultImpactEffect);
+			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, OtherMaterial);
+			if (ImpactEffect == FEstImpactEffect::None)
+			{
+				ImpactEffect = DefaultImpactEffect;
+			}
+
 			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, OtherInfo.Component.Get());
 		}
 

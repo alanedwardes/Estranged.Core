@@ -26,3 +26,5 @@ void FEstCoreModule::ShutdownModule()
 
 DEFINE_LOG_CATEGORY(LogEstGeneral);
 DEFINE_LOG_CATEGORY(LogEstFootsteps);
+
+ESTCORE_API const FEstImpactEffect FEstImpactEffect::None = FEstImpactEffect();
