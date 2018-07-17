@@ -819,11 +819,7 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 		IEstCarryable::Execute_OnPickedUp(HeldActor.Get(), this);
 	}
 
-	// Enable better collision handling to reduce
-	// the chance it falls through the floor
-	HeldPrimitive->BodyInstance.bUseCCD = true;
 	HeldPrimitive->SetEnableGravity(false);
-	HeldPrimitive->RecreatePhysicsState();
 }
 
 void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
