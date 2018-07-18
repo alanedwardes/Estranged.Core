@@ -394,17 +394,7 @@ bool UEstGameplayStatics::IsLocationInsideActor(FVector Location, AActor* Actor)
 
 TArray<FString> UEstGameplayStatics::GetAllCultures()
 {
-	TArray<FString> LocalizationPaths;
-	LocalizationPaths += FPaths::GetGameLocalizationPaths();
-	TArray<FCultureRef> AllCultureRefs;
-	FInternationalization::Get().GetCulturesWithAvailableLocalization(LocalizationPaths, AllCultureRefs, false);
-
-	TArray<FString> AllCutureNames;
-	for (const FCultureRef CultureRef : AllCultureRefs)
-	{
-		AllCutureNames.Add(CultureRef->GetName());
-	}
-	return AllCutureNames;
+	return FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Game);
 }
 
 bool UEstGameplayStatics::IsUsingGamepad(const APawn* Pawn)

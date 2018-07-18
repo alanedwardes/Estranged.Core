@@ -128,7 +128,7 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 		WorldState.PersistentLevelState.MovedActorStates.Add(MovedActorState);
 	}
 
-	for (ULevelStreaming* StreamingLevel : World->StreamingLevels)
+	for (ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
 	{
 		ULevel* LoadedLevel = StreamingLevel->GetLoadedLevel();
 		if (!LoadedLevel)
@@ -251,7 +251,7 @@ FEstSequenceState UEstSaveStatics::SerializeSequence(ALevelSequenceActor* LevelS
 {
 	FEstSequenceState SequenceState;
 	SequenceState.ActorName = LevelSequenceActor->GetFName();
-	SequenceState.Position = LevelSequenceActor->SequencePlayer->GetPlaybackPosition();
+	SequenceState.FrameNumber = LevelSequenceActor->SequencePlayer->GetCurrentTime().Time.FrameNumber.Value;
 	SequenceState.PlayRate = LevelSequenceActor->SequencePlayer->GetPlayRate();
 	SequenceState.bIsPlaying = LevelSequenceActor->SequencePlayer->IsPlaying();
 	return SequenceState;
@@ -362,8 +362,8 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 	{
 		if (LevelSequenceActor->GetFName() == SequenceState.ActorName)
 		{
-			const bool bIsAtStart = FMath::IsNearlyZero(SequenceState.Position);
-			const bool bIsAtEnd = FMath::IsNearlyEqual(SequenceState.Position, LevelSequenceActor->SequencePlayer->GetPlaybackEnd());
+			const bool bIsAtStart = SequenceState.FrameNumber == 0;
+			const bool bIsAtEnd = SequenceState.FrameNumber >= LevelSequenceActor->SequencePlayer->GetEndTime().Time.FrameNumber.Value;
 
 			LevelSequenceActor->SequencePlayer->SetPlayRate(SequenceState.PlayRate);
 
@@ -371,7 +371,7 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 			// this can cause frames to get dropped (and events on frame 0 skipped)
 			if (!bIsAtStart)
 			{
-				LevelSequenceActor->SequencePlayer->SetPlaybackPosition(SequenceState.Position);
+				LevelSequenceActor->SequencePlayer->PlayToFrame(FFrameTime(SequenceState.FrameNumber));
 			}
 
 			// Start playing if at end of sequence too, this

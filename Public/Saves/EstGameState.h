@@ -59,7 +59,7 @@ struct FEstSequenceState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Position;
+	int32 FrameNumber;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float PlayRate;

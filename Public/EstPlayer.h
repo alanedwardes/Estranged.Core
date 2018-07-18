@@ -59,7 +59,6 @@ public:
 
 	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 
-	UFUNCTION()
 	virtual bool CanSprint() override;
 
 	/** Player flashlight */
