@@ -143,7 +143,7 @@ void AEstFirearmWeapon::ReloadPressed()
 	if (PrimaryAmmunition->CanReload())
 	{
 		// Issue a reload command, expiring in T + primary attack time
-		ReloadExpireTime = GetWorld()->TimeSeconds + PrimaryAttackLength;
+		ReloadExpireTime = GetWorld()->TimeSeconds + PrimaryAttackLengthPlayer;
 	}
 }
 

@@ -101,9 +101,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fighting")
 	float AimInterpolationSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fighting")
-	bool bIsAiming;
-
 	/** Update speed for held objects */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerInteractionHeldUpdateSpeed;

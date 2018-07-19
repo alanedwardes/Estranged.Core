@@ -46,7 +46,7 @@ public:
 
 	/** Equipping the weapon */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
-	virtual void Equip(class AEstBaseCharacter* OwnerCharacter);
+	virtual void Equip(class AEstBaseCharacter* NewOwnerCharacter);
 	UFUNCTION(BlueprintImplementableEvent, Category = Inventory)
 	void OnEquip();
 	UFUNCTION(BlueprintCallable, Category = Inventory)
@@ -103,7 +103,7 @@ public:
 
 	/** Is the weapon currently engaged in an activity (reload, shoot etc) */
 	UFUNCTION(BlueprintPure, Category = Fighting)
-	virtual bool IsEngagedInActivity() { return GetWorld()->TimeSince(LastActivityFinishTime) < 0; };
+	virtual bool IsEngagedInActivity() { return GetWorld()->TimeSince(LastActivityFinishTime) < 0.f; };
 	/** Set the length of time the weapon will be engaged in an activity for */
 	UFUNCTION(BlueprintCallable, Category = Fighting)
 	virtual void SetEngagedInActivity(float ActivityLength);
@@ -129,11 +129,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	FTransform AimingViewModelOffset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
-	float PrimaryAttackLength;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
+	float PrimaryAttackLengthPlayer;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
-	float SecondaryAttackLength;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
+	float PrimaryAttackLengthAI;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
+	float SecondaryAttackLengthPlayer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
+	float SecondaryAttackLengthAI;
 
 	/** STATE - Should we continue to fire the primary ammunition */
 	UPROPERTY(BlueprintReadOnly, Category = Fighting)
@@ -146,6 +152,10 @@ public:
 	/** STATE - Is the weapon in its holster */
 	UPROPERTY(BlueprintReadOnly, Category = Fighting)
 	bool bIsHolstered;
+
+	/** STATE - Is the weapon equipped by AI or a player */
+	UPROPERTY(BlueprintReadOnly, Category = Fighting)
+	class AEstBaseCharacter* OwnerCharacter;
 
 	/** STATE, INTERNAL - world time in seconds of the end of the last activity */
 	UPROPERTY(BlueprintReadOnly, Category = Fighting)

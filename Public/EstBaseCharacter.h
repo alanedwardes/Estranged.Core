@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Fighting")
 	virtual bool HasWeapon();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fighting")
+	bool bIsAiming;
+
 	/** Damage control */
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 

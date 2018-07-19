@@ -116,7 +116,7 @@ void AEstBaseWeapon::PrimaryAttack()
 	if (WeaponAnimManifest.PrimaryAttack && WeaponMesh->GetAnimInstance())
 	{
 		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponAnimManifest.PrimaryAttack);
-		SetEngagedInActivity(PrimaryAttackLength);
+		SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? PrimaryAttackLengthPlayer : PrimaryAttackLengthAI);
 	}
 
 	OnPrimaryAttack.Broadcast();
@@ -132,15 +132,17 @@ void AEstBaseWeapon::SecondaryAttack()
 	if (WeaponAnimManifest.SecondaryAttack && WeaponMesh->GetAnimInstance())
 	{
 		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponAnimManifest.SecondaryAttack);
-		SetEngagedInActivity(SecondaryAttackLength);
+		SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? SecondaryAttackLengthPlayer : SecondaryAttackLengthAI);
 	}
 
 	OnSecondaryAttack.Broadcast();
 }
 
-void AEstBaseWeapon::Equip(AEstBaseCharacter* OwnerCharacter)
+void AEstBaseWeapon::Equip(AEstBaseCharacter* NewOwnerCharacter)
 {
-	SetOwner(OwnerCharacter);
+	SetOwner(NewOwnerCharacter);
+
+	this->OwnerCharacter = NewOwnerCharacter;
 
 	UpdateWeaponPhysicsState();
 	OnEquip();
@@ -153,6 +155,8 @@ void AEstBaseWeapon::Unequip()
 {
 	const AActor* PreviousOwner = GetOwner();
 	SetOwner(nullptr);
+
+	OwnerCharacter = nullptr;
 
 	bIsPrimaryFirePressed = false;
 	bIsSecondaryFirePressed = false;
