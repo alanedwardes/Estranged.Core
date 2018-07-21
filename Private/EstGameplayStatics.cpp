@@ -45,11 +45,6 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 
 	FName ClosestBoneName = FindClosestBoneName(Component, Position);
 
-	if (ImpactEffect.Decal != nullptr)
-	{
-		UGameplayStatics::SpawnDecalAttached(ImpactEffect.Decal, ImpactEffect.DecalSize, Component, ClosestBoneName, Position, Normal.Rotation(), EAttachLocation::KeepWorldPosition);
-	}
-
 	if (ImpactEffect.Sound != nullptr)
 	{
 		UGameplayStatics::SpawnSoundAttached(ImpactEffect.Sound, Component, ClosestBoneName, Position, EAttachLocation::KeepWorldPosition, false, Scale, 1.f, 0.f, AttenuationOverride);
@@ -58,6 +53,11 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 	if (ImpactEffect.ParticleSystem != nullptr)
 	{
 		UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, ClosestBoneName, Position, ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition);
+	}
+
+	if (ImpactEffect.ParticleSystemDebris != nullptr)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(Component, ImpactEffect.ParticleSystemDebris, Position, ImpactNormal.Rotation());
 	}
 
 	if (EST_IN_VIEWPORT)

@@ -11,9 +11,8 @@ struct ESTCORE_API FEstImpactEffect
 	FEstImpactEffect()
 	{
 		ParticleSystem = nullptr;
-		Decal = nullptr;
+		ParticleSystemDebris = nullptr;
 		Sound = nullptr;
-		DecalSize = FVector(5.f);
 	}
 
 	static const FEstImpactEffect None;
@@ -21,26 +20,16 @@ struct ESTCORE_API FEstImpactEffect
 	FORCEINLINE bool operator==(const FEstImpactEffect& Effect) const
 	{
 		return ParticleSystem == Effect.ParticleSystem &&
-			Decal == Effect.Decal &&
-			Sound == Effect.Sound &&
-			DecalSize == Effect.DecalSize;
+			   ParticleSystemDebris == Effect.ParticleSystemDebris &&
+			   Sound == Effect.Sound;
 	}
 
 	FORCEINLINE bool operator!=(const FEstImpactEffect& Effect) const
 	{
 		return ParticleSystem != Effect.ParticleSystem ||
-			Decal != Effect.Decal ||
-			Sound != Effect.Sound ||
-			DecalSize != Effect.DecalSize;
+			   ParticleSystemDebris != Effect.ParticleSystemDebris ||
+			   Sound != Effect.Sound;
 	}
-
-	/** The decal placed upon impact. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Decal)
-	class UMaterialInterface* Decal;
-
-	/** The placed decal's size. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Decal)
-	FVector DecalSize;
 
 	/** The sound played on impact. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
@@ -49,4 +38,8 @@ struct ESTCORE_API FEstImpactEffect
 	/** The particle system started upon impact. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ParticleSystem)
 	class UParticleSystem* ParticleSystem;
+
+	/** The particle system started upon impact, that isn't attached to the actor. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ParticleSystem)
+	class UParticleSystem* ParticleSystemDebris;
 };
