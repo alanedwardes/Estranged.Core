@@ -23,6 +23,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	virtual void TakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	virtual void TakeRadialDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin, FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	virtual void TakePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Damage")
+	FVector LastDamageLocation;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Damage")
+	FVector LastDamageDirection;
+
 	/** Called when the actor dies. */
 	UPROPERTY(BlueprintAssignable, Category = "Damage")
 	FDeathSignature OnDeath;
