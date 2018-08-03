@@ -3,6 +3,8 @@
 #include "EstSaveRestore.h"
 #include "EstCharacterMovementComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFootstepDelegate);
+
 UCLASS()
 class UEstCharacterMovementComponent : public UCharacterMovementComponent, public IEstSaveRestore
 {
@@ -51,6 +53,9 @@ public:
 
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	bool bFootstepMaterialOverride;
+
+	UPROPERTY(BlueprintAssignable, Category = "Footsteps")
+	FOnFootstepDelegate OnFootstep;
 
 	/** Position of the last footstep sound */
 	UPROPERTY()

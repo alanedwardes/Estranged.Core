@@ -120,6 +120,8 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	const UPhysicalMaterial* PhysicalMaterial = bFootstepMaterialOverride ? FootstepMaterialOverride : OutHit.PhysMaterial.Get();
 	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
 
+	OnFootstep.Broadcast();
+
 	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
 	{
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
