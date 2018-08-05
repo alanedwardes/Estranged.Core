@@ -57,16 +57,31 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = Ammo)
-	bool AddAmmo(int32 Ammo)
+	void AddAmmo(int32 NewAmmo)
 	{
-		if (Ammo == 0)
+		if (AmmoRemaining < AmmoMax)
 		{
-			return false;
+			AmmoRemaining = FMath::Min(AmmoMax, AmmoRemaining + NewAmmo);
+			return;
 		}
 
-		if (AmmoRemaining + Ammo <= AmmoMax)
+		if (ClipRemaining < ClipMax)
 		{
-			AmmoRemaining += Ammo;
+			ClipRemaining = FMath::Min(ClipMax, ClipRemaining + NewAmmo);
+			return;
+		}
+	}
+
+	UFUNCTION(BlueprintPure, Category = Ammo)
+	bool CanAddAmmo()
+	{
+		if (AmmoRemaining < AmmoMax)
+		{
+			return true;
+		}
+
+		if (ClipRemaining < ClipMax)
+		{
 			return true;
 		}
 
