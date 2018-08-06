@@ -394,6 +394,7 @@ struct FEstSaveGameArchive : public FObjectAndNameAsStringProxyArchive
 		: FObjectAndNameAsStringProxyArchive(InInnerArchive, true)
 	{
 		ArIsSaveGame = true;
+		ArNoDelta = true;
 	}
 };
 
