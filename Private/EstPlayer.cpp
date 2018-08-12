@@ -10,6 +10,7 @@
 #include "EstGameInstance.h"
 #include "EstResourceComponent.h"
 #include "EstGameplaySave.h"
+#include "EstNoPickupComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #define DOF_DISTANCE_MAX 10000.f
@@ -859,6 +860,12 @@ bool AEstPlayer::CanPickUpActor(AActor* ActorToHold)
 	if (ActorToHold == nullptr)
 	{
 		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it is null"));
+		return false;
+	}
+
+	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it has a no pickup component"));
 		return false;
 	}
 
