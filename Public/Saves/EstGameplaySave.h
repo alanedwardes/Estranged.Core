@@ -26,7 +26,7 @@ public:
 	virtual float GetFieldOfView() { return FieldOfView; }
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetFieldOfView(float NewFieldOfView) { FieldOfView = FMath::Clamp(NewFieldOfView, 70.f, 110.f); }
+	virtual void SetFieldOfView(float NewFieldOfView) { FieldOfView = FMath::Clamp(NewFieldOfView, 70.f, 120.f); }
 
 	UFUNCTION(BlueprintCallable)
 	virtual float GetGamma() { return Gamma; }
