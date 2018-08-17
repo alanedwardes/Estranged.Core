@@ -46,7 +46,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	// Interaction
 	PlayerInteractionHeldUpdateSpeed = 20.f;
 	PlayerInteractionDistance = 150.f;
-	PlayerInteractionHeldDistance = 125.f;
+	PlayerInteractionHeldDistance = 75.f;
 	PlayerThrowLinearVelocity = 1000.f;
 	PlayerMaximumCarryMass = 100.f;
 	PlayerMaximumCarryRadius = 100.f;
@@ -392,11 +392,10 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 
 	FVector Origin;
 	FVector BoxExtent;
-	HeldActor->GetActorBounds(true, Origin, BoxExtent);
+	HeldActorBounds.GetCenterAndExtents(Origin, BoxExtent);
 
-	const FVector OriginOffset = HeldActor->GetActorLocation() - Origin;
-	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * PlayerInteractionHeldDistance);
-	const FVector DesiredLocation = HeldLocation + OriginOffset;
+	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
+	const FVector DesiredLocation = HeldLocation - Origin;
 
 	//const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
@@ -809,6 +808,7 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	ensure(ActorToHold);
 
 	// Move the actor into the persistent level
+	HeldActorBounds = ActorToHold->CalculateComponentsBoundingBoxInLocalSpace();
 	HeldActor = UEstGameplayStatics::MoveActorToLevel(ActorToHold, GetLevel());
 
 	UPrimitiveComponent* HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());

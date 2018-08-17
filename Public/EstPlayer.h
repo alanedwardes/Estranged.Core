@@ -217,6 +217,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	TWeakObjectPtr<class AActor> HeldActor;
 
+	/** Held actor local bounding box (cached on pickup) */
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	struct FBox HeldActorBounds;
+
 	/** Actor the player is currently using */
 	TWeakObjectPtr<class UObject> UsingObject;
 

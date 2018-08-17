@@ -26,6 +26,8 @@ void UEstGameInstance::Shutdown()
 {
 	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
 
+	MenuSlateWidget = nullptr;
+
 	Super::Shutdown();
 }
 
