@@ -394,12 +394,24 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	FVector BoxExtent;
 	HeldActorBounds.GetCenterAndExtents(Origin, BoxExtent);
 
-	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
-	const FVector DesiredLocation = HeldLocation - Origin;
+	const FVector StartLocation = Camera->GetComponentLocation() - Origin;
 
-	//const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
+	const FVector MinimumLocation = StartLocation + Camera->GetForwardVector() * BoxExtent.GetMax();
+	const FVector DesiredLocation = StartLocation + Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance);
 
-	HeldActor->SetActorLocationAndRotation(DesiredLocation, GetCapsuleComponent()->GetComponentRotation(), true);
+	const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), bHeldActorHitLastTick ? MinimumLocation : DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
+
+	FHitResult MoveHit;
+	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentRotation(), true, &MoveHit, MOVECOMP_NoFlags, ETeleportType::None);
+	if (MoveHit.Component.IsValid())
+	{
+		if (MoveHit.Component->IsSimulatingPhysics())
+		{
+			MoveHit.Component->AddForceAtLocation(MoveHit.Normal * -(100000.f), MoveHit.ImpactPoint);
+		}
+	}
+
+	bHeldActorHitLastTick = MoveHit.Component.IsValid() && !MoveHit.Component->IsSimulatingPhysics() && MoveHit.Actor != this;
 }
 
 void AEstPlayer::UpdateFlashlightTick(float DeltaSeconds)
@@ -811,16 +823,15 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	HeldActorBounds = ActorToHold->CalculateComponentsBoundingBoxInLocalSpace();
 	HeldActor = UEstGameplayStatics::MoveActorToLevel(ActorToHold, GetLevel());
 
-	UPrimitiveComponent* HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
-
-	ensure(HeldPrimitive);
+	HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
 
 	if (HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))
 	{
 		IEstCarryable::Execute_OnPickedUp(HeldActor.Get(), this);
 	}
 
-	HeldPrimitive->SetEnableGravity(false);
+	HeldPrimitive->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	HeldPrimitive->SetSimulatePhysics(false);
 }
 
 void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
@@ -829,11 +840,8 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 
 	GetCapsuleComponent()->IgnoreActorWhenMoving(HeldActor.Get(), false);
 
-	UPrimitiveComponent* HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
-
-	ensure(HeldPrimitive != nullptr);
-
-	HeldPrimitive->SetEnableGravity(true);
+	HeldPrimitive->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HeldPrimitive->SetSimulatePhysics(true);
 	HeldPrimitive->SetPhysicsLinearVelocity(GetRootComponent()->GetComponentVelocity() + LinearVelocity);
 	HeldPrimitive->SetPhysicsAngularVelocityInDegrees(AngularVelocity);
 
@@ -843,6 +851,7 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 	}
 
 	HeldActor.Reset();
+	HeldPrimitive.Reset();
 }
 
 bool AEstPlayer::AddFlashlightPower(float Power)

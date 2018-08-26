@@ -195,7 +195,7 @@ public:
 
 	/** Is holding object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
-	virtual bool IsHoldingActor() { return HeldActor.IsValid(); }
+	virtual bool IsHoldingActor() { return HeldActor.IsValid() && HeldPrimitive.IsValid(); }
 
 	/** Is using object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
@@ -216,6 +216,13 @@ public:
 	/** Held actor */
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	TWeakObjectPtr<class AActor> HeldActor;
+
+	/** Held primitive */
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	TWeakObjectPtr<class UPrimitiveComponent> HeldPrimitive;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	bool bHeldActorHitLastTick;
 
 	/** Held actor local bounding box (cached on pickup) */
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
