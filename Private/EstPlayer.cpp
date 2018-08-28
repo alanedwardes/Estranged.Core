@@ -10,7 +10,6 @@
 #include "EstGameInstance.h"
 #include "EstResourceComponent.h"
 #include "EstGameplaySave.h"
-#include "EstNoPickupComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #define DOF_DISTANCE_MAX 10000.f
@@ -399,7 +398,13 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 
 	//const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
-	HeldActor->SetActorLocationAndRotation(DesiredLocation, GetCapsuleComponent()->GetComponentRotation(), true);
+	FHitResult MoveHit;
+	HeldActor->SetActorLocationAndRotation(DesiredLocation, GetCapsuleComponent()->GetComponentRotation(), true, &MoveHit);
+	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
+	{
+		// Add some force to any objects that were hit by this move action so they repel realistically
+		MoveHit.Component->AddForceAtLocation(MoveHit.Normal * -(100000.f), MoveHit.ImpactPoint);
+	}
 }
 
 void AEstPlayer::UpdateFlashlightTick(float DeltaSeconds)
