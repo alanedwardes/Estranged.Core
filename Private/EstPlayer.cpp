@@ -793,7 +793,8 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 			}
 		}
 
-		if (CanPickUpActor(OutHit.Actor.Get()))
+		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.Actor.Get(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
+		if (bCanHumanPickUp)
 		{
 			PickUpActor(OutHit.Actor.Get());
 			return true;
@@ -853,57 +854,6 @@ bool AEstPlayer::AddFlashlightPower(float Power)
 float AEstPlayer::GetFlashlightPower()
 {
 	return Battery->GetResource();
-}
-
-bool AEstPlayer::CanPickUpActor(AActor* ActorToHold)
-{
-	if (ActorToHold == nullptr)
-	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it is null"));
-		return false;
-	}
-
-	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
-	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it has a no pickup component"));
-		return false;
-	}
-
-	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(ActorToHold->GetRootComponent());
-	if (PrimitiveToHold == nullptr)
-	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as no root primitive"));
-		return false;
-	}
-
-	if (!PrimitiveToHold->IsSimulatingPhysics())
-	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as not simulating physics"));
-		return false;
-	}
-
-	// If we're standing on the object
-	if (PrimitiveToHold == GetMovementBase())
-	{
-		DrawDebugString(GetWorld(), FVector::ZeroVector, TEXT("Being stood on"), ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
-		return false;
-	}
-
-	if (PrimitiveToHold->GetMass() > PlayerMaximumCarryMass)
-	{
-		const FString TooHeavyString = FString::Printf(TEXT("Too heavy (max: %.2fkg, actual: %.2fkg)"), PlayerMaximumCarryMass, PrimitiveToHold->GetMass());
-		DrawDebugString(GetWorld(), FVector::ZeroVector, TooHeavyString, ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
-		return false;
-	}
-
-	if (PrimitiveToHold->Bounds.SphereRadius > PlayerMaximumCarryRadius)
-	{
-		const FString TooBigString = FString::Printf(TEXT("Too big (max: %.2f, actual: %.2f)"), PlayerMaximumCarryRadius, PrimitiveToHold->Bounds.SphereRadius);
-		DrawDebugString(GetWorld(), FVector::ZeroVector, TooBigString, ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
-		return false;
-	}
-
-	return true;
 }
 
 void AEstPlayer::SetupPlayerInputComponent(UInputComponent* InInputComponent)

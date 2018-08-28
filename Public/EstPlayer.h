@@ -209,10 +209,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	virtual float GetFlashlightPower();
 
-	/** Can we pick up this object? */
-	UFUNCTION(BlueprintPure, Category = "Interaction")
-	virtual bool CanPickUpActor(AActor* ActorToHold);
-
 	/** Held actor */
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	TWeakObjectPtr<class AActor> HeldActor;

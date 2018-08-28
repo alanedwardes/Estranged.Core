@@ -8,6 +8,7 @@
 #include "AudioDevice.h"
 #include "EstGameMode.h"
 #include "EstGameInstance.h"
+#include "EstNoPickupComponent.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -481,4 +482,61 @@ AEstGameMode* UEstGameplayStatics::GetEstGameMode(UObject* WorldContextObject)
 UEstGameInstance* UEstGameplayStatics::GetEstGameInstance(UObject* WorldContextObject)
 {
 	return Cast<UEstGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
+}
+
+bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass, float MaxRadius)
+{
+	if (Character == nullptr)
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Picking up character is null"));
+		return false;
+	}
+
+	if (ActorToHold == nullptr)
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it is null"));
+		return false;
+	}
+
+	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it has a no pickup component"));
+		return false;
+	}
+
+	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(ActorToHold->GetRootComponent());
+	if (PrimitiveToHold == nullptr)
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as no root primitive"));
+		return false;
+	}
+
+	if (!PrimitiveToHold->IsSimulatingPhysics())
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as not simulating physics"));
+		return false;
+	}
+
+	// If we're standing on the object
+	if (PrimitiveToHold == Character->GetMovementBase())
+	{
+		DrawDebugString(ActorToHold->GetWorld(), FVector::ZeroVector, TEXT("Being stood on"), ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
+		return false;
+	}
+
+	if (PrimitiveToHold->GetMass() > MaxMass)
+	{
+		const FString TooHeavyString = FString::Printf(TEXT("Too heavy (max: %.2fkg, actual: %.2fkg)"), MaxMass, PrimitiveToHold->GetMass());
+		DrawDebugString(ActorToHold->GetWorld(), FVector::ZeroVector, TooHeavyString, ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
+		return false;
+	}
+
+	if (PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
+	{
+		const FString TooBigString = FString::Printf(TEXT("Too big (max: %.2f, actual: %.2f)"), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
+		DrawDebugString(ActorToHold->GetWorld(), FVector::ZeroVector, TooBigString, ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
+		return false;
+	}
+
+	return true;
 }
