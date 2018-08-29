@@ -213,6 +213,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	TWeakObjectPtr<class AActor> HeldActor;
 
+	/** Held primitive */
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	TWeakObjectPtr<class UPrimitiveComponent> HeldPrimitive;
+
 	/** Held actor local bounding box (cached on pickup) */
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	struct FBox HeldActorBounds;

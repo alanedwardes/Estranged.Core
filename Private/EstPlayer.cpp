@@ -399,12 +399,15 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	//const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
 	FHitResult MoveHit;
-	HeldActor->SetActorLocationAndRotation(DesiredLocation, GetCapsuleComponent()->GetComponentRotation(), true, &MoveHit);
+	HeldPrimitive->MoveComponent(DesiredLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentQuat(), true, &MoveHit);
 	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
 	{
 		// Add some force to any objects that were hit by this move action so they repel realistically
 		MoveHit.Component->AddForceAtLocation(MoveHit.Normal * -(100000.f), MoveHit.ImpactPoint);
 	}
+
+	HeldPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
+	HeldPrimitive->SetAllPhysicsAngularVelocity(FVector::ZeroVector);
 }
 
 void AEstPlayer::UpdateFlashlightTick(float DeltaSeconds)
@@ -817,9 +820,7 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	HeldActorBounds = ActorToHold->CalculateComponentsBoundingBoxInLocalSpace();
 	HeldActor = UEstGameplayStatics::MoveActorToLevel(ActorToHold, GetLevel());
 
-	UPrimitiveComponent* HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
-
-	ensure(HeldPrimitive);
+	HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
 
 	if (HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))
 	{
@@ -835,10 +836,6 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 
 	GetCapsuleComponent()->IgnoreActorWhenMoving(HeldActor.Get(), false);
 
-	UPrimitiveComponent* HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
-
-	ensure(HeldPrimitive != nullptr);
-
 	HeldPrimitive->SetEnableGravity(true);
 	HeldPrimitive->SetPhysicsLinearVelocity(GetRootComponent()->GetComponentVelocity() + LinearVelocity);
 	HeldPrimitive->SetPhysicsAngularVelocityInDegrees(AngularVelocity);
@@ -848,6 +845,7 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 		IEstCarryable::Execute_OnPutDown(HeldActor.Get(), this);
 	}
 
+	HeldPrimitive.Reset();
 	HeldActor.Reset();
 }
 
