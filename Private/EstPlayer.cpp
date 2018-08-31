@@ -398,6 +398,12 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 
 	//const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
+	// NOTE: It is not safe to update the physics properties AFTER the move
+	// because the move could have triggered something which destroys
+	// the held actor or primitive
+	HeldPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
+	HeldPrimitive->SetAllPhysicsAngularVelocity(FVector::ZeroVector);
+
 	FHitResult MoveHit;
 	HeldPrimitive->MoveComponent(DesiredLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentQuat(), true, &MoveHit);
 	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
@@ -405,9 +411,6 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 		// Add some force to any objects that were hit by this move action so they repel realistically
 		MoveHit.Component->AddForceAtLocation(MoveHit.Normal * -(100000.f), MoveHit.ImpactPoint);
 	}
-
-	HeldPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
-	HeldPrimitive->SetAllPhysicsAngularVelocity(FVector::ZeroVector);
 }
 
 void AEstPlayer::UpdateFlashlightTick(float DeltaSeconds)

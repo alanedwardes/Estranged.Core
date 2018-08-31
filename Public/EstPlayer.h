@@ -195,7 +195,7 @@ public:
 
 	/** Is holding object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
-	virtual bool IsHoldingActor() { return HeldActor.IsValid(); }
+	virtual bool IsHoldingActor() { return HeldActor.IsValid() && !HeldActor->IsPendingKillOrUnreachable() && HeldPrimitive.IsValid() && !HeldPrimitive->IsPendingKillOrUnreachable(); }
 
 	/** Is using object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
