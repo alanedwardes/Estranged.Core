@@ -43,7 +43,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	ZoomFieldOfView = 40.f;
 
 	// Interaction
-	PlayerInteractionHeldUpdateSpeed = 20.f;
+	PlayerInteractionHeldUpdateSpeed = 50.f;
 	PlayerInteractionDistance = 150.f;
 	PlayerInteractionHeldDistance = 75.f;
 	PlayerThrowLinearVelocity = 1000.f;
@@ -396,16 +396,16 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
 	const FVector DesiredLocation = HeldLocation - Origin;
 
-	//const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
-
 	// NOTE: It is not safe to update the physics properties AFTER the move
 	// because the move could have triggered something which destroys
 	// the held actor or primitive
 	HeldPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
-	HeldPrimitive->SetAllPhysicsAngularVelocity(FVector::ZeroVector);
+	HeldPrimitive->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+
+	const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
 	FHitResult MoveHit;
-	HeldPrimitive->MoveComponent(DesiredLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentQuat(), true, &MoveHit);
+	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentQuat(), true, &MoveHit);
 	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
 	{
 		// Add some force to any objects that were hit by this move action so they repel realistically
