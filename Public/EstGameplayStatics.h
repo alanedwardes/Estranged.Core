@@ -16,14 +16,14 @@ public:
 
 	/** Deploy impact effects at a specified location. */
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
-	static void DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class UPrimitiveComponent* Component, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
+	static void DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
 
 	/** Find physical impact effects based on a material with an optional default. */
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static struct FEstImpactEffect FindImpactEffect(const class UEstImpactManifest* ImpactEffects, const class UPhysicalMaterial* PhysicalMaterial);
 
 	UFUNCTION(BlueprintPure, Category = Projectiles)
-	static FName FindClosestBoneName(UPrimitiveComponent * Component, FVector Location);
+	static FName FindClosestBoneName(USceneComponent * Component, FVector Location);
 
 	/** Pause or unpause all local player controllers. */
 	UFUNCTION(BlueprintCallable, Category = Game)

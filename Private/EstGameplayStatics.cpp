@@ -26,7 +26,7 @@ struct FEstImpactEffect UEstGameplayStatics::FindImpactEffect(const UEstImpactMa
 	return FEstImpactEffect::None;
 }
 
-FName UEstGameplayStatics::FindClosestBoneName(UPrimitiveComponent* Component, FVector Location)
+FName UEstGameplayStatics::FindClosestBoneName(USceneComponent* Component, FVector Location)
 {
 	const USkinnedMeshComponent *SkinnedMesh = Cast<class USkinnedMeshComponent>(Component);
 	if (SkinnedMesh != nullptr)
@@ -37,7 +37,7 @@ FName UEstGameplayStatics::FindClosestBoneName(UPrimitiveComponent* Component, F
 	return NAME_None;
 }
 
-void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, UPrimitiveComponent* Component, const float Scale, USoundAttenuation* AttenuationOverride)
+void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, USceneComponent* Component, const float Scale, USoundAttenuation* AttenuationOverride)
 {
 	check(Component != nullptr);
 
@@ -46,19 +46,21 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 
 	FName ClosestBoneName = FindClosestBoneName(Component, Position);
 
+	const EAttachLocation::Type AttachLocation = EAttachLocation::KeepWorldPosition;
+
 	if (ImpactEffect.Sound != nullptr)
 	{
-		UGameplayStatics::SpawnSoundAttached(ImpactEffect.Sound, Component, ClosestBoneName, Position, EAttachLocation::KeepWorldPosition, false, Scale, 1.f, 0.f, AttenuationOverride);
+		UGameplayStatics::SpawnSoundAttached(ImpactEffect.Sound, Component, ClosestBoneName, Position, AttachLocation, false, Scale, 1.f, 0.f, AttenuationOverride);
 	}
 
 	if (ImpactEffect.ParticleSystem != nullptr)
 	{
-		UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, ClosestBoneName, Position, ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition);
+		UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, ClosestBoneName, Position, ImpactNormal.Rotation(), FVector(Scale), AttachLocation);
 	}
 
 	if (ImpactEffect.ParticleSystemDebris != nullptr)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(Component, ImpactEffect.ParticleSystemDebris, Position, ImpactNormal.Rotation());
+		UGameplayStatics::SpawnEmitterAtLocation(Component, ImpactEffect.ParticleSystemDebris, Position, ImpactNormal.Rotation(), FVector(Scale));
 	}
 
 	if (EST_IN_VIEWPORT)
