@@ -192,6 +192,12 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 		else
 		{
 			AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(StreamingLevel->GetLoadedLevel(), MovedActorState.ActorName, MovedActorState.ActorClass);
+			if (FoundActor == nullptr)
+			{
+				// Crash fix - identified from memory dumps
+				continue;
+			}
+
 			RestoreActor(FoundActor, MovedActorState);
 			// Restore all components
 			for (FEstComponentState ComponentState : MovedActorState.ComponentStates)
