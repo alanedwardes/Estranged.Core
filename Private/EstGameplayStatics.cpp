@@ -542,3 +542,64 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 
 	return true;
 }
+
+void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation)
+{
+	FCollisionQueryParams QueryParams;
+	QueryParams.bTraceComplex = true;
+	QueryParams.bReturnPhysicalMaterial = true;
+
+	const AActor* Weapon = SourceComponent->GetOwner();
+	if (Weapon != nullptr)
+	{
+		QueryParams.AddIgnoredActor(Weapon);
+		const AActor* Owner = Weapon->GetOwner();
+		if (Owner != nullptr)
+		{
+			QueryParams.AddIgnoredActor(Owner);
+		}
+	}
+
+	AdjustedRotation = RandomProjectileSpread(ExitRotation, MaxSpread);
+
+	FVector TraceStart = ExitLocation;
+	const FVector TraceEnd = ExitLocation + (AdjustedRotation.Vector() * 100000.0);
+
+	TArray<EPhysicalSurface> PassThroughSurfaces;
+	PassThroughSurfaces.Add(SURFACE_TYPE_FOLIAGE);
+	PassThroughSurfaces.Add(SURFACE_TYPE_METAL_MESH);
+	PassThroughSurfaces.Add(SURFACE_TYPE_WATER);
+	PassThroughSurfaces.Add(SURFACE_TYPE_FLESH);
+
+	FHitResult HitResult;
+	int32 NumIterations = 0;
+	do
+	{
+		if (!SourceComponent->GetWorld()->LineTraceSingleByProfile(HitResult, TraceStart, TraceEnd, PROFILE_BULLET, QueryParams))
+		{
+			// Only continue if blocking hit
+			return;
+		}
+		
+		// Execute delegate with hit
+		OnBulletHit.Execute(HitResult);
+
+		// Only continue if we got a physical material
+		if (!HitResult.PhysMaterial.IsValid())
+		{
+			return;
+		}
+
+		// Get the surface type from this physical material
+		const EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+		if (!PassThroughSurfaces.Contains(PhysicalSurface))
+		{
+			// Only continue if we can pass through this surface
+			return;
+		}
+
+		// Set up trace for next iteration
+		TraceStart = HitResult.Location;
+		QueryParams.AddIgnoredActor(HitResult.GetActor());
+	} while (NumIterations++ < 4); // Go through at most 4 surfaces
+}

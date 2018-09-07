@@ -14,9 +14,12 @@
 #define CHANNEL_PLAYER_WATER_CHECK ECollisionChannel::ECC_GameTraceChannel9
 #define PROFILE_TRIGGER "Trigger"
 #define PROFILE_PLAYER "Player"
+#define PROFILE_BULLET "Bullet"
 
 #define SURFACE_TYPE_GLASS EPhysicalSurface::SurfaceType1
 #define SURFACE_TYPE_FOLIAGE EPhysicalSurface::SurfaceType2
 #define SURFACE_TYPE_METAL_MESH EPhysicalSurface::SurfaceType3
+#define SURFACE_TYPE_WATER EPhysicalSurface::SurfaceType4
+#define SURFACE_TYPE_FLESH EPhysicalSurface::SurfaceType5
 
 #define WEAPON_SOCKET "WeaponSocket"

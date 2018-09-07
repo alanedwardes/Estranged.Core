@@ -4,6 +4,8 @@
 #include "EstSave.h"
 #include "EstGameplayStatics.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, FHitResult, HitResult);
+
 UCLASS()
 class ESTCORE_API UEstGameplayStatics : public UBlueprintFunctionLibrary
 {
@@ -105,4 +107,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static bool CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass = 100.f, float MaxRadius = 100.f);
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static void TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation);
 };
