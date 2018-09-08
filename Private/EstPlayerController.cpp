@@ -2,6 +2,13 @@
 #include "EstSaveStatics.h"
 #include "EstGameInstance.h"
 #include "EstPlayerController.h"
+#include "EstPlayerCameraManager.h"
+
+AEstPlayerController::AEstPlayerController(const class FObjectInitializer& PCIP)
+	: Super(PCIP)
+{
+	PlayerCameraManagerClass = AEstPlayerCameraManager::StaticClass();
+}
 
 bool AEstPlayerController::InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad)
 {
