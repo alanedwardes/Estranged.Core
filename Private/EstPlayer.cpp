@@ -375,6 +375,14 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 		}
 	}
 
+	// Drop if the camera is no longer centered around the player
+	if (!IsViewTarget())
+	{
+		DropHeldActor();
+		return;
+	}
+
+	// Drop if the object is too far away
 	const float HeldObjectDistance = GetDistanceTo(HeldActor.Get());
 	if (HeldObjectDistance > 200.f)
 	{
@@ -382,6 +390,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 		return;
 	}
 
+	// Drop if standing on object
 	const AActor* MovementBase = GetMovementBaseActor(this);
 	if (MovementBase != nullptr && HeldActor == MovementBase)
 	{
@@ -805,7 +814,7 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 		}
 
 		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.Actor.Get(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
-		if (bCanHumanPickUp)
+		if (bCanHumanPickUp && IsViewTarget())
 		{
 			PickUpActor(OutHit.Actor.Get());
 			return true;
