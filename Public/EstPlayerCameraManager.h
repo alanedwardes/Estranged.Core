@@ -20,4 +20,5 @@ public:
 
 private:
 	virtual void SetPlayerHidden(bool bIsHidden);
+	virtual void SetViewportHidden(bool bIsHidden);
 };

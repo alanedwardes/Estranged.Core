@@ -10,6 +10,7 @@ void AEstPlayerCameraManager::OnPhotographySessionStart_Implementation()
 	Super::OnPhotographySessionStart_Implementation();
 
 	SetPlayerHidden(true);
+	SetViewportHidden(true);
 }
 
 void AEstPlayerCameraManager::OnPhotographySessionEnd_Implementation()
@@ -17,6 +18,7 @@ void AEstPlayerCameraManager::OnPhotographySessionEnd_Implementation()
 	Super::OnPhotographySessionStart_Implementation();
 
 	SetPlayerHidden(false);
+	SetViewportHidden(false);
 }
 
 void AEstPlayerCameraManager::SetPlayerHidden(bool bIsHidden)
@@ -43,5 +45,17 @@ void AEstPlayerCameraManager::SetPlayerHidden(bool bIsHidden)
 	if (Player->IsHoldingActor())
 	{
 		Player->HeldActor->SetActorHiddenInGame(bIsHidden);
+	}
+}
+
+void AEstPlayerCameraManager::SetViewportHidden(bool bIsHidden)
+{
+	const EVisibility NewVisibility = bIsHidden ? EVisibility::Hidden : EVisibility::Visible;
+
+	FChildren* ViewportChildren = GEngine->GetGameViewportWidget()->GetChildren();
+	for (int32 i = 0; i < ViewportChildren->Num(); i++)
+	{
+		TSharedRef<SWidget> ViewportChild = ViewportChildren->GetChildAt(i);
+		ViewportChild->SetVisibility(NewVisibility);
 	}
 }

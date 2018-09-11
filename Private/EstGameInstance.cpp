@@ -47,6 +47,13 @@ void UEstGameInstance::SetMenuVisibility(bool bNewIsMenuVisible)
 	if (bNewIsMenuVisible)
 	{
 		GetWorld()->GetGameViewport()->AddViewportWidgetContent(MenuSlateWidget.ToSharedRef());
+
+		// Forcefully enable the mouse cursor at the platform level. This works around a bug in the Ansel plugin
+		TSharedPtr<GenericApplication> PlatformApplication = FSlateApplicationBase::Get().GetPlatformApplication();
+		if (PlatformApplication.IsValid() && PlatformApplication->Cursor.IsValid())
+		{
+			PlatformApplication->Cursor->Show(true);
+		}
 	}
 	else if (!bIsMenuVisibleForever)
 	{

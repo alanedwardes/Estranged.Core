@@ -14,6 +14,7 @@ public class EstCore : ModuleRules
                 "Engine",
                 "UMG",
                 "Slate",
+                "SlateCore",
                 "AIModule"
         });
     }
