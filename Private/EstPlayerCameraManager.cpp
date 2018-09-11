@@ -11,6 +11,8 @@ void AEstPlayerCameraManager::OnPhotographySessionStart_Implementation()
 
 	SetPlayerHidden(true);
 	SetViewportHidden(true);
+
+	UEstGameplayStatics::SetTransientMasterVolume(this, 0.f);
 }
 
 void AEstPlayerCameraManager::OnPhotographySessionEnd_Implementation()
@@ -19,6 +21,8 @@ void AEstPlayerCameraManager::OnPhotographySessionEnd_Implementation()
 
 	SetPlayerHidden(false);
 	SetViewportHidden(false);
+
+	UEstGameplayStatics::SetTransientMasterVolume(this, 1.f);
 }
 
 void AEstPlayerCameraManager::SetPlayerHidden(bool bIsHidden)
