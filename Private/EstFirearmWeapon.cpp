@@ -10,8 +10,8 @@ AEstFirearmWeapon::AEstFirearmWeapon(const class FObjectInitializer& PCIP)
 	SecondaryAmmunition = PCIP.CreateDefaultSubobject<UEstFirearmAmunition>(this, TEXT("SecondaryAmmunition"));
 	MuzzleFlash = PCIP.CreateDefaultSubobject<USpotLightComponent>(this, TEXT("MuzzleFlash"));
 	MuzzleFlash->SetLightColor(FLinearColor(1.f, .5f, 0.f));
-	MuzzleFlash->SetIntensity(4.f);
-	MuzzleFlash->SetAttenuationRadius(3096.f);
+	MuzzleFlash->SetIntensity(1.f);
+	MuzzleFlash->SetAttenuationRadius(2048.f);
 	MuzzleFlash->SetCastShadows(false);
 	MuzzleFlash->SetVisibility(false);
 	MuzzleFlash->SetInnerConeAngle(0.f);
@@ -132,7 +132,7 @@ void AEstFirearmWeapon::Tick(float DeltaTime)
 		Reload();
 	}
 
-	if (MuzzleFlash->IsVisible() && GetWorld()->TimeSince(PrimaryFireTime) > .05f)
+	if (MuzzleFlash->IsVisible() && GetWorld()->TimeSince(PrimaryFireTime) > .04f)
 	{
 		MuzzleFlash->SetVisibility(false);
 	}
