@@ -517,19 +517,11 @@ void AEstPlayer::InFrontCheckSubTick()
 
 	if (GetWorld()->OverlapBlockingTestByChannel(TestLocation, Transform.Rotator().Quaternion(), CHANNEL_PLAYER_IN_FRONT, FCollisionShape::MakeBox(WeaponBox), Params))
 	{
-		if (EST_IN_VIEWPORT)
-		{
-			DrawDebugBox(GetWorld(), TestLocation, WeaponBox, FColor::Red, false, .25f);
-		}
 		SomethingInFront = true;
 	}
 	else
 	{
 		SomethingInFront = false;
-		if (EST_IN_VIEWPORT)
-		{
-			DrawDebugBox(GetWorld(), TestLocation, WeaponBox, FColor::Green, false, .25f);
-		}
 	}
 }
 
@@ -590,11 +582,6 @@ void AEstPlayer::BlurFocusCheckSubTick()
 
 	FocalHit = Hit;
 	FocalDistance = FVector::Distance(GetActorLocation(), FocalHit.Location);
-
-	if (EST_IN_VIEWPORT)
-	{
-		DrawDebugPoint(GetWorld(), FocalHit.Location, 10.f, FColor::Green, false, .5f);
-	}
 }
 
 void AEstPlayer::UpdateZoomTick(float DeltaSeconds)
@@ -785,11 +772,6 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 
 	if (OutHit.GetActor() && OutHit.IsValidBlockingHit())
 	{
-		if (EST_IN_VIEWPORT)
-		{
-			DrawDebugSphere(GetWorld(), OutHit.Location, TraceSphereRadius, 8, FColor::Green, false, 1.f);
-		}
-
 		if (OutHit.GetActor()->GetClass()->ImplementsInterface(UEstInteractive::StaticClass()))
 		{
 			UsingObject = OutHit.GetActor();

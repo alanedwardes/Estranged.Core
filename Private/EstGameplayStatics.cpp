@@ -62,12 +62,18 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(Component, ImpactEffect.ParticleSystemDebris, Position, ImpactNormal.Rotation(), FVector(Scale));
 	}
+}
 
-	if (EST_IN_VIEWPORT)
+void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale, class USoundAttenuation* AttenuationOverride)
+{
+	FTimerDelegate TimerCallback;
+	TimerCallback.BindLambda([ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride]
 	{
-		// Visualise impact point
-		DrawDebugPoint(Component->GetWorld(), Position, 10.f, FColor::Red, false, DEBUG_PERSIST_TIME);
-	}
+		DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride);
+	});
+
+	FTimerHandle Handle;
+	Component->GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, Delay, false);
 }
 
 void UEstGameplayStatics::SetPause(bool bIsPaused)

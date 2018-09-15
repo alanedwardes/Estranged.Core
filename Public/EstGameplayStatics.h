@@ -20,6 +20,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
 	static void DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
 
+	/** Deploy impact effects at a specified location with a delay. */
+	UFUNCTION(BlueprintCallable, Category = Projectiles)
+	static void DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
+
 	/** Find physical impact effects based on a material with an optional default. */
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static struct FEstImpactEffect FindImpactEffect(const class UEstImpactManifest* ImpactEffects, const class UPhysicalMaterial* PhysicalMaterial);
