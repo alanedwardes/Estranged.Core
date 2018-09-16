@@ -2,10 +2,8 @@
 
 #include "EstInteractive.generated.h"
 
-/** Interface needed to cast both native classes and blueprints to the IUseable interface */
-UINTERFACE(MinimalAPI)
-
-class UEstInteractive : public UInterface
+UINTERFACE()
+class ESTCORE_API UEstInteractive : public UInterface
 {
 	GENERATED_BODY()
 };

@@ -2,10 +2,8 @@
 
 #include "EstCarryable.generated.h"
 
-/** Interface needed to cast both native classes and blueprints to the IEstCarryable interface */
-UINTERFACE(MinimalAPI)
-
-class UEstCarryable : public UInterface
+UINTERFACE()
+class ESTCORE_API UEstCarryable : public UInterface
 {
 	GENERATED_BODY()
 };
