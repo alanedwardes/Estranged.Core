@@ -46,6 +46,9 @@ public:
 	bool bIsSprinting;
 
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
+	TArray<class USoundBase*> ClothesSounds;
+
+	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	class UEstImpactManifest *FootstepManifest;
 
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
