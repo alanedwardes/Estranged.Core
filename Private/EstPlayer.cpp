@@ -980,7 +980,7 @@ void AEstPlayer::FellOutOfWorld(const class UDamageType& dmgType)
 
 bool AEstPlayer::CanSprint()
 {
-	return Super::CanSprint() && !Stamina->IsDepleted();
+	return Super::CanSprint() && !Stamina->IsDepleted() && !bIsAiming;
 }
 
 void AEstPlayer::EquipWeapon_Implementation(AEstBaseWeapon* Weapon)
