@@ -355,10 +355,7 @@ void UEstSaveStatics::RestoreActor(AActor* Actor, const FEstActorState &ActorSta
 	IEstSaveRestore::Execute_OnPreRestore(Actor);
 
 	Actor->Tags = ActorState.ActorTags;
-	if (!Actor->GetAttachParentActor())
-	{
-		Actor->SetActorTransform(ActorState.ActorTransform);
-	}
+	Actor->SetActorTransform(ActorState.ActorTransform);
 	RestoreLowLevel(Actor, ActorState.ActorData);
 }
 
