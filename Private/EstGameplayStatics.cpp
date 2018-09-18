@@ -2,6 +2,7 @@
 #include "EstGameplayStatics.h"
 #include "EstImpactEffect.h"
 #include "EstImpactManifest.h"
+#include "EstPlayer.h"
 #include "EstPlayerController.h"
 #include "Internationalization/Internationalization.h"
 #include "GenericPlatform/GenericPlatformCrashContext.h"
@@ -611,4 +612,9 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 		TraceStart = HitResult.Location;
 		QueryParams.AddIgnoredActor(HitResult.GetActor());
 	} while (NumIterations++ < 4); // Go through at most 4 surfaces
+}
+
+AEstPlayer* UEstGameplayStatics::GetEstPlayerPawn(const UObject* WorldContextObject, int32 PlayerIndex)
+{
+	return Cast<AEstPlayer>(UGameplayStatics::GetPlayerPawn(WorldContextObject, PlayerIndex));
 }
