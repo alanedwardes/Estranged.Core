@@ -39,7 +39,10 @@ FName UEstGameplayStatics::FindClosestBoneName(USceneComponent* Component, FVect
 
 void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, USceneComponent* Component, const float Scale, USoundAttenuation* AttenuationOverride)
 {
-	check(Component != nullptr);
+	if (Component == nullptr)
+	{
+		return;
+	}
 
 	const FVector Position = ImpactPoint;
 	const FVector Normal = -ImpactNormal;
