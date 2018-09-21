@@ -273,6 +273,9 @@ public:
 	/** Toggle menu */
 	virtual void ShowMenu();
 
+	/** Toggle menu */
+	virtual void ShowConsole();
+
 	/** Zoom out */
 	virtual void SetZooming(bool Zooming);
 

@@ -2,13 +2,14 @@
 
 #include "EstCore.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
+#include "EstMenuWidget.h"
 #include "EstGameInstance.h"
 
 void UEstGameInstance::Init()
 {
 	if (!IsDedicatedServerInstance())
 	{
-		UUserWidget* MenuUserWidget = CreateWidget<UUserWidget>(this, MenuWidgetType);
+		MenuUserWidget = CreateWidget<UEstMenuWidget>(this, MenuWidgetType);
 		MenuSlateWidget = MenuUserWidget->TakeWidget();
 	}
 
@@ -19,7 +20,7 @@ void UEstGameInstance::Init()
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
 {
-	SetMenuVisibleForever(false);
+	SetMenuVisibility(FEstMenuVisibilityContext(false, true));
 }
 
 void UEstGameInstance::Shutdown()
@@ -31,22 +32,18 @@ void UEstGameInstance::Shutdown()
 	Super::Shutdown();
 }
 
-void UEstGameInstance::SetMenuVisibleForever(bool bNewIsMenuVisibleForever)
-{
-	bIsMenuVisibleForever = bNewIsMenuVisibleForever;
-	SetMenuVisibility(bNewIsMenuVisibleForever);
-}
-
-void UEstGameInstance::SetMenuVisibility(bool bNewIsMenuVisible)
+void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityContext)
 {
 	if (!MenuSlateWidget.IsValid())
 	{
 		return;
 	}
 
-	if (bNewIsMenuVisible)
+	VisibilityContext = InVisibilityContext;
+	if (VisibilityContext.bIsMenuVisible)
 	{
-		GetWorld()->GetGameViewport()->AddViewportWidgetContent(MenuSlateWidget.ToSharedRef());
+		MenuUserWidget->AddToViewport();
+		MenuUserWidget->OnShowMenu(InVisibilityContext.RedirectToMenu);
 
 		// Forcefully enable the mouse cursor at the platform level. This works around a bug in the Ansel plugin
 		TSharedPtr<GenericApplication> PlatformApplication = FSlateApplicationBase::Get().GetPlatformApplication();
@@ -55,8 +52,8 @@ void UEstGameInstance::SetMenuVisibility(bool bNewIsMenuVisible)
 			PlatformApplication->Cursor->Show(true);
 		}
 	}
-	else if (!bIsMenuVisibleForever)
+	else if (!VisibilityContext.bIsMenuVisibleForever)
 	{
-		GetWorld()->GetGameViewport()->RemoveViewportWidgetContent(MenuSlateWidget.ToSharedRef());
+		MenuUserWidget->RemoveFromViewport();
 	}
 }

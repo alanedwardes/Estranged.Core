@@ -671,7 +671,15 @@ void AEstPlayer::ShowMenu()
 {
 	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(Controller);
 	EstPlayerController->SetPause(true);
-	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(true);
+	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true));
+	EstPlayerController->SetMenuFocusState(true);
+}
+
+void AEstPlayer::ShowConsole()
+{
+	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(Controller);
+	EstPlayerController->SetPause(true);
+	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true, FName("Console")));
 	EstPlayerController->SetMenuFocusState(true);
 }
 
@@ -864,6 +872,7 @@ void AEstPlayer::SetupPlayerInputComponent(UInputComponent* InInputComponent)
 	InInputComponent->BindAxis("Zoom", this, &AEstPlayer::ToggleZoomInput);
 
 	InInputComponent->BindAction("Menu", IE_Released, this, &AEstPlayer::ShowMenu);
+	InInputComponent->BindAction("Console", IE_Released, this, &AEstPlayer::ShowConsole);
 	InInputComponent->BindAction("Interact", IE_Pressed, this, &AEstPlayer::InteractPressedInput);
 	InInputComponent->BindAction("Interact", IE_Released, this, &AEstPlayer::InteractReleasedInput);
 	InInputComponent->BindAction("Flashlight", IE_Pressed, this, &AEstPlayer::ToggleFlashlight);
