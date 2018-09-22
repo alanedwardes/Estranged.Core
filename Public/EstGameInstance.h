@@ -12,23 +12,30 @@ struct FEstMenuVisibilityContext
 	GENERATED_BODY()
 
 	FEstMenuVisibilityContext()
-		: bIsMenuVisible(false), RedirectToMenu(NAME_None), bIsMenuVisibleForever(false)
+		: FEstMenuVisibilityContext(false)
 	{
 	}
 
 	FEstMenuVisibilityContext(bool bInIsMenuVisible)
-		: bIsMenuVisible(bInIsMenuVisible), RedirectToMenu(NAME_None), bIsMenuVisibleForever(false)
+		: FEstMenuVisibilityContext(bInIsMenuVisible, NAME_None)
 	{
 	}
 
 	FEstMenuVisibilityContext(bool bInIsMenuVisible, FName InRedirectToMenu)
-		: bIsMenuVisible(bInIsMenuVisible), RedirectToMenu(InRedirectToMenu), bIsMenuVisibleForever(false)
+		: FEstMenuVisibilityContext(bInIsMenuVisible, false, InRedirectToMenu)
 	{
 	}
 
 	FEstMenuVisibilityContext(bool bInIsMenuVisible, bool bInIsMenuVisibleForever)
-		: bIsMenuVisible(bInIsMenuVisible), RedirectToMenu(NAME_None), bIsMenuVisibleForever(bInIsMenuVisibleForever)
+		: FEstMenuVisibilityContext(bInIsMenuVisible, bInIsMenuVisibleForever, NAME_None)
 	{
+	}
+
+	FEstMenuVisibilityContext(bool bInIsMenuVisible, bool bInIsMenuVisibleForever, FName InRedirectToMenu)
+	{
+		bIsMenuVisible = bInIsMenuVisible;
+		bIsMenuVisibleForever = bInIsMenuVisibleForever;
+		RedirectToMenu = InRedirectToMenu;
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
