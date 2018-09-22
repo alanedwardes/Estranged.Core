@@ -43,7 +43,7 @@ void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityC
 	if (VisibilityContext.bIsMenuVisible)
 	{
 		MenuUserWidget->AddToViewport();
-		MenuUserWidget->OnShowMenu(InVisibilityContext.RedirectToMenu);
+		MenuUserWidget->OnShowMenu(InVisibilityContext.MenuSection);
 
 		// Forcefully enable the mouse cursor at the platform level. This works around a bug in the Ansel plugin
 		TSharedPtr<GenericApplication> PlatformApplication = FSlateApplicationBase::Get().GetPlatformApplication();

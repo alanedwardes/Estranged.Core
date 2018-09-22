@@ -270,11 +270,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Camera")
 	virtual bool IsViewTarget();
 
-	/** Toggle menu */
-	virtual void ShowMenu();
+	/** Show menu */
+	virtual void ShowMainMenu() { ShowMenuSection(NAME_None); };
 
-	/** Toggle menu */
-	virtual void ShowConsole();
+	/** Show menu section */
+	virtual void ShowMenuSection(FName MenuSection);
+
+	/** Show console menu */
+	virtual void ShowConsoleMenu() { ShowMenuSection("Console"); }
+
+	/** Show console menu */
+	virtual void ShowLoadGameMenu() { ShowMenuSection("LoadGame"); }
 
 	/** Zoom out */
 	virtual void SetZooming(bool Zooming);

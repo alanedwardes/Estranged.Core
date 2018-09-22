@@ -31,11 +31,11 @@ struct FEstMenuVisibilityContext
 	{
 	}
 
-	FEstMenuVisibilityContext(bool bInIsMenuVisible, bool bInIsMenuVisibleForever, FName InRedirectToMenu)
+	FEstMenuVisibilityContext(bool bInIsMenuVisible, bool bInIsMenuVisibleForever, FName InMenuSection)
 	{
 		bIsMenuVisible = bInIsMenuVisible;
 		bIsMenuVisibleForever = bInIsMenuVisibleForever;
-		RedirectToMenu = InRedirectToMenu;
+		MenuSection = InMenuSection;
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -45,7 +45,7 @@ struct FEstMenuVisibilityContext
 	bool bIsMenuVisible;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName RedirectToMenu;
+	FName MenuSection;
 };
 
 UCLASS()

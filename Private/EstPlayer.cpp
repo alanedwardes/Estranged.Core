@@ -667,19 +667,11 @@ bool AEstPlayer::IsViewTarget()
 	return PlayerCameraManager->ViewTarget.Target == this;
 }
 
-void AEstPlayer::ShowMenu()
+void AEstPlayer::ShowMenuSection(FName MenuSection)
 {
 	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(Controller);
 	EstPlayerController->SetPause(true);
-	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true));
-	EstPlayerController->SetMenuFocusState(true);
-}
-
-void AEstPlayer::ShowConsole()
-{
-	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(Controller);
-	EstPlayerController->SetPause(true);
-	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true, FName("Console")));
+	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true, MenuSection));
 	EstPlayerController->SetMenuFocusState(true);
 }
 
@@ -871,8 +863,8 @@ void AEstPlayer::SetupPlayerInputComponent(UInputComponent* InInputComponent)
 	InInputComponent->BindAxis("LookUp", this, &AEstPlayer::LookUpInput);
 	InInputComponent->BindAxis("Zoom", this, &AEstPlayer::ToggleZoomInput);
 
-	InInputComponent->BindAction("Menu", IE_Released, this, &AEstPlayer::ShowMenu);
-	InInputComponent->BindAction("Console", IE_Released, this, &AEstPlayer::ShowConsole);
+	InInputComponent->BindAction("Menu", IE_Released, this, &AEstPlayer::ShowMainMenu);
+	InInputComponent->BindAction("Console", IE_Released, this, &AEstPlayer::ShowConsoleMenu);
 	InInputComponent->BindAction("Interact", IE_Pressed, this, &AEstPlayer::InteractPressedInput);
 	InInputComponent->BindAction("Interact", IE_Released, this, &AEstPlayer::InteractReleasedInput);
 	InInputComponent->BindAction("Flashlight", IE_Pressed, this, &AEstPlayer::ToggleFlashlight);
@@ -982,7 +974,7 @@ void AEstPlayer::JumpReleasedInput()
 
 void AEstPlayer::FellOutOfWorld(const class UDamageType& dmgType)
 {
-	ShowMenu();
+	ShowLoadGameMenu();
 
 	Super::FellOutOfWorld(dmgType);
 }
@@ -1104,6 +1096,17 @@ void AEstPlayer::NotifyActorOnInputTouchEnd(const ETouchIndex::Type FingerIndex)
 
 void AEstPlayer::PrimaryAttackPressedInput()
 {
+	if (HealthComponent->IsDepleted())
+	{
+		ShowLoadGameMenu();
+		return;
+	}
+
+	if (!IsViewTarget())
+	{
+		return;
+	}
+
 	// If the held actor is ICarryable, forward the event
 	if (IsHoldingActor() && HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))
 	{
@@ -1149,6 +1152,17 @@ void AEstPlayer::PrimaryAttackReleasedInput()
 
 void AEstPlayer::SecondaryAttackPressedInput()
 {
+	if (HealthComponent->IsDepleted())
+	{
+		ShowLoadGameMenu();
+		return;
+	}
+
+	if (!IsViewTarget())
+	{
+		return;
+	}
+
 	if (IsHoldingActor())
 	{
 		DropHeldActor();
