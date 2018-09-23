@@ -5,6 +5,5 @@
 
 TOptional<bool> UEstGameViewportClient::QueryShowFocus(const EFocusCause InFocusCause) const
 {
-	return Super::QueryShowFocus(InFocusCause);
-	//return FParse::Param(FCommandLine::Get(), TEXT("showfocus")) || EST_IN_VIEWPORT;
+	return FParse::Param(FCommandLine::Get(), TEXT("showfocus")) || EST_IN_VIEWPORT;
 }
