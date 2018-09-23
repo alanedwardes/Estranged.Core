@@ -29,7 +29,7 @@ struct FEstImpactEffect UEstGameplayStatics::FindImpactEffect(const UEstImpactMa
 
 FName UEstGameplayStatics::FindClosestBoneName(USceneComponent* Component, FVector Location)
 {
-	const USkinnedMeshComponent *SkinnedMesh = Cast<class USkinnedMeshComponent>(Component);
+	const USkinnedMeshComponent *SkinnedMesh = Cast<USkinnedMeshComponent>(Component);
 	if (SkinnedMesh != nullptr)
 	{
 		return SkinnedMesh->FindClosestBone(Location);
@@ -40,10 +40,7 @@ FName UEstGameplayStatics::FindClosestBoneName(USceneComponent* Component, FVect
 
 void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, USceneComponent* Component, const float Scale, USoundAttenuation* AttenuationOverride)
 {
-	if (Component == nullptr)
-	{
-		return;
-	}
+	ensureAlways(TEXT("Error: DeployImpactEffect called with null Component parameter"));
 
 	const FVector Position = ImpactPoint;
 	const FVector Normal = -ImpactNormal;
@@ -68,12 +65,20 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 	}
 }
 
+void UEstGameplayStatics::DeployImpactEffectChecked(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, TWeakObjectPtr<class USceneComponent> Component, const float Scale, TWeakObjectPtr<class USoundAttenuation> AttenuationOverride)
+{
+	if (Component.IsValid() && AttenuationOverride.IsValid())
+	{
+		DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, Component.Get(), Scale, AttenuationOverride.Get());
+	}
+}
+
 void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale, class USoundAttenuation* AttenuationOverride)
 {
 	FTimerDelegate TimerCallback;
 	TimerCallback.BindLambda([ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride]
 	{
-		DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride);
+		DeployImpactEffectChecked(ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride);
 	});
 
 	FTimerHandle Handle;

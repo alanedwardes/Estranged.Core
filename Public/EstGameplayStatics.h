@@ -20,6 +20,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
 	static void DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
 
+	/** Slower version of DeployImpactEffect with extra checks to ensure any pointers are still valid in memory */
+	static void DeployImpactEffectChecked(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, TWeakObjectPtr<class USceneComponent> Component, const float Scale = 1.0f, TWeakObjectPtr<class USoundAttenuation> AttenuationOverride = nullptr);
+
 	/** Deploy impact effects at a specified location with a delay. */
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
 	static void DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
