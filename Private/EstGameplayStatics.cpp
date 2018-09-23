@@ -152,9 +152,8 @@ AActor* UEstGameplayStatics::MoveActorToLevel(AActor* Actor, ULevel* Level)
 	return Actor;
 }
 
-TMap<FName, FInputChord> UEstGameplayStatics::ListActionMappings(APlayerController* PlayerController)
+void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings)
 {
-	TMap<FName, FInputChord> Mappings;
 	for (const FInputActionKeyMapping Mapping : PlayerController->PlayerInput->ActionMappings)
 	{
 		if (Mapping.Key.IsGamepadKey())
@@ -170,7 +169,12 @@ TMap<FName, FInputChord> UEstGameplayStatics::ListActionMappings(APlayerControll
 		const FInputChord InputChord = FInputChord(Mapping.Key, Mapping.bShift, Mapping.bCtrl, Mapping.bAlt, Mapping.bCmd);
 		Mappings.Add(Mapping.ActionName, InputChord);
 	}
-	return Mappings;
+
+	Mappings.GetKeys(SortedActionNames);
+	SortedActionNames.Sort([](const FName& LHS, const FName& RHS)
+	{
+		return LHS < RHS;
+	});
 }
 
 FKey UEstGameplayStatics::FindBestKeyForAction(APlayerController* PlayerController, FName ActionName, bool bForGamepad)
