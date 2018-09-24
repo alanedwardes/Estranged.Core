@@ -132,9 +132,16 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
 		UE_LOG(LogEstFootsteps, Log, TEXT("Playing for %s from hit on component %s"), *PhysicalMaterial->GetName(), *OutHit.Component->GetName());
 	}
-	else if (OutHit.bBlockingHit)
+	else if (OutHit.bBlockingHit && !bFootstepMaterialOverride)
 	{
-		UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s but no impact effect"), *PhysicalMaterial->GetName());
+		if (PhysicalMaterial == nullptr)
+		{
+			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s but no physical material"), *OutHit.GetActor()->GetName());
+		}
+		else
+		{
+			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s but no impact effect"), *PhysicalMaterial->GetName());
+		}
 	}
 
 	LastFootstepLocation = GetActorLocation();
