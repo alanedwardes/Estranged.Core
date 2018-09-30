@@ -23,3 +23,4 @@
 #define SURFACE_TYPE_FLESH EPhysicalSurface::SurfaceType5
 
 #define WEAPON_SOCKET "WeaponSocket"
+#define HOLD_SOCKET "HoldSocket"
