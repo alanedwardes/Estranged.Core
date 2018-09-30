@@ -120,4 +120,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (WorldContext = "WorldContextObject", UnsafeDuringActorConstruction = "true"))
 	static class AEstPlayer* GetEstPlayerPawn(const UObject* WorldContextObject, int32 PlayerIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static bool IsDamageCausedByWorld(const TSubclassOf<UDamageType> DamageClass);
 };

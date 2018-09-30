@@ -205,7 +205,7 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 		return Result;
 	}
 
-	if (IsHoldingActor())
+	if (IsHoldingActor() && !UEstGameplayStatics::IsDamageCausedByWorld(DamageEvent.DamageTypeClass))
 	{
 		if (EventInstigator == nullptr || DamageCauser == nullptr)
 		{
