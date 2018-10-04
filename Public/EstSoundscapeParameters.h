@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameFramework/Actor.h"
-#include "SoundDefinitions.h"
+#include "Sound/SoundCue.h"
+#include "Sound/ReverbEffect.h"
 #include "EstSoundscapeParameters.generated.h"
 
 USTRUCT(BlueprintType)
@@ -16,7 +16,7 @@ struct FEstSoundscapeParameters
 	}
 
 	UPROPERTY(EditAnywhere, SaveGame, BlueprintReadWrite, Category = "Soundscape")
-	USoundBase* Sound;
+	USoundCue* Sound;
 
 	UPROPERTY(EditAnywhere, SaveGame, BlueprintReadWrite, Category = "Soundscape")
 	UReverbEffect* Reverb;
