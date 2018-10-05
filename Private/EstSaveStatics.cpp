@@ -227,13 +227,16 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 	for (const FEstActorState ActorState : LevelState.ActorStates)
 	{
 		AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(Level, ActorState.ActorName, ActorState.ActorClass);
-		if (FoundActor == nullptr && !Level->IsPersistentLevel())
+		if (FoundActor == nullptr)
 		{
 			// This may happen if an actor has been deleted
-			continue;
-		}
+			if (Level->IsPersistentLevel())
+			{
+				continue;
+			}
 
-		FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
+			FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
+		}
 
 		RestoreActor(FoundActor, ActorState);
 
