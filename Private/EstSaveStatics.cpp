@@ -194,7 +194,7 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 			AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(StreamingLevel->GetLoadedLevel(), MovedActorState.ActorName, MovedActorState.ActorClass);
 			if (FoundActor == nullptr)
 			{
-				// Crash fix - identified from memory dumps
+				// This may happen if an actor has been deleted
 				continue;
 			}
 
@@ -227,13 +227,13 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 	for (const FEstActorState ActorState : LevelState.ActorStates)
 	{
 		AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(Level, ActorState.ActorName, ActorState.ActorClass);
-
-		if (!FoundActor && Level->IsPersistentLevel())
+		if (FoundActor == nullptr && !Level->IsPersistentLevel())
 		{
-			FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
+			// This may happen if an actor has been deleted
+			continue;
 		}
 
-		check(FoundActor);
+		FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
 
 		RestoreActor(FoundActor, ActorState);
 
