@@ -395,7 +395,7 @@ public:
 
 	virtual void PlayReload() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cheats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Category = "Cheats")
 	bool bHasCheatedThisSession;
 
 	UPROPERTY()
