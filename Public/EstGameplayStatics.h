@@ -123,4 +123,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static bool IsDamageCausedByWorld(const TSubclassOf<UDamageType> DamageClass);
+
+	UFUNCTION(BlueprintPure, Category = "Platform")
+	static bool HasGraphicsMenu() { return PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX; };
 };
