@@ -70,7 +70,7 @@ void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect Impac
 	FTimerDelegate TimerCallback;
 	TimerCallback.BindLambda([ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride]
 	{
-		if (Component != nullptr && Component->IsValidLowLevel())
+		if (IsValid(Component))
 		{
 			DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride);
 		}
