@@ -67,12 +67,14 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 
 void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale, class USoundAttenuation* AttenuationOverride)
 {
+	TWeakObjectPtr<USceneComponent> ComponentPointer = Component;
+
 	FTimerDelegate TimerCallback;
-	TimerCallback.BindLambda([ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride]
+	TimerCallback.BindLambda([ImpactEffect, ImpactPoint, ImpactNormal, ComponentPointer, Scale, AttenuationOverride]
 	{
-		if (IsValid(Component))
+		if (ComponentPointer.IsValid())
 		{
-			DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride);
+			DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, ComponentPointer.Get(), Scale, AttenuationOverride);
 		}
 	});
 
