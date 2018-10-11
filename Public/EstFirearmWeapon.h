@@ -40,7 +40,7 @@ public:
 	virtual void PrimaryFireEffects();
 
 	/** Skeletal mesh for the current weapon */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fighting")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Effects)
 	class USpotLightComponent* MuzzleFlash;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)

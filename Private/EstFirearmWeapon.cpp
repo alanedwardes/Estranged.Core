@@ -18,7 +18,7 @@ AEstFirearmWeapon::AEstFirearmWeapon(const class FObjectInitializer& PCIP)
 	MuzzleFlash->SetOuterConeAngle(90.f);
 	MuzzleFlash->SetLightFalloffExponent(2.0f);
 	MuzzleFlash->bUseInverseSquaredFalloff = false;
-	MuzzleFlash->AttachToComponent(WeaponMesh, FAttachmentTransformRules::KeepRelativeTransform);
+	MuzzleFlash->AttachToComponent(WeaponMesh, FAttachmentTransformRules::KeepRelativeTransform, BARREL_SOCKET);
 
 	PrimaryFireTime = -1.f;
 }
