@@ -119,6 +119,11 @@ void AEstBaseWeapon::PrimaryAttack()
 		SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? PrimaryAttackLengthPlayer : PrimaryAttackLengthAI);
 	}
 
+	if (SoundManifest.PrimaryAttack)
+	{
+		UGameplayStatics::SpawnSoundAttached(SoundManifest.PrimaryAttack, WeaponMesh);
+	}
+
 	OnPrimaryAttack.Broadcast();
 }
 
@@ -133,6 +138,11 @@ void AEstBaseWeapon::SecondaryAttack()
 	{
 		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponAnimManifest.SecondaryAttack);
 		SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? SecondaryAttackLengthPlayer : SecondaryAttackLengthAI);
+	}
+
+	if (SoundManifest.SecondaryAttack)
+	{
+		UGameplayStatics::SpawnSoundAttached(SoundManifest.SecondaryAttack, WeaponMesh);
 	}
 
 	OnSecondaryAttack.Broadcast();
@@ -201,12 +211,22 @@ void AEstBaseWeapon::Holster()
 {
 	OnHolster();
 
+	if (SoundManifest.Holster)
+	{
+		UGameplayStatics::SpawnSoundAttached(SoundManifest.Holster, WeaponMesh);
+	}
+
 	bIsHolstered = true;
 }
 
 void AEstBaseWeapon::Unholster()
 {
 	OnUnholster();
+
+	if (SoundManifest.Unholster)
+	{
+		UGameplayStatics::SpawnSoundAttached(SoundManifest.Unholster, WeaponMesh);
+	}
 
 	bIsHolstered = false;
 }

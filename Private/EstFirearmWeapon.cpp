@@ -105,6 +105,12 @@ void AEstFirearmWeapon::Reload()
 		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponAnimManifest.Reload);
 		SetEngagedInActivity(ReloadLength);
 	}
+
+	if (SoundManifest.Reload)
+	{
+		UGameplayStatics::SpawnSoundAttached(SoundManifest.Reload, WeaponMesh);
+	}
+
 	PrimaryAmmunition->Reload();
 }
 

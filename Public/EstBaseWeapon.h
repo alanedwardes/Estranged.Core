@@ -5,6 +5,7 @@
 #include "EstInteractive.h"
 #include "EstSaveRestore.h"
 #include "EstWeaponAnimationManifest.h"
+#include "EstWeaponSoundManifest.h"
 #include "EstBaseWeapon.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquippedDelegate);
@@ -119,6 +120,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	struct FEstWeaponAnimationManifest CharacterAnimManifest;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
+	struct FEstWeaponSoundManifest SoundManifest;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	struct FEstWeaponAnimationManifest WeaponAnimManifest;
