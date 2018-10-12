@@ -997,7 +997,7 @@ void AEstPlayer::EquipWeapon_Implementation(AEstBaseWeapon* Weapon)
 
 	ViewModelMesh->AnimClass = Weapon->PlayerAnimClass;
 	ViewModelMesh->InitAnim(true);
-	Weapon->AttachToComponent(ViewModelMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, WEAPON_SOCKET);
+	Weapon->AttachToComponent(ViewModelMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, Weapon->SocketName);
 }
 
 void AEstPlayer::UnequipWeapon_Implementation()

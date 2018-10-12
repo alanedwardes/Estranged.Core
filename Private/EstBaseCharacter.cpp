@@ -34,7 +34,7 @@ void AEstBaseCharacter::EquipWeapon_Implementation(AEstBaseWeapon* Weapon)
 
 	if (GetMesh())
 	{
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WEAPON_SOCKET);
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Weapon->SocketName);
 	}
 
 	Weapon->OnPrimaryAttack.AddDynamic(this, &AEstBaseCharacter::PlayPrimaryFire);

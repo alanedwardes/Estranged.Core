@@ -74,6 +74,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Inventory)
 	virtual bool IsHolstered() { return bIsHolstered; };
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
+	FName SocketName;
+
 	/** Internal func to call for primary attack */
 	UFUNCTION()
 	virtual void PrimaryAttack();
