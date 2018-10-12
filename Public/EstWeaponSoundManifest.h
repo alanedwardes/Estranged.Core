@@ -5,11 +5,7 @@
 USTRUCT(BlueprintType)
 struct ESTCORE_API FEstWeaponSoundManifest
 {
-	GENERATED_USTRUCT_BODY()
-
-		FEstWeaponSoundManifest()
-	{
-	}
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	class USoundBase* PrimaryAttack;

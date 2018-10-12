@@ -6,14 +6,7 @@
 USTRUCT(BlueprintType)
 struct ESTCORE_API FEstImpactEffect
 {
-	GENERATED_USTRUCT_BODY()
-
-	FEstImpactEffect()
-	{
-		ParticleSystem = nullptr;
-		ParticleSystemDebris = nullptr;
-		Sound = nullptr;
-	}
+	GENERATED_BODY()
 
 	static const FEstImpactEffect None;
 

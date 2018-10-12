@@ -5,11 +5,7 @@
 USTRUCT(BlueprintType)
 struct ESTCORE_API FEstWeaponAnimationManifest
 {
-	GENERATED_USTRUCT_BODY()
-
-	FEstWeaponAnimationManifest()
-	{
-	}
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	class UAnimMontage* PrimaryAttack;
