@@ -43,6 +43,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Effects)
 	class USpotLightComponent* MuzzleFlash;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
+	class UParticleSystem* MuzzleFlashParticles;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)
 	class TSubclassOf<AActor> AmunitionClass;
 

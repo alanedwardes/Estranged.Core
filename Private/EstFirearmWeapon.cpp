@@ -58,6 +58,11 @@ void AEstFirearmWeapon::PrimaryFireEffects()
 {
 	MuzzleFlash->SetVisibility(true);
 
+	if (MuzzleFlashParticles)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashParticles, WeaponMesh, BARREL_SOCKET);
+	}
+
 	// Report the gunshot to the perception system
 	UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 1.f, GetOwner(), 1024.f);
 }
