@@ -1177,7 +1177,7 @@ void AEstPlayer::SecondaryAttackPressedInput()
 		{
 			EquippedWeapon->SecondaryAttackStart();
 		}
-		else
+		else if (EquippedWeapon->bCanAim)
 		{
 			bIsAiming = true;
 		}
@@ -1192,7 +1192,7 @@ void AEstPlayer::SecondaryAttackReleasedInput()
 		{
 			EquippedWeapon->SecondaryAttackEnd();
 		}
-		else
+		else if (EquippedWeapon->bCanAim)
 		{
 			bIsAiming = false;
 		}

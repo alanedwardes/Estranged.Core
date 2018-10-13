@@ -8,10 +8,17 @@ AEstBaseWeapon::AEstBaseWeapon(const class FObjectInitializer& PCIP)
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	PrimaryActorTick.bCanEverTick = true;
 
+	bCanAim = true;
+
 	WeaponMesh = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh"));
 	WeaponMesh->SetCollisionProfileName("Item");
 	WeaponMesh->bCastInsetShadow = true;
 	SetRootComponent(WeaponMesh);
+
+	if (GEngine != nullptr)
+	{
+		WeaponMesh->BodyInstance.bUseCCD = true;
+	}
 }
 
 void AEstBaseWeapon::OnPostRestore_Implementation()

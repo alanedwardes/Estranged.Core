@@ -136,8 +136,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	FTransform NormalViewModelOffset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (EditCondition = "bCanAim"))
 	FTransform AimingViewModelOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	bool bCanAim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
 	float PrimaryAttackLengthPlayer;
