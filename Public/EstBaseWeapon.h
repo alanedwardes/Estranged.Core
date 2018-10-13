@@ -116,6 +116,9 @@ public:
 	class USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	class TSubclassOf<UAnimInstance> EquippedWeaponAnimClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	class TSubclassOf<UAnimInstance> PlayerAnimClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)

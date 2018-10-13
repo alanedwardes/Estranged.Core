@@ -154,7 +154,13 @@ void AEstBaseWeapon::Equip(AEstBaseCharacter* NewOwnerCharacter)
 {
 	SetOwner(NewOwnerCharacter);
 
-	this->OwnerCharacter = NewOwnerCharacter;
+	OwnerCharacter = NewOwnerCharacter;
+
+	if (EquippedWeaponAnimClass)
+	{
+		WeaponMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+		WeaponMesh->SetAnimInstanceClass(EquippedWeaponAnimClass);
+	}
 
 	UpdateWeaponPhysicsState();
 	OnEquip();
@@ -176,6 +182,7 @@ void AEstBaseWeapon::Unequip()
 	if (WeaponMesh->GetAnimInstance())
 	{
 		WeaponMesh->GetAnimInstance()->Montage_Stop(0.f);
+		WeaponMesh->SetAnimInstanceClass(nullptr);
 	}
 
 	UpdateWeaponPhysicsState();
