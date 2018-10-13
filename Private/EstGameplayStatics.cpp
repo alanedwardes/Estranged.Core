@@ -67,6 +67,12 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 
 void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale, class USoundAttenuation* AttenuationOverride)
 {
+	if (FMath::IsNearlyZero(Delay))
+	{
+		DeployImpactEffect(ImpactEffect, ImpactPoint, ImpactNormal, Component, Scale, AttenuationOverride);
+		return;
+	}
+
 	TWeakObjectPtr<USceneComponent> ComponentPointer = Component;
 
 	FTimerDelegate TimerCallback;
