@@ -81,31 +81,24 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 
 		EST_DEBUG(FString::Printf(TEXT("Impact: Velocity %.2f, Intensity: %.2f"), ImpactVelMag, Intensity));
 
-		FEstImpactEffect DefaultImpactEffect;
-		DefaultImpactEffect.Sound = DefaultImpactSound;
-
 		UPhysicalMaterial* MyMaterial = GetPhysicalMaterialFromCollision(MyInfo);
 		if (MyMaterial != nullptr && MyInfo.Component.IsValid() && MyInfo.Component->Mobility == EComponentMobility::Movable)
 		{
 			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, MyMaterial);
-			if (ImpactEffect == FEstImpactEffect::None)
+			if (ImpactEffect != FEstImpactEffect::None)
 			{
-				ImpactEffect = DefaultImpactEffect;
+				UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, MyInfo.Component.Get(), Intensity);
 			}
-
-			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, MyInfo.Component.Get(), Intensity);
 		}
 
 		UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromCollision(OtherInfo);
 		if (OtherMaterial != nullptr && OtherInfo.Component.IsValid() && OtherInfo.Component->Mobility == EComponentMobility::Movable)
 		{
 			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, OtherMaterial);
-			if (ImpactEffect == FEstImpactEffect::None)
+			if (ImpactEffect != FEstImpactEffect::None)
 			{
-				ImpactEffect = DefaultImpactEffect;
+				UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, OtherInfo.Component.Get(), Intensity);
 			}
-
-			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, OtherInfo.Component.Get(), Intensity);
 		}
 
 		LastImpactSoundTime = World->GetTimeSeconds();
