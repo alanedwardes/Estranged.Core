@@ -1,6 +1,8 @@
 // Estranged is a trade mark of Alan Edwardes.
 
 #include "EstCore.h"
+#include "DestructibleComponent.h"
+#include "PhysXPublic.h"
 #include "EstSkinnedMeshCacheComponent.h"
 
 void UEstSkinnedMeshCacheComponent::OnPostRestore_Implementation()
@@ -10,13 +12,24 @@ void UEstSkinnedMeshCacheComponent::OnPostRestore_Implementation()
 	for (const FEstSkinnedMeshComponentState State : SkinnedMeshStates)
 	{
 		USkinnedMeshComponent* SkinnedMeshComponent = GetSkinnedMeshComponentByName(State.ComponentName);
-		SkinnedMeshComponent->SetSimulatePhysics(State.bIsSimulatingPhysics);
+
+		UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(SkinnedMeshComponent);
 
 		for (const FEstSkinnedMeshBoneState BoneState : State.BoneStates)
 		{
-			FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
-			BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);
-			BodyInstance->SetInstanceSimulatePhysics(BoneState.bIsSimulatingPhysics);
+			if (DestructibleComponent)
+			{
+				const int32 BoneIndex = DestructibleComponent->GetBoneIndex(BoneState.BoneName);
+				const int32 ChunkIndex = DestructibleComponent->BoneIdxToChunkIdx(BoneIndex);
+				DestructibleComponent->ApexDestructibleActor->setDynamic(ChunkIndex);
+				// TODO: Set chunk location?
+			}
+			else
+			{
+				FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
+				BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);
+				BodyInstance->SetInstanceSimulatePhysics(BoneState.bIsSimulatingPhysics);
+			}
 		}
 	}
 }
@@ -27,23 +40,46 @@ void UEstSkinnedMeshCacheComponent::OnPreSave_Implementation()
 
 	for (const USkinnedMeshComponent* SkinnedMeshComponent : GetSkinnedMeshComponents())
 	{
+		const UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(SkinnedMeshComponent);
+
 		FEstSkinnedMeshComponentState SkinnedMeshState;
 		SkinnedMeshState.ComponentName = SkinnedMeshComponent->GetFName();
 		SkinnedMeshState.bIsSimulatingPhysics = SkinnedMeshComponent->IsSimulatingPhysics();
 
 		for (int32 i = 0; i < SkinnedMeshComponent->GetNumBones(); i++)
 		{
-			FName BoneName = SkinnedMeshComponent->GetBoneName(i);
-			if (SkinnedMeshComponent->GetBodyInstance(BoneName) == nullptr)
-			{
-				continue;
-			}
+			const FName BoneName = SkinnedMeshComponent->GetBoneName(i);
 
-			FEstSkinnedMeshBoneState BoneState;
-			BoneState.BoneName = BoneName;
-			BoneState.BoneTransform = SkinnedMeshComponent->GetBoneTransform(i);
-			BoneState.bIsSimulatingPhysics = SkinnedMeshComponent->IsSimulatingPhysics(BoneName);
-			SkinnedMeshState.BoneStates.Add(BoneState);
+			if (DestructibleComponent)
+			{
+				const int32 ChunkIndex = DestructibleComponent->BoneIdxToChunkIdx(i);
+				const PxRigidDynamic* PhysXActor = DestructibleComponent->ApexDestructibleActor->getChunkPhysXActor(ChunkIndex);
+
+				// If this is the root chunk, there is no physics actor, or the chunk is not kinematic, skip it
+				if (BoneName == FName("Root") || !PhysXActor || PhysXActor->getRigidBodyFlags() & PxRigidBodyFlag::eKINEMATIC)
+				{
+					continue;
+				}
+
+				FEstSkinnedMeshBoneState BoneState;
+				BoneState.BoneName = BoneName;
+				BoneState.BoneTransform = DestructibleComponent->GetBoneTransform(i);
+				SkinnedMeshState.BoneStates.Add(BoneState);
+			}
+			else
+			{
+				// If there is not body for this bone, skip it
+				if (SkinnedMeshComponent->GetBodyInstance(BoneName) == nullptr)
+				{
+					continue;
+				}
+
+				FEstSkinnedMeshBoneState BoneState;
+				BoneState.BoneName = BoneName;
+				BoneState.BoneTransform = SkinnedMeshComponent->GetBoneTransform(i);
+				BoneState.bIsSimulatingPhysics = SkinnedMeshComponent->IsSimulatingPhysics(BoneName);
+				SkinnedMeshState.BoneStates.Add(BoneState);
+			}
 		}
 
 		SkinnedMeshStates.Add(SkinnedMeshState);
@@ -59,5 +95,5 @@ TArray<USkinnedMeshComponent*> UEstSkinnedMeshCacheComponent::GetSkinnedMeshComp
 
 USkinnedMeshComponent* UEstSkinnedMeshCacheComponent::GetSkinnedMeshComponentByName(FName ComponentName)
 {
-	return *GetSkinnedMeshComponents().FindByPredicate([&](const USkinnedMeshComponent* SkinnedMeshComponent) { return SkinnedMeshComponent->GetFName() == ComponentName; });
+	return *GetSkinnedMeshComponents().FindByPredicate([&](const USkinnedMeshComponent* Component) { return Component->GetFName() == ComponentName; });
 }

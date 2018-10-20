@@ -15,7 +15,10 @@ public class EstCore : ModuleRules
                 "UMG",
                 "Slate",
                 "SlateCore",
-                "AIModule"
+                "AIModule",
+                "ApexDestruction",
+                "PhysX",
+                "APEX"
         });
     }
 }
