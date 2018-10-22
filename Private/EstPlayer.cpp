@@ -817,13 +817,13 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	HeldActor = UEstGameplayStatics::MoveActorToLevel(ActorToHold, GetLevel());
 
 	HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
+	HeldPrimitive->SetEnableGravity(false);
 
+	// Must be last, the act of picking up an actor may make it self destruct
 	if (HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))
 	{
 		IEstCarryable::Execute_OnPickedUp(HeldActor.Get(), this);
 	}
-
-	HeldPrimitive->SetEnableGravity(false);
 }
 
 void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
