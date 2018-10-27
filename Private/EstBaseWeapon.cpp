@@ -169,6 +169,13 @@ void AEstBaseWeapon::Equip(AEstBaseCharacter* NewOwnerCharacter)
 		WeaponMesh->SetAnimInstanceClass(EquippedWeaponAnimClass);
 	}
 
+	if (EquipSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(EquipSound, WeaponMesh);
+	}
+
+	UEstGameplayStatics::SetHighlightState(this, false);
+
 	UpdateWeaponPhysicsState();
 	OnEquip();
 	Unholster();
@@ -191,6 +198,8 @@ void AEstBaseWeapon::Unequip()
 		WeaponMesh->GetAnimInstance()->Montage_Stop(0.f);
 		WeaponMesh->SetAnimInstanceClass(nullptr);
 	}
+
+	UEstGameplayStatics::SetHighlightState(this, true);
 
 	UpdateWeaponPhysicsState();
 

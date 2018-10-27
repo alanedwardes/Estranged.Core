@@ -123,4 +123,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Platform")
 	static bool HasGraphicsMenu() { return PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX; };
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static void SetHighlightState(AActor* Actor, bool bIsHighlighted);
 };

@@ -116,6 +116,9 @@ public:
 	class USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	class USoundBase* EquipSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	class TSubclassOf<UAnimInstance> EquippedWeaponAnimClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)

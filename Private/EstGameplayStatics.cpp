@@ -646,3 +646,18 @@ bool UEstGameplayStatics::IsDamageCausedByWorld(const TSubclassOf<UDamageType> D
 
 	return CausedByWorldProperty->GetPropertyValue_InContainer(DamageClass.GetDefaultObject());
 }
+
+void UEstGameplayStatics::SetHighlightState(AActor* Actor, bool bIsHighlighted)
+{
+	if (Actor == nullptr)
+	{
+		return;
+	}
+
+	TArray<UMeshComponent*> MeshComponents;
+	Actor->GetComponents(MeshComponents);
+	for (UMeshComponent* MeshComponent : MeshComponents)
+	{
+		MeshComponent->SetScalarParameterValueOnMaterials(HIGHLIGHT_MATERIAL_PARAMETER, bIsHighlighted ? 1.f : 0.f);
+	}
+}
