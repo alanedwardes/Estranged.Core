@@ -631,22 +631,6 @@ AEstPlayer* UEstGameplayStatics::GetEstPlayerPawn(const UObject* WorldContextObj
 	return Cast<AEstPlayer>(UGameplayStatics::GetPlayerPawn(WorldContextObject, PlayerIndex));
 }
 
-bool UEstGameplayStatics::IsDamageCausedByWorld(const TSubclassOf<UDamageType> DamageClass)
-{
-	if (DamageClass.Get() == nullptr)
-	{
-		return false;
-	}
-
-	UBoolProperty* CausedByWorldProperty = Cast<UBoolProperty>(DamageClass->FindPropertyByName(FName("bCausedByWorld")));
-	if (CausedByWorldProperty == nullptr)
-	{
-		return false;
-	}
-
-	return CausedByWorldProperty->GetPropertyValue_InContainer(DamageClass.GetDefaultObject());
-}
-
 void UEstGameplayStatics::SetHighlightState(AActor* Actor, bool bIsHighlighted)
 {
 	if (Actor == nullptr)
