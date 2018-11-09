@@ -354,7 +354,12 @@ void UEstSaveStatics::RestoreActor(AActor* Actor, const FEstActorState &ActorSta
 	IEstSaveRestore::Execute_OnPreRestore(Actor);
 
 	Actor->Tags = ActorState.ActorTags;
-	Actor->SetActorTransform(ActorState.ActorTransform);
+
+	if (Actor->GetRootComponent() && Actor->GetRootComponent()->Mobility == EComponentMobility::Movable)
+	{
+		Actor->SetActorTransform(ActorState.ActorTransform);
+	}
+
 	RestoreLowLevel(Actor, ActorState.ActorData);
 }
 
