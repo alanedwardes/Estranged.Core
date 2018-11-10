@@ -355,7 +355,8 @@ void UEstSaveStatics::RestoreActor(AActor* Actor, const FEstActorState &ActorSta
 
 	Actor->Tags = ActorState.ActorTags;
 
-	if (Actor->GetRootComponent() && Actor->GetRootComponent()->Mobility == EComponentMobility::Movable)
+	const bool bShouldIgnoreTransform = EnumHasAnyFlags(IEstSaveRestore::Execute_GetSaveFlags(Actor), EEstSaveFlags::IgnoreTransform);
+	if (!bShouldIgnoreTransform && Actor->GetRootComponent() && Actor->GetRootComponent()->Mobility == EComponentMobility::Movable)
 	{
 		Actor->SetActorTransform(ActorState.ActorTransform);
 	}
