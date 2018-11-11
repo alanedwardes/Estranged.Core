@@ -144,7 +144,7 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 
 	SerializeLevel(World->PersistentLevel, WorldState.PersistentLevelState);
 
-	for (AActor* Actor : World->PersistentLevel->Actors)
+	for (AActor* Actor : TSet<AActor*>(World->PersistentLevel->Actors))
 	{
 		if (!IsActorValidForSaving(Actor) || !Actor->ActorHasTag(TAG_MOVED))
 		{
@@ -163,7 +163,6 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 		MovedActorState.OriginalLevelName = FName(*FromTag);
 
 		SerializeActor(Actor, MovedActorState);
-		MovedActorState.ActorTags.Remove(TAG_MOVED);
 		WorldState.PersistentLevelState.MovedActorStates.Add(MovedActorState);
 	}
 
@@ -186,7 +185,7 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 
 void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 {
-	for (AActor* Actor : Level->Actors)
+	for (AActor* Actor : TSet<AActor*>(Level->Actors))
 	{
 		if (!Actor || Actor->ActorHasTag(TAG_MOVED))
 		{
