@@ -2,6 +2,7 @@
 
 #include "GameFramework/Character.h"
 #include "EstSaveRestore.h"
+#include "EstGameplayStatics.h"
 #include "EstBaseCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOnChangeWeaponDelegate, AEstBaseWeapon*, Weapon);
