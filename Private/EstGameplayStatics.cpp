@@ -147,11 +147,6 @@ AActor* UEstGameplayStatics::MoveActorToLevel(AActor* Actor, ULevel* Level)
 	Actor->Rename(nullptr, Level);
 	Level->Actors.Add(Actor);
 
-	FString TagToAdd = TEXT(TAG_FROM_PREFIX) + FromLevel->GetOutermost()->GetName();
-
-	Actor->Tags.Add(FName(*TagToAdd));
-	Actor->Tags.Add(TAG_MOVED);
-
 	return Actor;
 }
 

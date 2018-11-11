@@ -1,8 +1,6 @@
 #pragma once
 
 #define TAG_DEAD "DEAD"
-#define TAG_MOVED "MOVED"
-#define TAG_FROM_PREFIX "FROM|"
 #define DEBUG_PERSIST_TIME 5.f
 #define DEBUG_COLOR FColor::Green
 #define WARNING_PERSIST_TIME 30.f

@@ -102,22 +102,24 @@ bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 
 	if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
 	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Class %s does not implement GetSaveId(). This actor will be skipped in save games"), *Actor->GetClass()->GetName());
 #if WITH_EDITOR
 		FMessageLog("PIE").Error()
 			->AddToken(FTextToken::Create(FText::FromString("Class")))
 			->AddToken(FUObjectToken::Create(Actor->GetClass()))
-			->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
+			->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games")));
 #endif
 		return false;
 	}
 
 	if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
 	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Class %s does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games"), *Actor->GetClass()->GetName());
 #if WITH_EDITOR
 		FMessageLog("PIE").CriticalError()
 			->AddToken(FTextToken::Create(FText::FromString("Class")))
 			->AddToken(FUObjectToken::Create(Actor->GetClass()))
-			->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games.")));
+			->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games")));
 #endif
 		return false;
 	}
@@ -144,28 +146,6 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 
 	SerializeLevel(World->PersistentLevel, WorldState.PersistentLevelState);
 
-	for (AActor* Actor : TSet<AActor*>(World->PersistentLevel->Actors))
-	{
-		if (!IsActorValidForSaving(Actor) || !Actor->ActorHasTag(TAG_MOVED))
-		{
-			continue;
-		}
-
-		FEstMovedActorState MovedActorState;
-
-		FString FromTag = Actor->Tags.FilterByPredicate([](const FName& Element)
-		{
-			return Element.ToString().StartsWith(TAG_FROM_PREFIX);
-		})[0].ToString();
-
-		FromTag.RemoveFromStart(TAG_FROM_PREFIX);
-
-		MovedActorState.OriginalLevelName = FName(*FromTag);
-
-		SerializeActor(Actor, MovedActorState);
-		WorldState.PersistentLevelState.MovedActorStates.Add(MovedActorState);
-	}
-
 	for (ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
 	{
 		ULevel* LoadedLevel = StreamingLevel->GetLoadedLevel();
@@ -187,7 +167,7 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 {
 	for (AActor* Actor : TSet<AActor*>(Level->Actors))
 	{
-		if (!Actor || Actor->ActorHasTag(TAG_MOVED))
+		if (!Actor)
 		{
 			continue;
 		}
@@ -219,33 +199,6 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 	TArray<UObject*> RestoredObjects;
 
 	RestoreLevel(World->PersistentLevel, WorldState.PersistentLevelState, RestoredObjects);
-
-	for (FEstMovedActorState MovedActorState : WorldState.PersistentLevelState.MovedActorStates)
-	{
-		const ULevelStreaming* StreamingLevel = UGameplayStatics::GetStreamingLevel(WorldContextObject, MovedActorState.OriginalLevelName);
-		if (!StreamingLevel->IsLevelVisible())
-		{
-			RestoredObjects.Add(SpawnMovedActor(World, MovedActorState));
-		}
-		else
-		{
-			AActor* FoundActor = UEstGameplayStatics::FindActorBySaveIdInWorld(WorldContextObject, MovedActorState.SaveId);			
-			if (FoundActor == nullptr)
-			{
-				// This may happen if an actor has been deleted
-				UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find moved actor %s by save ID %s"), *MovedActorState.ActorClass->GetName(), *MovedActorState.SaveId.ToString());
-				continue;
-			}
-
-			RestoreActor(FoundActor, MovedActorState);
-			// Restore all components
-			for (FEstComponentState ComponentState : MovedActorState.ComponentStates)
-			{
-				RestoredObjects.Add(RestoreComponent(FoundActor, ComponentState));
-			}
-			RestoredObjects.Add(FoundActor);
-		}
-	}
 
 	for (FEstLevelState StreamingLevelState : WorldState.StreamingLevelStates)
 	{
@@ -360,7 +313,7 @@ UActorComponent* UEstSaveStatics::RestoreComponent(AActor* Parent, const FEstCom
 	IEstSaveRestore::Execute_OnPreRestore(FoundComponent);
 
 	USceneComponent* SceneComponent = Cast<USceneComponent>(FoundComponent);
-	if (SceneComponent)
+	if (SceneComponent && SceneComponent->Mobility == EComponentMobility::Movable)
 	{
 		SceneComponent->SetRelativeTransform(ComponentState.ComponentTransform);
 	}

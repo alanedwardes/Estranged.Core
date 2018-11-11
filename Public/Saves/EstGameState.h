@@ -45,15 +45,6 @@ struct FEstActorState
 };
 
 USTRUCT(BlueprintType)
-struct FEstMovedActorState : public FEstActorState
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName OriginalLevelName;
-};
-
-USTRUCT(BlueprintType)
 struct FEstSequenceState
 {
 	GENERATED_BODY()
@@ -87,21 +78,12 @@ struct FEstLevelState
 };
 
 USTRUCT(BlueprintType)
-struct FEstPersistentLevelState : public FEstLevelState
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FEstMovedActorState> MovedActorStates;
-};
-
-USTRUCT(BlueprintType)
 struct FEstWorldState
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FEstPersistentLevelState PersistentLevelState;
+	FEstLevelState PersistentLevelState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FEstLevelState> StreamingLevelStates;
