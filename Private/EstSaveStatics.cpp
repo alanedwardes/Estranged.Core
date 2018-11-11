@@ -100,6 +100,11 @@ bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 		return false;
 	}
 
+	if (Actor->IsChildActor())
+	{
+		return false;
+	}
+
 	if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
 	{
 		UE_LOG(LogEstGeneral, Warning, TEXT("Class %s does not implement GetSaveId(). This actor will be skipped in save games"), *Actor->GetClass()->GetName());
