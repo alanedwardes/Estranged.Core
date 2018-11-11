@@ -40,4 +40,8 @@ class ESTCORE_API IEstSaveRestore
 	/** Called to get the storage flags for this actor/component. */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	EEstSaveFlags GetSaveFlags();
+
+	/** Called to get the customised name of an actor/component */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FGuid GetSaveId();
 };

@@ -4,6 +4,8 @@
 #include "EstPlayerController.h"
 #include "EstPlayerHUD.h"
 #include "EstSaveStatics.h"
+#include "Misc/UObjectToken.h"
+#include "Logging/MessageLog.h"
 
 void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
 {
@@ -112,6 +114,24 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 			continue;
 		}
 
+		if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
+		{
+			FMessageLog("PIE").Error()
+				->AddToken(FTextToken::Create(FText::FromString("Class")))
+				->AddToken(FUObjectToken::Create(Actor->GetClass()))
+				->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
+			continue;
+		}
+
+		if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
+		{
+			FMessageLog("PIE").CriticalError()
+				->AddToken(FTextToken::Create(FText::FromString("Actor")))
+				->AddToken(FUObjectToken::Create(Actor->GetClass()))
+				->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games.")));
+			continue;
+		}
+
 		FEstMovedActorState MovedActorState;
 
 		FString FromTag = Actor->Tags.FilterByPredicate([](const FName& Element)
@@ -167,6 +187,24 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 
 		if (Actor->Implements<UEstSaveRestore>())
 		{
+			if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
+			{
+				FMessageLog("PIE").Error()
+					->AddToken(FTextToken::Create(FText::FromString("Class")))
+					->AddToken(FUObjectToken::Create(Actor->GetClass()))
+					->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
+				continue;
+			}
+
+			if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
+			{
+				FMessageLog("PIE").CriticalError()
+					->AddToken(FTextToken::Create(FText::FromString("Class")))
+					->AddToken(FUObjectToken::Create(Actor->GetClass()))
+					->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games.")));
+				continue;
+			}
+
 			FEstActorState ActorState;
 			SerializeActor(Actor, ActorState);
 			LevelState.ActorStates.Add(ActorState);
@@ -191,10 +229,11 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 		}
 		else
 		{
-			AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(StreamingLevel->GetLoadedLevel(), MovedActorState.ActorName, MovedActorState.ActorClass);
+			AActor* FoundActor = UEstGameplayStatics::FindActorBySaveIdInWorld(WorldContextObject, MovedActorState.SaveId);			
 			if (FoundActor == nullptr)
 			{
 				// This may happen if an actor has been deleted
+				UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find moved actor %s by save ID %s"), *MovedActorState.ActorName.ToString(), *MovedActorState.SaveId.ToString());
 				continue;
 			}
 
@@ -226,11 +265,11 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 	// Restore all actors
 	for (const FEstActorState ActorState : LevelState.ActorStates)
 	{
-		AActor* FoundActor = UEstGameplayStatics::FindActorByNameAndClassInLevel(Level, ActorState.ActorName, ActorState.ActorClass);
-
-		// We likely have an actor which was moved
+		AActor* FoundActor = UEstGameplayStatics::FindActorBySaveIdInWorld(Level->GetWorld(), ActorState.SaveId);
 		if (FoundActor == nullptr)
 		{
+			// We likely have an actor which was moved
+			UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find level actor %s by save ID %s, spawning"), *ActorState.ActorName.ToString(), *ActorState.SaveId.ToString());
 			FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
 		}
 
@@ -267,6 +306,7 @@ void UEstSaveStatics::SerializeActor(AActor* Actor, FEstActorState& ActorState)
 	IEstSaveRestore::Execute_OnPreSave(Actor);
 
 	ActorState.ActorName = Actor->GetFName();
+	ActorState.SaveId = IEstSaveRestore::Execute_GetSaveId(Actor);
 	ActorState.ActorClass = Actor->GetClass();
 	ActorState.ActorTransform = Actor->GetActorTransform();
 	ActorState.ActorTags = Actor->Tags;

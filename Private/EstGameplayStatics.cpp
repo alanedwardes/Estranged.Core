@@ -246,11 +246,11 @@ void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, 
 
 	for (const FInputActionKeyMapping Remove : MappingsToRemove)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Removing mapping for action %s and key %s"), *Remove.ActionName.ToString(), *Remove.Key.ToString());
+		UE_LOG(LogTemp, Log, TEXT("Removing mapping for action %s and key %s"), *Remove.ActionName.ToString(), *Remove.Key.ToString());
 		PlayerController->PlayerInput->RemoveActionMapping(Remove);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Adding mapping for action %s and key %s"), *ActionName.ToString(), *InputChord.Key.ToString());
+	UE_LOG(LogTemp, Log, TEXT("Adding mapping for action %s and key %s"), *ActionName.ToString(), *InputChord.Key.ToString());
 	PlayerController->PlayerInput->AddActionMapping(FInputActionKeyMapping(ActionName, InputChord.Key));
 }
 
@@ -291,11 +291,11 @@ void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FN
 
 	for (const FInputAxisKeyMapping Remove : MappingsToRemove)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Removing mapping for action %s and axis %s"), *Remove.AxisName.ToString(), *Remove.Key.ToString());
+		UE_LOG(LogTemp, Log, TEXT("Removing mapping for action %s and axis %s"), *Remove.AxisName.ToString(), *Remove.Key.ToString());
 		PlayerController->PlayerInput->RemoveAxisMapping(Remove);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Adding mapping for action %s and axis %s"), *AxisName.ToString(), *InputKey.ToString());
+	UE_LOG(LogTemp, Log, TEXT("Adding mapping for action %s and axis %s"), *AxisName.ToString(), *InputKey.ToString());
 	PlayerController->PlayerInput->AddAxisMapping(FInputAxisKeyMapping(AxisName, InputKey, Scale));
 }
 
@@ -474,6 +474,25 @@ AActor* UEstGameplayStatics::FindActorByNameAndClassInLevel(const ULevel* Level,
 		if (Actor->GetFName() == ActorName)
 		{
 			return Actor;
+		}
+	}
+
+	return nullptr;
+}
+
+AActor* UEstGameplayStatics::FindActorBySaveIdInWorld(UObject* WorldContextObject, FGuid SaveId)
+{
+	for (TActorIterator<AActor> Actor(WorldContextObject->GetWorld(), AActor::StaticClass()); Actor; ++Actor)
+	{
+		if (!Actor->Implements<UEstSaveRestore>())
+		{
+			continue;
+		}
+
+		const FGuid ActorSaveId = IEstSaveRestore::Execute_GetSaveId(*Actor);
+		if (ActorSaveId.IsValid() && ActorSaveId == SaveId)
+		{
+			return *Actor;
 		}
 	}
 

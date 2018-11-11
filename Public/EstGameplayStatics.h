@@ -101,6 +101,9 @@ public:
 	static AActor* FindActorByNameAndClassInLevel(const ULevel* Level, FName ActorName, UClass* ActorClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	static AActor* FindActorBySaveIdInWorld(UObject* WorldContextObject, FGuid SaveId);
+
+	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AActor* FindActorByName(UObject* WorldContextObject, FName ActorName, UClass* ActorClass = nullptr);
 
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))

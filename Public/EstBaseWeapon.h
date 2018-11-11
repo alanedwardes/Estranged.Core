@@ -37,6 +37,13 @@ public:
 	/** Respond to the native C++ use event. */
 	virtual void OnUnused_Implementation(AEstBaseCharacter* User) override { };
 
+// Begin SaveId
+	virtual FGuid GetSaveId_Implementation() override { return SaveId; };
+	virtual void OnConstruction(const FTransform &Transform) override { SaveId = FGuid::NewGuid(); };
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SaveState)
+	FGuid SaveId;
+// End SaveId
+
 	/** Tick to check if primary/secondary attack is pressed */
 	virtual void Tick(float DeltaTime) override;
 
