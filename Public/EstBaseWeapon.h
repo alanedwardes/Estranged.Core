@@ -39,7 +39,7 @@ public:
 
 // Begin SaveId
 	virtual FGuid GetSaveId_Implementation() override { return SaveId; };
-	virtual void OnConstruction(const FTransform &Transform) override { SaveId = FGuid::NewGuid(); };
+	virtual void OnConstruction(const FTransform &Transform) override { UEstGameplayStatics::NewGuidIfInvalid(SaveId); };
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame, Category = SaveState)
 	FGuid SaveId;
 // End SaveId

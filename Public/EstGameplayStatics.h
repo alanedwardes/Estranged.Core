@@ -126,4 +126,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static void SetHighlightState(AActor* Actor, bool bIsHighlighted);
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static void NewGuidIfInvalid(UPARAM(ref) FGuid &Guid) { Guid = Guid.IsValid() ? Guid : FGuid::NewGuid(); };
 };
