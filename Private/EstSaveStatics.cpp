@@ -88,6 +88,43 @@ void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerC
 	ApplyHudSettings(Cast<AEstPlayerHUD>(PlayerController->GetHUD()), GameplaySave);
 }
 
+bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
+{
+	if (!Actor)
+	{
+		return false;
+	}
+
+	if (!Actor->Implements<UEstSaveRestore>())
+	{
+		return false;
+	}
+
+	if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
+	{
+#if WITH_EDITOR
+		FMessageLog("PIE").Error()
+			->AddToken(FTextToken::Create(FText::FromString("Class")))
+			->AddToken(FUObjectToken::Create(Actor->GetClass()))
+			->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
+#endif
+		return false;
+	}
+
+	if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
+	{
+#if WITH_EDITOR
+		FMessageLog("PIE").CriticalError()
+			->AddToken(FTextToken::Create(FText::FromString("Class")))
+			->AddToken(FUObjectToken::Create(Actor->GetClass()))
+			->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games.")));
+#endif
+		return false;
+	}
+
+	return true;
+}
+
 bool UEstSaveStatics::PersistSave(UEstSave* SaveGame)
 {
 	if (SaveGame == nullptr)
@@ -109,26 +146,8 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 
 	for (AActor* Actor : World->PersistentLevel->Actors)
 	{
-		if (!Actor || !Actor->Implements<UEstSaveRestore>() || !Actor->ActorHasTag(TAG_MOVED))
+		if (!IsActorValidForSaving(Actor) || !Actor->ActorHasTag(TAG_MOVED))
 		{
-			continue;
-		}
-
-		if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
-		{
-			FMessageLog("PIE").Error()
-				->AddToken(FTextToken::Create(FText::FromString("Class")))
-				->AddToken(FUObjectToken::Create(Actor->GetClass()))
-				->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
-			continue;
-		}
-
-		if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
-		{
-			FMessageLog("PIE").CriticalError()
-				->AddToken(FTextToken::Create(FText::FromString("Actor")))
-				->AddToken(FUObjectToken::Create(Actor->GetClass()))
-				->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games.")));
 			continue;
 		}
 
@@ -185,26 +204,8 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 			}
 		}
 
-		if (Actor->Implements<UEstSaveRestore>())
+		if (IsActorValidForSaving(Actor))
 		{
-			if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
-			{
-				FMessageLog("PIE").Error()
-					->AddToken(FTextToken::Create(FText::FromString("Class")))
-					->AddToken(FUObjectToken::Create(Actor->GetClass()))
-					->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
-				continue;
-			}
-
-			if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
-			{
-				FMessageLog("PIE").CriticalError()
-					->AddToken(FTextToken::Create(FText::FromString("Class")))
-					->AddToken(FUObjectToken::Create(Actor->GetClass()))
-					->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games.")));
-				continue;
-			}
-
 			FEstActorState ActorState;
 			SerializeActor(Actor, ActorState);
 			LevelState.ActorStates.Add(ActorState);
@@ -233,7 +234,7 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 			if (FoundActor == nullptr)
 			{
 				// This may happen if an actor has been deleted
-				UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find moved actor %s by save ID %s"), *MovedActorState.ActorName.ToString(), *MovedActorState.SaveId.ToString());
+				UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find moved actor %s by save ID %s"), *MovedActorState.ActorClass->GetName(), *MovedActorState.SaveId.ToString());
 				continue;
 			}
 
@@ -269,7 +270,7 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 		if (FoundActor == nullptr)
 		{
 			// We likely have an actor which was moved
-			UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find level actor %s by save ID %s, spawning"), *ActorState.ActorName.ToString(), *ActorState.SaveId.ToString());
+			UE_LOG(LogEstGeneral, Warning, TEXT("Unable to find level actor %s by save ID %s, spawning"), *ActorState.ActorClass->GetName(), *ActorState.SaveId.ToString());
 			FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
 		}
 
@@ -305,7 +306,6 @@ void UEstSaveStatics::SerializeActor(AActor* Actor, FEstActorState& ActorState)
 {
 	IEstSaveRestore::Execute_OnPreSave(Actor);
 
-	ActorState.ActorName = Actor->GetFName();
 	ActorState.SaveId = IEstSaveRestore::Execute_GetSaveId(Actor);
 	ActorState.ActorClass = Actor->GetClass();
 	ActorState.ActorTransform = Actor->GetActorTransform();
@@ -374,7 +374,6 @@ UActorComponent* UEstSaveStatics::RestoreComponent(AActor* Parent, const FEstCom
 AActor* UEstSaveStatics::SpawnMovedActor(UWorld* World, const FEstActorState &ActorState)
 {
 	FActorSpawnParameters Parameters;
-	Parameters.Name = ActorState.ActorName;
 	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	Parameters.bNoFail = true;
 

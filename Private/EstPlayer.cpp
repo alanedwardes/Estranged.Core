@@ -134,7 +134,7 @@ void AEstPlayer::OnPreSave_Implementation()
 	SAVE_bHasFlashlight = !Flashlight->bHiddenInGame;
 	SAVE_bIsFlashlightOn = Flashlight->IsVisible();
 	SAVE_bIsZooming = bZoomDesired;
-	SAVE_HeldActorName = HeldActor.IsValid() ? HeldActor->GetFName() : NAME_None;
+	SAVE_HeldActorSaveId = HeldActor.IsValid() && HeldActor->Implements<UEstSaveRestore>() ? IEstSaveRestore::Execute_GetSaveId(HeldActor.Get()) : FGuid();
 }
 
 void AEstPlayer::OnPostRestore_Implementation()
@@ -153,7 +153,7 @@ void AEstPlayer::OnPostRestore_Implementation()
 		SetZooming(true);
 	}
 
-	AActor* LastHeldActor = UEstGameplayStatics::FindActorByName(this, SAVE_HeldActorName);
+	AActor* LastHeldActor = UEstGameplayStatics::FindActorBySaveIdInWorld(this, SAVE_HeldActorSaveId);
 	if (LastHeldActor)
 	{
 		PickUpActor(LastHeldActor);

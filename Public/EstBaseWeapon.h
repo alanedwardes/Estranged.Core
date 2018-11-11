@@ -185,5 +185,5 @@ public:
 	float LastActivityFinishTime;
 
 	UPROPERTY(BlueprintReadWrite, SaveGame, Category = Fighting)
-	FName OwnerActorName;
+	FGuid OwnerSaveId;
 };

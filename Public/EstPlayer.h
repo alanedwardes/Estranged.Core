@@ -456,7 +456,7 @@ public:
 	float BlurFocusCheckSubTickTime;
 
 	UPROPERTY(SaveGame)
-	FName SAVE_HeldActorName;
+	FGuid SAVE_HeldActorSaveId;
 
 	UPROPERTY(SaveGame)
 	bool SAVE_bHasFlashlight;

@@ -23,24 +23,29 @@ AEstBaseWeapon::AEstBaseWeapon(const class FObjectInitializer& PCIP)
 
 void AEstBaseWeapon::OnPostRestore_Implementation()
 {
-	if (OwnerActorName == NAME_None)
+	if (!OwnerSaveId.IsValid())
 	{
 		return;
 	}
 
-	for (TActorIterator<AEstBaseCharacter> Character(GetWorld()); Character; ++Character)
+	AActor* Owner = UEstGameplayStatics::FindActorBySaveIdInWorld(GetWorld(), OwnerSaveId);
+	if (Owner == nullptr)
 	{
-		if (Character->GetFName() == OwnerActorName)
-		{
-			Character->EquipWeapon(this);
-			return;
-		}
+		return;
 	}
+
+	AEstBaseCharacter* Character = Cast<AEstBaseCharacter>(Owner);
+	if (Character == nullptr)
+	{
+		return;
+	}
+
+	Character->EquipWeapon(this);
 }
 
 void AEstBaseWeapon::OnPreSave_Implementation()
 {
-	OwnerActorName = GetOwner() ? OwnerActorName = GetOwner()->GetFName() : NAME_None;
+	OwnerSaveId = GetOwner() ? IEstSaveRestore::Execute_GetSaveId(GetOwner()) : FGuid();
 }
 
 void AEstBaseWeapon::PostRegisterAllComponents()

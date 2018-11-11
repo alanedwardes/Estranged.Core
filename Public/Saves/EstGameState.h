@@ -32,9 +32,6 @@ struct FEstActorState
 	TArray<FEstComponentState> ComponentStates;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ActorName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGuid SaveId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -62,13 +59,13 @@ struct FEstSequenceState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ActorName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 FrameNumber;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float PlayRate;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ActorName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsPlaying;

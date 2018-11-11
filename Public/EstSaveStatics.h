@@ -87,4 +87,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
 	static void SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes);
+
+	static bool IsActorValidForSaving(AActor* Actor);
 };
