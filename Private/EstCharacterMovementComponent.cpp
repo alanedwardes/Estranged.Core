@@ -114,8 +114,10 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 
 	const FVector EndTraceLocation = GetActorFeetLocation() + (FVector(0, 0, -1.f) * 100.f);
 
+	FCollisionShape SweepCapsule = FCollisionShape::MakeCapsule(20.f, 0.f);
+
 	FHitResult OutHit;
-	GetWorld()->LineTraceSingleByChannel(OutHit, GetActorLocation(), EndTraceLocation, ECC_Visibility, TraceParams);
+	GetWorld()->SweepSingleByChannel(OutHit, GetActorLocation(), EndTraceLocation, FQuat::Identity, ECC_Visibility, SweepCapsule, TraceParams);
 
 	const UPhysicalMaterial* PhysicalMaterial = bFootstepMaterialOverride ? FootstepMaterialOverride : OutHit.PhysMaterial.Get();
 	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
