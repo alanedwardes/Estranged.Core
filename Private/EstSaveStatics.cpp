@@ -121,7 +121,7 @@ bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 	{
 		UE_LOG(LogEstGeneral, Warning, TEXT("Class %s does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games"), *Actor->GetClass()->GetName());
 #if WITH_EDITOR
-		FMessageLog("PIE").CriticalError()
+		FMessageLog("PIE").Error()
 			->AddToken(FTextToken::Create(FText::FromString("Class")))
 			->AddToken(FUObjectToken::Create(Actor->GetClass()))
 			->AddToken(FTextToken::Create(FText::FromString("does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games")));
@@ -143,8 +143,16 @@ bool UEstSaveStatics::PersistSave(UEstSave* SaveGame)
 	return UGameplayStatics::SaveGameToSlot(SaveGame, SaveGame->GetSlotName(), 0);
 };
 
+#if WITH_EDITOR
+static TSet<FGuid> EditorSeenSaveIds;
+#endif
+
 FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 {
+#if WITH_EDITOR
+	EditorSeenSaveIds = TSet<FGuid>();
+#endif
+
 	FEstWorldState WorldState;
 
 	UWorld* World = WorldContextObject->GetWorld();
@@ -164,6 +172,10 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 		LevelState.LevelName = StreamingLevel->GetWorldAssetPackageFName();
 		WorldState.StreamingLevelStates.Add(LevelState);
 	}
+
+#if WITH_EDITOR
+	EditorSeenSaveIds = TSet<FGuid>();
+#endif
 
 	return WorldState;
 }
@@ -193,6 +205,17 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 			FEstActorState ActorState;
 			SerializeActor(Actor, ActorState);
 			LevelState.ActorStates.Add(ActorState);
+
+#if WITH_EDITOR
+			if (EditorSeenSaveIds.Contains(IEstSaveRestore::Execute_GetSaveId(Actor)))
+			{
+				FMessageLog("PIE").Error()
+					->AddToken(FTextToken::Create(FText::FromString("Actor")))
+					->AddToken(FUObjectToken::Create(Actor))
+					->AddToken(FTextToken::Create(FText::FromString("has the same save ID as another actor")));
+			}
+			EditorSeenSaveIds.Add(IEstSaveRestore::Execute_GetSaveId(Actor));
+#endif
 		}
 	}
 }
