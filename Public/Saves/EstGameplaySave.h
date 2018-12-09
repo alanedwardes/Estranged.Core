@@ -18,6 +18,7 @@ public:
 	{
 		FieldOfView = 90.f;
 		Gamma = 1.0;
+		DisableTemporalAntiAliasing = true; // Default to TXAA off
 	}
 
 	virtual FString GetSlotName() { return  TEXT("Gameplay"); };
