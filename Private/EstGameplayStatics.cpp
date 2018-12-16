@@ -659,3 +659,29 @@ void UEstGameplayStatics::SetHighlightState(AActor* Actor, bool bIsHighlighted)
 		MeshComponent->SetScalarParameterValueOnMaterials(HIGHLIGHT_MATERIAL_PARAMETER, bIsHighlighted ? 1.f : 0.f);
 	}
 }
+
+void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldContextObject, TSet<TSubclassOf<AActor>> ActorClasses, TSet<AActor*>& OutActors)
+{
+	QUICK_SCOPE_CYCLE_COUNTER(UEstGameplayStatics_FindAllLivingActorsOfClasses);
+	OutActors.Reset();
+
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+
+	// We do nothing if no is classes provided, rather than giving ALL actors!
+	if (ActorClasses.Num() > 0 && World)
+	{
+		for (TActorIterator<AActor> It(World, AActor::StaticClass()); It; ++It)
+		{
+			AActor* Actor = *It;
+			if (Actor->IsPendingKill())
+			{
+				continue;
+			}
+
+			if (ActorClasses.Contains(Actor->GetClass()) && !Actor->ActorHasTag(TAG_DEAD))
+			{
+				OutActors.Add(Actor);
+			}
+		}
+	}
+}
