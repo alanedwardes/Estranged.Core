@@ -23,6 +23,11 @@ bool UEstImageStatics::CompressImageToJpeg(const TArray<FColor> &SrcData, TArray
 	return true;
 }
 
+void UEstImageStatics::CompressImageToPng(const TArray<FColor> &SrcData, TArray<uint8> &DstData, int32 Width, int32 Height)
+{
+	FImageUtils::CompressImageArray(Width, Height, SrcData, DstData);
+}
+
 void UEstImageStatics::CropAndScaleImage(int32 SrcWidth, int32 SrcHeight, int32 DesiredWidth, int32 DesiredHeight, const TArray<FColor> &SrcData, TArray<FColor> &DstData)
 {
 	FImageUtils::CropAndScaleImage(SrcWidth, SrcHeight, DesiredWidth, DesiredHeight, SrcData, DstData);
