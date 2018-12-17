@@ -20,24 +20,7 @@ void UEstScreenshotTaker::RequestScreenshot()
 
 void UEstScreenshotTaker::AcceptScreenshot(int32 InSizeX, int32 InSizeY, const TArray<FColor>& InImageData)
 {
-	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
-
-	if (!ImageWrapper.IsValid())
-	{
-		bIsScreenshotRequested = false;
-		return;
-	}
-
-	if (!ImageWrapper->SetRaw(&InImageData[0], InImageData.Num() * sizeof(FColor), InSizeX, InSizeY, ERGBFormat::BGRA, 8))
-	{
-		bIsScreenshotRequested = false;
-		return;
-	}
-
-	const TArray<uint8>& CompressedImage = ImageWrapper->GetCompressed(90);
-
-	OnScreenshotJpeg.Broadcast(CompressedImage);
+	OnScreenshot.Broadcast(InImageData, InSizeX, InSizeY);
 
 	GEngine->GameViewport->OnScreenshotCaptured().RemoveAll(this);
 	bIsScreenshotRequested = false;

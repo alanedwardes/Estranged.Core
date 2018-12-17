@@ -4,7 +4,7 @@
 
 #include "EstScreenshotTaker.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScreenshotJpeg, const TArray<uint8>&, Jpeg);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnScreenshot, const TArray<FColor>&, InImageData, int32, InSizeX, int32, InSizeY);
 
 /**
  * 
@@ -19,7 +19,7 @@ public:
 	virtual void RequestScreenshot();
 
 	UPROPERTY(BlueprintAssignable, Category = Screenshot)
-	FOnScreenshotJpeg OnScreenshotJpeg;
+	FOnScreenshot OnScreenshot;
 protected:
 	virtual void AcceptScreenshot(int32 InSizeX, int32 InSizeY, const TArray<FColor>& InImageData);
 
