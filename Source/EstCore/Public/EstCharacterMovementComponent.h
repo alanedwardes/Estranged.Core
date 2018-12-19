@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EstSaveRestore.h"
 #include "EstCharacterMovementComponent.generated.h"
 

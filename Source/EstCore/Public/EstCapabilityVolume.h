@@ -1,5 +1,8 @@
 #pragma once
 
+#include "EstConstants.h"
+#include "GameFramework/PhysicsVolume.h"
+#include "Components/BrushComponent.h"
 #include "EstCapabilityVolume.generated.h"
 
 UCLASS()

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet/GameplayStatics.h"
 #include "EstSave.h"
 #include "EstGameplaySave.h"
 #include "EstLevelUnlockSave.h"
