@@ -6,6 +6,8 @@
 #include "EstSaveStatics.h"
 #include "Misc/UObjectToken.h"
 #include "Logging/MessageLog.h"
+#include "PlatformFeatures.h"
+#include "SaveGameSystem.h"
 
 void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
 {
@@ -437,4 +439,26 @@ void UEstSaveStatics::SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes)
 	FMemoryWriter MemoryWriter(InBytes, true);
 	FEstSaveGameArchive Ar(MemoryWriter);
 	Object->Serialize(Ar);
+}
+
+bool UEstSaveStatics::PersistSaveRaw(const TArray<uint8>& SrcData, const FString & SlotName, const int32 UserIndex)
+{
+	ISaveGameSystem* SaveSystem = IPlatformFeaturesModule::Get().GetSaveGameSystem();
+	if (SaveSystem && (SlotName.Len() > 0))
+	{
+		return SaveSystem->SaveGame(false, *SlotName, UserIndex, SrcData);
+	}
+
+	return false;
+}
+
+bool UEstSaveStatics::LoadSaveRaw(TArray<uint8>& DstData, const FString & SlotName, const int32 UserIndex)
+{
+	ISaveGameSystem* SaveSystem = IPlatformFeaturesModule::Get().GetSaveGameSystem();
+	if (SaveSystem && (SlotName.Len() > 0))
+	{
+		return SaveSystem->LoadGame(false, *SlotName, UserIndex, DstData);
+	}
+
+	return false;
 }

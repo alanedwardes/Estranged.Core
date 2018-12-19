@@ -38,6 +38,12 @@ public:
 	};
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
+	static bool PersistSaveRaw(const TArray<uint8> &SrcData, const FString& SlotName, const int32 UserIndex);
+
+	UFUNCTION(BlueprintCallable, Category = Saving)
+	static bool LoadSaveRaw(TArray<uint8> &DstData, const FString& SlotName, const int32 UserIndex);
+
+	UFUNCTION(BlueprintCallable, Category = Saving)
 	static bool PersistSave(UEstSave* SaveGame);
 	
 	UFUNCTION(BlueprintCallable, Category = Saving)
