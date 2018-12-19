@@ -1,17 +1,11 @@
 {
 	"FileVersion": 3,
-	"FriendlyName": "Estranged Core",
 	"CreatedBy": "Alan Edwardes",
 	"CreatedByURL": "https://alanedwardes.com/",
-	"EnabledByDefault": true,
-	"CanContainContent": false,
-	"IsBetaVersion": false,
-	"Installed": false,
 	"Modules": [
 		{
 			"Name": "EstCore",
-			"Type": "Developer",
-			"LoadingPhase": "Default"
+			"Type": "Runtime"
 		}
 	]
 }
