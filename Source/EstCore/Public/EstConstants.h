@@ -1,6 +1,8 @@
 #pragma once
 
 #define TAG_DEAD "DEAD"
+#define TAG_NOIMPACTS "NOIMPACTS"
+
 #define DEBUG_PERSIST_TIME 5.f
 #define DEBUG_COLOR FColor::Green
 #define WARNING_PERSIST_TIME 30.f
@@ -10,6 +12,7 @@
 #define CHANNEL_PLAYER_BLUR_FOCUS ECollisionChannel::ECC_GameTraceChannel7
 #define CHANNEL_PLAYER_INTERACT ECollisionChannel::ECC_GameTraceChannel8
 #define CHANNEL_PLAYER_WATER_CHECK ECollisionChannel::ECC_GameTraceChannel9
+
 #define PROFILE_TRIGGER "Trigger"
 #define PROFILE_PLAYER "Player"
 #define PROFILE_BULLET "Bullet"

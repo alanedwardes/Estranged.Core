@@ -4,6 +4,14 @@
 #include "EstCore.h"
 #include "EstImpactManifest.h"
 #include "PhysicsPublic.h"
+#include "Runtime/Engine/Classes/Engine/TextureStreamingTypes.h"
+#include "Runtime/Engine/Classes/Materials/MaterialInterface.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/BodyInstance.h"
+#include "Runtime/Engine/Classes/Engine/EngineTypes.h"
+#include "Runtime/Engine/Classes/Components/SceneComponent.h"
+#include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
+#include "Runtime/Engine/Classes/GameFramework/PhysicsVolume.h"
+#include "Runtime/Engine/Public/PhysicsPublic.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(TArray<FCollisionNotifyInfo>& PendingCollisionNotifies)
@@ -82,7 +90,7 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 		EST_DEBUG(FString::Printf(TEXT("Impact: Velocity %.2f, Intensity: %.2f"), ImpactVelMag, Intensity));
 
 		UPhysicalMaterial* MyMaterial = GetPhysicalMaterialFromCollision(MyInfo);
-		if (MyMaterial != nullptr && MyInfo.Component.IsValid() && MyInfo.Component->Mobility == EComponentMobility::Movable)
+		if (MyMaterial != nullptr && MyInfo.Component.IsValid() && MyInfo.Component->Mobility == EComponentMobility::Movable && !MyInfo.Actor->ActorHasTag(TAG_NOIMPACTS))
 		{
 			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, MyMaterial);
 			if (ImpactEffect != FEstImpactEffect::None)
@@ -92,7 +100,7 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 		}
 
 		UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromCollision(OtherInfo);
-		if (OtherMaterial != nullptr && OtherInfo.Component.IsValid() && OtherInfo.Component->Mobility == EComponentMobility::Movable)
+		if (OtherMaterial != nullptr && OtherInfo.Component.IsValid() && OtherInfo.Component->Mobility == EComponentMobility::Movable && !OtherInfo.Actor->ActorHasTag(TAG_NOIMPACTS))
 		{
 			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, OtherMaterial);
 			if (ImpactEffect != FEstImpactEffect::None)
