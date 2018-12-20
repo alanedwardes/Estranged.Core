@@ -1,4 +1,5 @@
 #include "EstCore.h"
+#include "Modules/ModuleManager.h"
 
 extern ENGINE_API float GAverageFPS;
 

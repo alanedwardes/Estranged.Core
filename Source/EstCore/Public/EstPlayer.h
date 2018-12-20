@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Components/PrimitiveComponent.h"
 #include "EstBaseCharacter.h"
 #include "EstPlayer.generated.h"
 

@@ -1,13 +1,18 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstSaveStatics.h"
 #include "EstCore.h"
 #include "EstPlayerController.h"
 #include "EstPlayerHUD.h"
-#include "EstSaveStatics.h"
 #include "Misc/UObjectToken.h"
 #include "Logging/MessageLog.h"
+#include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
 #include "PlatformFeatures.h"
 #include "SaveGameSystem.h"
+#include "EstPlayer.h"
+#include "Runtime/Core/Public/Serialization/MemoryReader.h"
+#include "Runtime/CoreUObject/Public/Serialization/ObjectAndNameAsStringProxyArchive.h"
+#include "Runtime/Engine/Classes/Engine/LevelStreaming.h"
 
 void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
 {

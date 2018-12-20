@@ -1,9 +1,10 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstGameInstance.h"
+#include "Runtime/SlateCore/Public/Application/SlateApplicationBase.h"
 #include "EstCore.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "EstMenuWidget.h"
-#include "EstGameInstance.h"
 
 void UEstGameInstance::Init()
 {

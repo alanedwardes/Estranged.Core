@@ -1,5 +1,5 @@
-#include "EstCore.h"
 #include "EstResourceComponent.h"
+#include "EstCore.h"
 
 UEstResourceComponent::UEstResourceComponent()
 {

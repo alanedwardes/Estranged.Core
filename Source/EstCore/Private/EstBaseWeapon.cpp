@@ -1,6 +1,10 @@
-#include "EstCore.h"
-#include "EstBaseCharacter.h"
 #include "EstBaseWeapon.h"
+#include "EstCore.h"
+#include "Engine/Engine.h"
+#include "EstGameplayStatics.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "EstBaseCharacter.h"
 
 AEstBaseWeapon::AEstBaseWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)

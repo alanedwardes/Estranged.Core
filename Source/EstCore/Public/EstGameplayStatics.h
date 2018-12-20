@@ -1,7 +1,12 @@
 #pragma once
 
+#include "Engine/Classes/Engine/EngineTypes.h"
+#include "Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
+#include "Runtime/InputCore/Classes/InputCoreTypes.h"
+#include "Framework/Commands/InputChord.h"
+#include "GameFramework/Actor.h"
 #include "EstImpactEffect.h"
-#include "EstSave.h"
+#include "Saves/EstSave.h"
 #include "EstGameplayStatics.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, FHitResult, HitResult);

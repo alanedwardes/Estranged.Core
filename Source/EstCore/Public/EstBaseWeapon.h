@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Runtime/Engine/Classes/Engine/World.h"
 #include "GameFramework/Actor.h"
-#include "Object.h"
-#include "EstInteractive.h"
-#include "EstSaveRestore.h"
+#include "Runtime/CoreUObject/Public/UObject/Object.h"
+#include "Interfaces/EstInteractive.h"
+#include "Interfaces/EstSaveRestore.h"
 #include "EstWeaponAnimationManifest.h"
 #include "EstWeaponSoundManifest.h"
 #include "EstBaseWeapon.generated.h"

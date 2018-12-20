@@ -1,11 +1,12 @@
-#include "EstCore.h"
 #include "EstPlayerHUD.h"
+#include "EstCore.h"
 #include "EstPlayer.h"
 #include "EstPlayerController.h"
 #include "EstFirearmWeapon.h"
 #include "EstFirearmAmunition.h"
 #include "EstResourceComponent.h"
 #include "EstHealthComponent.h"
+#include "Runtime/Engine/Classes/Engine/Canvas.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void AEstPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)

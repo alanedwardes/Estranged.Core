@@ -1,11 +1,13 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstMapErrorChecker.h"
 #include "EstCore.h"
 #include "Logging/TokenizedMessage.h"
 #include "Logging/MessageLog.h"
+#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
+#include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Misc/UObjectToken.h"
 #include "Misc/MapErrors.h"
-#include "EstMapErrorChecker.h"
 
 #if WITH_EDITOR
 void AEstMapErrorChecker::CheckForErrors()

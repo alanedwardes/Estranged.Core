@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "EstSaveRestore.h"
+#include "Interfaces/EstSaveRestore.h"
 #include "EstSkinnedMeshCacheComponent.generated.h"
 
 USTRUCT(BlueprintType)

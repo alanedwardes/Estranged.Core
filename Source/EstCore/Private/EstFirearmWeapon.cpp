@@ -1,6 +1,7 @@
+#include "EstFirearmWeapon.h"
+#include "Components/SpotLightComponent.h"
 #include "EstCore.h"
 #include "EstFirearmAmunition.h"
-#include "EstFirearmWeapon.h"
 #include "Runtime/AIModule/Classes/Perception/AISense_Hearing.h"
 
 AEstFirearmWeapon::AEstFirearmWeapon(const class FObjectInitializer& PCIP)

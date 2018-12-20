@@ -1,9 +1,10 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstPlayerCameraManager.h"
 #include "EstCore.h"
 #include "EstPlayer.h"
 #include "EstBaseWeapon.h"
-#include "EstPlayerCameraManager.h"
+#include "Runtime/Slate/Public/Widgets/SViewport.h"
 
 void AEstPlayerCameraManager::OnPhotographySessionStart_Implementation()
 {

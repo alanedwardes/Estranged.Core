@@ -1,5 +1,6 @@
-#include "EstCore.h"
 #include "EstCharacterMovementComponent.h"
+#include "Runtime/Engine/Classes/PhysicalMaterials/PhysicalMaterial.h"
+#include "EstCore.h"
 #include "EstBaseCharacter.h"
 #include "EstImpactManifest.h"
 #include "EstImpactEffect.h"

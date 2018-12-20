@@ -1,7 +1,7 @@
 // Estranged is a trade mark of Alan Edwardes.
 
-#include "EstCore.h"
 #include "EstScreenshotTaker.h"
+#include "EstCore.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
 

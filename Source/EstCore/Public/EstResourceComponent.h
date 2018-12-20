@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "EstSaveRestore.h"
+#include "Interfaces/EstSaveRestore.h"
 #include "EstResourceComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDepletedDelegate, AActor*, Instigator);

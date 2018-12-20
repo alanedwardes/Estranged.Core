@@ -1,8 +1,8 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstFootstepVolume.h"
 #include "EstCore.h"
 #include "EstCharacterMovementComponent.h"
-#include "EstFootstepVolume.h"
 
 AEstFootstepVolume::AEstFootstepVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

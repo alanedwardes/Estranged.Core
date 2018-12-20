@@ -1,10 +1,10 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstPhysicsCollisionHandler.h"
 #include "EstCore.h"
 #include "EstImpactManifest.h"
 #include "PhysicsPublic.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "EstPhysicsCollisionHandler.h"
 
 void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(TArray<FCollisionNotifyInfo>& PendingCollisionNotifies)
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine.h"
+#include "Modules/ModuleInterface.h"
 #include "EstGameplayStatics.h"
 #include "EstConstants.h"
 #include "Containers/Ticker.h"

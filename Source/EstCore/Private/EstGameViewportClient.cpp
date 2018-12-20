@@ -1,7 +1,7 @@
 // Estranged is a trade mark of Alan Edwardes.
 
-#include "EstCore.h"
 #include "EstGameViewportClient.h"
+#include "EstCore.h"
 
 TOptional<bool> UEstGameViewportClient::QueryShowFocus(const EFocusCause InFocusCause) const
 {

@@ -1,8 +1,8 @@
+#include "EstImageStatics.h"
 #include "EstCore.h"
 #include "ImageUtils.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
-#include "EstImageStatics.h"
 
 bool UEstImageStatics::CompressImageToJpeg(const TArray<FColor> &SrcData, TArray<uint8> &DstData, int32 Width, int32 Height, int32 Quality)
 {

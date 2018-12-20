@@ -1,5 +1,5 @@
-#include "EstCore.h"
 #include "EstHealthComponent.h"
+#include "EstCore.h"
 
 void UEstHealthComponent::OnPostRestore_Implementation()
 {
