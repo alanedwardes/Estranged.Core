@@ -59,13 +59,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableDepthOfField(bool NewDisableDepthOfField) { DisableDepthOfField = NewDisableDepthOfField; }
 
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetDisableTemporalAntiAliasing()
+	{ 
 #if PLATFORM_LINUX
-	UFUNCTION(BlueprintCallable)
-	virtual bool GetDisableTemporalAntiAliasing() { return false; }
+		// On Linux, only permit disabling TXAA if we're not using the forward renderer
+		static IConsoleVariable* CVarForwardShading = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ForwardShading"));
+		return CVarForwardShading->GetInt() == 0 ? DisableTemporalAntiAliasing : false;
 #else
-	UFUNCTION(BlueprintCallable)
-	virtual bool GetDisableTemporalAntiAliasing() { return DisableTemporalAntiAliasing; }
+		return DisableTemporalAntiAliasing;
 #endif
+	}
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableTemporalAntiAliasing(bool NewDisableTemporalAntiAliasing) { DisableTemporalAntiAliasing = NewDisableTemporalAntiAliasing; };
