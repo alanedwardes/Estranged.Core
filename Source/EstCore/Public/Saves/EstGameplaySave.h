@@ -59,8 +59,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableDepthOfField(bool NewDisableDepthOfField) { DisableDepthOfField = NewDisableDepthOfField; }
 
+#if PLATFORM_LINUX
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetDisableTemporalAntiAliasing() { return false; }
+#else
 	UFUNCTION(BlueprintCallable)
 	virtual bool GetDisableTemporalAntiAliasing() { return DisableTemporalAntiAliasing; }
+#endif
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableTemporalAntiAliasing(bool NewDisableTemporalAntiAliasing) { DisableTemporalAntiAliasing = NewDisableTemporalAntiAliasing; };
