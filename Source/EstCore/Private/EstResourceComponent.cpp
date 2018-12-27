@@ -1,4 +1,5 @@
 #include "EstResourceComponent.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
 #include "EstCore.h"
 
 UEstResourceComponent::UEstResourceComponent()
@@ -47,6 +48,10 @@ bool UEstResourceComponent::ChangeResource(float Amount, AActor* Instigator)
 
 	if (IsDepleted())
 	{
+		if (FMath::IsNearlyZero(InitialDepletionTime))
+		{
+			InitialDepletionTime = GetWorld()->GetTimeSeconds();
+		}
 		OnDepleted.Broadcast(Instigator);
 	}
 

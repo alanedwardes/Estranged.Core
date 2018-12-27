@@ -188,6 +188,15 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	const float Result = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
+	// Passes if we were just killed, does not pass if damaged posthumous.
+	if (!bWasDeadBefore && HealthComponent->IsDepleted())
+	{
+		if (DeathSound != nullptr)
+		{
+			UGameplayStatics::PlaySound2D(this, DeathSound);
+		}
+	}
+
 	if (HealthComponent->IsDepleted())
 	{
 		UnequipWeapon();
@@ -678,6 +687,16 @@ void AEstPlayer::ShowMenuSection(FName MenuSection)
 	EstPlayerController->SetMenuFocusState(true);
 }
 
+bool AEstPlayer::ShouldShowLoadGameMenu()
+{
+	if (!HealthComponent->IsDepleted())
+	{
+		return false;
+	}
+
+	return GetWorld()->TimeSince(HealthComponent->InitialDepletionTime) > 5.f;
+}
+
 void AEstPlayer::SetZooming(bool Zooming)
 {
 	bZoomDesired = Zooming;
@@ -1099,7 +1118,7 @@ void AEstPlayer::NotifyActorOnInputTouchEnd(const ETouchIndex::Type FingerIndex)
 
 void AEstPlayer::PrimaryAttackPressedInput()
 {
-	if (HealthComponent->IsDepleted())
+	if (ShouldShowLoadGameMenu())
 	{
 		ShowLoadGameMenu();
 		return;
@@ -1155,12 +1174,6 @@ void AEstPlayer::PrimaryAttackReleasedInput()
 
 void AEstPlayer::SecondaryAttackPressedInput()
 {
-	if (HealthComponent->IsDepleted())
-	{
-		ShowLoadGameMenu();
-		return;
-	}
-
 	if (!IsViewTarget())
 	{
 		return;

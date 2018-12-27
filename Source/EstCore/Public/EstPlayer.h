@@ -152,6 +152,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TMap<TSubclassOf<class UDamageType>, TSubclassOf<class UCameraShake>> DamageShakes;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	class USoundBase* DeathSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Water")
 	FLinearColor UnderwaterTintColor;
 
@@ -285,6 +288,9 @@ public:
 
 	/** Show console menu */
 	virtual void ShowLoadGameMenu() { ShowMenuSection("LoadGame"); }
+
+	/** Shared logic to determine whether the load game menu should be shown on this input press. */
+	virtual bool ShouldShowLoadGameMenu();
 
 	/** Zoom out */
 	virtual void SetZooming(bool Zooming);

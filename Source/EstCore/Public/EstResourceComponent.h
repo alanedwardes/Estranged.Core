@@ -71,4 +71,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, SaveGame, Category = "Resource")
 	float ResourceChangePerSecond;
+
+	/** World time in seconds when this health component was first depleted. */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Resource")
+	float InitialDepletionTime;
 };
