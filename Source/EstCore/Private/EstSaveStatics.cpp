@@ -13,6 +13,8 @@
 #include "Runtime/Core/Public/Serialization/MemoryReader.h"
 #include "Runtime/CoreUObject/Public/Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "Runtime/Engine/Classes/Engine/LevelStreaming.h"
+#include "Runtime/Engine/Classes/Engine/Scene.h"
+#include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 
 void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
 {
@@ -31,6 +33,9 @@ void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplayS
 
 	Player->Camera->PostProcessSettings.bOverride_ColorGamma = true;
 	Player->Camera->PostProcessSettings.ColorGamma = FVector4(GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma());
+
+	Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = true;
+	Player->Camera->PostProcessSettings.AmbientOcclusionIntensity = GameplaySave->GetDisableAmbientOcclusion() ? 0.f : .5f;
 
 	Player->UpdatePostProcessingTick(0.f);
 }

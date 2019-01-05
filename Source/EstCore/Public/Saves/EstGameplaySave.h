@@ -86,6 +86,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableVignette(bool NewDisableVignette) { DisableVignette = NewDisableVignette; };
 
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetDisableAmbientOcclusion() { return DisableAmbientOcclusion; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetDisableAmbientOcclusion(bool NewDisableAmbientOcclusion) { DisableAmbientOcclusion = NewDisableAmbientOcclusion; };
+
 private:
 	UPROPERTY()
 	float FieldOfView;
@@ -113,4 +119,7 @@ private:
 
 	UPROPERTY()
 	bool DisableVignette;
+
+	UPROPERTY()
+	bool DisableAmbientOcclusion;
 };
