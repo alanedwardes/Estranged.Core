@@ -7,6 +7,7 @@
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Misc/UObjectToken.h"
+#include "Interfaces/EstSaveRestore.h"
 #include "Misc/MapErrors.h"
 
 #if WITH_EDITOR
@@ -18,6 +19,7 @@ void AEstMapErrorChecker::CheckForErrors()
 
 	TSet<const UMaterialInterface*> SeenMaterials;
 	TSet<const UStaticMesh*> SeenMeshes;
+	TSet<FGuid> EditorSeenSaveIds;
 	
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
@@ -26,6 +28,40 @@ void AEstMapErrorChecker::CheckForErrors()
 		if (Actor->IsEditorOnly())
 		{
 			continue;
+		}
+
+		if (Actor->Implements<UEstSaveRestore>())
+		{
+			UStructProperty* SaveIdProperty = Cast<UStructProperty>(Actor->GetClass()->FindPropertyByName(FName("SaveId")));
+			if (SaveIdProperty == nullptr)
+			{
+				MapCheck.Error()
+					->AddToken(FUObjectToken::Create(this))
+					->AddToken(FTextToken::Create(FText::FromString("Savable actor")))
+					->AddToken(FUObjectToken::Create(Actor))
+					->AddToken(FTextToken::Create(FText::FromString("has no SaveId property.")));
+			}
+
+			const FGuid SaveId = *SaveIdProperty->ContainerPtrToValuePtr<FGuid>(Actor);
+			if (!SaveId.IsValid())
+			{
+				FMessageLog("PIE").Error()
+					->AddToken(FTextToken::Create(FText::FromString("Actor")))
+					->AddToken(FUObjectToken::Create(Actor->GetClass()))
+					->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
+			}
+
+			if (EditorSeenSaveIds.Contains(SaveId))
+			{
+				MapCheck.Error()
+					->AddToken(FUObjectToken::Create(this))
+					->AddToken(FTextToken::Create(FText::FromString("Actor")))
+					->AddToken(FUObjectToken::Create(Actor))
+					->AddToken(FTextToken::Create(FText::FromString("has SaveId")))
+					->AddToken(FTextToken::Create(FText::FromString(SaveId.ToString())))
+					->AddToken(FTextToken::Create(FText::FromString("which is the same as another actor.")));
+			}
+			EditorSeenSaveIds.Add(SaveId);
 		}
 		
 		for (const UActorComponent* Component : Actor->GetComponents())
@@ -49,7 +85,7 @@ void AEstMapErrorChecker::CheckForErrors()
 				{
 					const int32 Lod1Tris = StaticMesh->RenderData->LODResources[0].GetNumTriangles();
 
-					if (StaticMesh->GetNumLODs() == 1 && Lod1Tris > 1024)
+					if (StaticMesh->GetNumLODs() == 1 && Lod1Tris > 2048)
 					{
 						MapCheck.Error()
 							->AddToken(FUObjectToken::Create(this))
@@ -61,7 +97,7 @@ void AEstMapErrorChecker::CheckForErrors()
 					}
 
 					const int32 LastLodTris = StaticMesh->RenderData->LODResources[StaticMesh->GetNumLODs() - 1].GetNumTriangles();
-					if (StaticMesh->GetNumLODs() > 1 && LastLodTris > 1024)
+					if (StaticMesh->GetNumLODs() > 1 && LastLodTris > 2048)
 					{
 						MapCheck.Warning()
 							->AddToken(FUObjectToken::Create(this))
