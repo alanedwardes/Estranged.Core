@@ -42,7 +42,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	Camera->PostProcessSettings.bOverride_AutoExposureMinBrightness = true;
 	Camera->PostProcessSettings.AutoExposureMinBrightness = .5f;
 	Camera->PostProcessSettings.bOverride_AutoExposureMaxBrightness = true;
-	Camera->PostProcessSettings.AutoExposureMaxBrightness = 20.f;
+	Camera->PostProcessSettings.AutoExposureMaxBrightness = 2.f;
 
 	Camera->SetFieldOfView(110.f);
 	CameraSmoothSpeed = 22.f;
