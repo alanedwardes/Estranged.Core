@@ -5,32 +5,17 @@
 #include "DestructibleComponent.h"
 #include "PhysXPublic.h"
 
+UEstSkinnedMeshCacheComponent::UEstSkinnedMeshCacheComponent(const class FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	bAutoRestore = true;
+}
+
 void UEstSkinnedMeshCacheComponent::OnPostRestore_Implementation()
 {
-	TArray<USkinnedMeshComponent*> SkinnedMeshComponents = GetSkinnedMeshComponents();
-
-	for (const FEstSkinnedMeshComponentState State : SkinnedMeshStates)
+	if (bAutoRestore)
 	{
-		USkinnedMeshComponent* SkinnedMeshComponent = GetSkinnedMeshComponentByName(State.ComponentName);
-
-		UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(SkinnedMeshComponent);
-
-		for (const FEstSkinnedMeshBoneState BoneState : State.BoneStates)
-		{
-			if (DestructibleComponent)
-			{
-				const int32 BoneIndex = DestructibleComponent->GetBoneIndex(BoneState.BoneName);
-				const int32 ChunkIndex = DestructibleComponent->BoneIdxToChunkIdx(BoneIndex);
-				DestructibleComponent->ApexDestructibleActor->setDynamic(ChunkIndex);
-				// TODO: Set chunk location?
-			}
-			else
-			{
-				FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
-				BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);
-				BodyInstance->SetInstanceSimulatePhysics(BoneState.bIsSimulatingPhysics);
-			}
-		}
+		RestoreSkinnedMeshStates();
 	}
 }
 
@@ -83,6 +68,35 @@ void UEstSkinnedMeshCacheComponent::OnPreSave_Implementation()
 		}
 
 		SkinnedMeshStates.Add(SkinnedMeshState);
+	}
+}
+
+void UEstSkinnedMeshCacheComponent::RestoreSkinnedMeshStates()
+{
+	TArray<USkinnedMeshComponent*> SkinnedMeshComponents = GetSkinnedMeshComponents();
+
+	for (const FEstSkinnedMeshComponentState State : SkinnedMeshStates)
+	{
+		USkinnedMeshComponent* SkinnedMeshComponent = GetSkinnedMeshComponentByName(State.ComponentName);
+
+		UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(SkinnedMeshComponent);
+
+		for (const FEstSkinnedMeshBoneState BoneState : State.BoneStates)
+		{
+			if (DestructibleComponent)
+			{
+				const int32 BoneIndex = DestructibleComponent->GetBoneIndex(BoneState.BoneName);
+				const int32 ChunkIndex = DestructibleComponent->BoneIdxToChunkIdx(BoneIndex);
+				DestructibleComponent->ApexDestructibleActor->setDynamic(ChunkIndex);
+				// TODO: Set chunk location?
+			}
+			else
+			{
+				FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
+				BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);
+				BodyInstance->SetInstanceSimulatePhysics(BoneState.bIsSimulatingPhysics);
+			}
+		}
 	}
 }
 

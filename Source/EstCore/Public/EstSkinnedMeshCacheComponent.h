@@ -43,17 +43,23 @@ class ESTCORE_API UEstSkinnedMeshCacheComponent : public UActorComponent, public
 	GENERATED_BODY()
 
 public:
+	UEstSkinnedMeshCacheComponent(const class FObjectInitializer& ObjectInitializer);
 
 // Begin IEstSaveRestore
-	void OnPreRestore_Implementation() override {};
-	void OnPostRestore_Implementation() override;
-	void OnPreSave_Implementation() override;
-	void OnPostSave_Implementation() override {};
+	virtual void OnPreRestore_Implementation() override {};
+	virtual void OnPostRestore_Implementation() override;
+	virtual void OnPreSave_Implementation() override;
+	virtual void OnPostSave_Implementation() override {};
 // End IEstSaveRestore
+
+	UFUNCTION(BlueprintCallable, Category = "Skinned Mesh Cache")
+	virtual void RestoreSkinnedMeshStates();
 
 	UPROPERTY(EditAnywhere, SaveGame)
 	TArray<FEstSkinnedMeshComponentState> SkinnedMeshStates;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skinned Mesh Cache")
+	bool bAutoRestore;
 private:
 	TArray<class USkinnedMeshComponent*> GetSkinnedMeshComponents();
 	class USkinnedMeshComponent* GetSkinnedMeshComponentByName(FName ComponentName);
