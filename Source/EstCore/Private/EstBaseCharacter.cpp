@@ -106,21 +106,29 @@ float AEstBaseCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dam
 
 	if (HealthComponent->IsDepleted() && !ActorHasTag(TAG_DEAD))
 	{
-		UE_LOG(LogClass, Log, TEXT("Character %s just died"), *GetName());
-		Tags.Add(TAG_DEAD);
-
-		if (!IsPlayerControlled())
-		{
-			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-
-		if (HasWeapon())
-		{
-			UnequipWeapon();
-		}
+		OnDeath();
 	}
 
 	return DamageReceived;
+}
+
+void AEstBaseCharacter::OnPostRestore_Implementation()
+{
+	if (HealthComponent->IsDepleted())
+	{
+		OnDeath();
+	}
+}
+
+void AEstBaseCharacter::OnDeath_Implementation()
+{
+	UE_LOG(LogClass, Log, TEXT("Character %s just died"), *GetName());
+	Tags.Add(TAG_DEAD);
+
+	if (HasWeapon())
+	{
+		UnequipWeapon();
+	}
 }
 
 bool AEstBaseCharacter::CanJumpInternal_Implementation() const

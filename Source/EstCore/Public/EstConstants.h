@@ -16,6 +16,7 @@
 #define PROFILE_TRIGGER "Trigger"
 #define PROFILE_PLAYER "Player"
 #define PROFILE_BULLET "Bullet"
+#define PROFILE_DEBRIS "Debris"
 
 #define SURFACE_TYPE_GLASS EPhysicalSurface::SurfaceType1
 #define SURFACE_TYPE_FOLIAGE EPhysicalSurface::SurfaceType2
@@ -27,3 +28,5 @@
 #define BARREL_SOCKET "BarrelSocket"
 #define HOLD_SOCKET "HoldSocket"
 #define HIGHLIGHT_MATERIAL_PARAMETER "Highlight"
+
+#define BLACKBOARD_FOCUS_ACTOR "FocusActor"

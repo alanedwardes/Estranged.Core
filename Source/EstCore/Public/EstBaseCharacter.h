@@ -18,19 +18,16 @@ public:
 
 // Begin IEstSaveRestore
 	void OnPreRestore_Implementation() override {};
-	void OnPostRestore_Implementation() override {};
+	void OnPostRestore_Implementation();
 	void OnPreSave_Implementation() override {};
 	void OnPostSave_Implementation() override {};
-// End IEstSaveRestore
-
-	void BeginPlay() override;
-
-// Begin SaveId
 	virtual FGuid GetSaveId_Implementation() override { return SaveId; };
 	virtual void OnConstruction(const FTransform &Transform) override { UEstGameplayStatics::NewGuidIfInvalid(SaveId); };
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, SaveGame, Category = SaveState)
 	FGuid SaveId;
-// End SaveId
+// End IEstSaveRestore
+
+	void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UEstHealthComponent *HealthComponent;
@@ -59,6 +56,9 @@ public:
 
 	/** Damage control */
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Life)
+	void OnDeath();
 
 	UFUNCTION()
 	virtual bool CanJumpInternal_Implementation() const override;

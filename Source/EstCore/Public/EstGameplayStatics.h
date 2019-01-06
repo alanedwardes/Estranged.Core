@@ -108,6 +108,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AActor* FindActorBySaveIdInWorld(UObject* WorldContextObject, FGuid SaveId);
 
+	template <typename TActor>
+	static TActor* FindActorBySaveIdInWorld(UObject* WorldContextObject, FGuid SaveId) { return Cast<TActor>(FindActorBySaveIdInWorld(WorldContextObject, SaveId)); };
+
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AActor* FindActorByName(UObject* WorldContextObject, FName ActorName, UClass* ActorClass = nullptr);
 
