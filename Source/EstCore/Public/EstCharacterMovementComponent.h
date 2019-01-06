@@ -127,6 +127,9 @@ public:
 	float SAVE_JumpZVelocity;
 
 	UPROPERTY(SaveGame)
+	bool SAVE_bCanJump;
+
+	UPROPERTY(SaveGame)
 	bool SAVE_bCanCrouch;
 
 	UPROPERTY(SaveGame)

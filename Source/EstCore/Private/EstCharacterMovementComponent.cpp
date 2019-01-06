@@ -30,6 +30,7 @@ void UEstCharacterMovementComponent::OnPreSave_Implementation()
 {
 	SAVE_MaxWalkSpeed = MaxWalkSpeed;
 	SAVE_JumpZVelocity = JumpZVelocity;
+	SAVE_bCanJump = NavAgentProps.bCanJump;
 	SAVE_bCanCrouch = NavAgentProps.bCanCrouch;
 	SAVE_bIsCrouching = IsCrouching();
 }
@@ -39,6 +40,7 @@ void UEstCharacterMovementComponent::OnPostRestore_Implementation()
 	MaxWalkSpeed = SAVE_MaxWalkSpeed;
 	JumpZVelocity = SAVE_JumpZVelocity;
 	NavAgentProps.bCanCrouch = SAVE_bCanCrouch;
+	NavAgentProps.bCanJump = SAVE_bCanJump;
 
 	if (SAVE_bIsCrouching)
 	{
