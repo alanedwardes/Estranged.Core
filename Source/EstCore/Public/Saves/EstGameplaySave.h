@@ -18,6 +18,7 @@ public:
 	{
 		FieldOfView = 90.f;
 		Gamma = 1.0;
+		DisableMotionBlur = true; // Default motion blur off
 		DisableTemporalAntiAliasing = true; // Default to TXAA off
 	}
 

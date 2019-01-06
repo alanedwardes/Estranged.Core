@@ -27,7 +27,7 @@ void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplayS
 	Player->Camera->FieldOfView = GameplaySave->GetFieldOfView();
 
 	Player->Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
-	Player->Camera->PostProcessSettings.MotionBlurAmount = GameplaySave->GetDisableMotionBlur() ? 0.f : .1f;
+	Player->Camera->PostProcessSettings.MotionBlurAmount = GameplaySave->GetDisableMotionBlur() ? 0.f : 1.f;
 	Player->Camera->PostProcessSettings.bOverride_MotionBlurMax = true;
 	Player->Camera->PostProcessSettings.MotionBlurMax = GameplaySave->GetDisableMotionBlur() ? 0.f : 1.f;
 
