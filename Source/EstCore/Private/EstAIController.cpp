@@ -11,7 +11,7 @@ AEstAIController::AEstAIController(const class FObjectInitializer& ObjectInitial
 
 void AEstAIController::OnPreSave_Implementation()
 {
-	AActor* FocusActor = GetFocusActor();
+	AActor* FocusActor = GetBlackboardFocusActor();
 	if (FocusActor == nullptr)
 	{
 		FocusActorSaveId.Invalidate();
@@ -29,14 +29,7 @@ void AEstAIController::BeginPlay()
 	AActor* FocusActor = UEstGameplayStatics::FindActorBySaveIdInWorld(this, FocusActorSaveId);
 	if (FocusActor != nullptr)
 	{
-		SetFocus(FocusActor);
-
-		// The blackboard is the source of truth for actors which use it
-		UBlackboardComponent* Blackboard = GetBlackboardComponent();
-		if (Blackboard != nullptr)
-		{
-			Blackboard->SetValueAsObject(BLACKBOARD_FOCUS_ACTOR, FocusActor);
-		}
+		SetBlackboardFocusActor(FocusActor);
 	}
 }
 
@@ -58,4 +51,30 @@ void AEstAIController::UnPossess()
 	SetActorTickEnabled(false);
 
 	Super::UnPossess();
+}
+
+void AEstAIController::SetBlackboardFocusActor(AActor *FocusActor)
+{
+	UBlackboardComponent* Blackboard = GetBlackboardComponent();
+	if (Blackboard != nullptr)
+	{
+		Blackboard->SetValueAsObject(BLACKBOARD_FOCUS_ACTOR, FocusActor);
+	}
+}
+
+AActor* AEstAIController::GetBlackboardFocusActor()
+{
+	UBlackboardComponent* Blackboard = GetBlackboardComponent();
+	if (Blackboard == nullptr)
+	{
+		return nullptr;
+	}
+
+	UObject* FocusActor = Blackboard->GetValueAsObject(BLACKBOARD_FOCUS_ACTOR);
+	if (FocusActor == nullptr)
+	{
+		return nullptr;
+	}
+
+	return Cast<AActor>(FocusActor);
 }

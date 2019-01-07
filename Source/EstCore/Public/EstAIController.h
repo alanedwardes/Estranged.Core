@@ -30,6 +30,11 @@ public:
 	virtual void Possess(APawn* InPawn) override;
 	virtual void UnPossess() override;
 
+	UFUNCTION(BlueprintCallable, Category = AI)
+	virtual void SetBlackboardFocusActor(AActor* FocusActor);
+	UFUNCTION(BlueprintCallable, Category = AI)
+	virtual AActor* GetBlackboardFocusActor();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AI)
 	UBehaviorTree* BehaviorTree;
 private:
