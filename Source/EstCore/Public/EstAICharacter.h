@@ -17,6 +17,13 @@ public:
 	void OnPreSave_Implementation() override;
 	void OnDeath_Implementation() override;
 	void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
+	bool bClearAnimInstanceOnDeath;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
+	bool bClearAnimationOnDeath;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
+	bool bSimulatePhysicsOnDeath;
 private:
 	UPROPERTY(SaveGame)
 	FGuid ControllerSaveId;

@@ -10,6 +10,9 @@ AEstAICharacter::AEstAICharacter(const class FObjectInitializer& ObjectInitializ
 	: Super(ObjectInitializer)
 {
 	AutoPossessAI = EAutoPossessAI::Disabled;
+	bClearAnimInstanceOnDeath = true;
+	bClearAnimationOnDeath = true;
+	bSimulatePhysicsOnDeath = true;
 }
 
 void AEstAICharacter::OnPostRestore_Implementation()
@@ -52,11 +55,23 @@ void AEstAICharacter::OnDeath_Implementation()
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetAnimInstanceClass(nullptr);
-	GetMesh()->SetAnimation(nullptr);
+	if (bClearAnimInstanceOnDeath)
+	{
+		GetMesh()->SetAnimInstanceClass(nullptr);
+	}
+
+	if (bClearAnimationOnDeath)
+	{
+		GetMesh()->SetAnimation(nullptr);
+	}
+
+	if (bSimulatePhysicsOnDeath)
+	{
+		GetMesh()->SetSimulatePhysics(true);
+	}
+
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionProfileName(PROFILE_DEBRIS);
-	GetMesh()->SetSimulatePhysics(true);
 }
 
 void AEstAICharacter::BeginPlay()
