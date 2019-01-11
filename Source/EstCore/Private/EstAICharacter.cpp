@@ -5,14 +5,18 @@
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "EstHealthComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/Controller.h"
+#include "Runtime/Engine/Public/TimerManager.h"
 
 AEstAICharacter::AEstAICharacter(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	AutoPossessAI = EAutoPossessAI::Disabled;
-	bClearAnimInstanceOnDeath = true;
-	bClearAnimationOnDeath = true;
-	bSimulatePhysicsOnDeath = true;
+	DeferDeathRagdollTime = .5f;
+}
+
+void AEstAICharacter::OnPreRestore_Implementation()
+{
+	bIsRestoring = true;
 }
 
 void AEstAICharacter::OnPostRestore_Implementation()
@@ -27,6 +31,8 @@ void AEstAICharacter::OnPostRestore_Implementation()
 			Controller->Possess(this);
 		}
 	}
+
+	bIsRestoring = false;
 }
 
 void AEstAICharacter::OnPreSave_Implementation()
@@ -55,19 +61,14 @@ void AEstAICharacter::OnDeath_Implementation()
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	if (bClearAnimInstanceOnDeath)
+	
+	if (bDeferDeathRagdoll && !bIsRestoring)
 	{
-		GetMesh()->SetAnimInstanceClass(nullptr);
+		GetWorldTimerManager().SetTimer(DeferRagdollTimerHandle, this, &AEstAICharacter::BecomeRagdoll, DeferDeathRagdollTime);
 	}
-
-	if (bClearAnimationOnDeath)
+	else
 	{
-		GetMesh()->SetAnimation(nullptr);
-	}
-
-	if (bSimulatePhysicsOnDeath)
-	{
-		GetMesh()->SetSimulatePhysics(true);
+		BecomeRagdoll();
 	}
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -82,4 +83,21 @@ void AEstAICharacter::BeginPlay()
 	{
 		SpawnDefaultController();
 	}
+}
+
+void AEstAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (DeferRagdollTimerHandle.IsValid())
+	{
+		DeferRagdollTimerHandle.Invalidate();
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void AEstAICharacter::BecomeRagdoll()
+{
+	GetMesh()->SetAnimation(nullptr);
+	GetMesh()->SetAnimInstanceClass(nullptr);
+	GetMesh()->SetSimulatePhysics(true);
 }

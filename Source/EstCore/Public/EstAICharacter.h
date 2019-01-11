@@ -13,18 +13,28 @@ class ESTCORE_API AEstAICharacter : public AEstBaseCharacter
 public:
 	AEstAICharacter(const class FObjectInitializer& ObjectInitializer);
 
-	void OnPostRestore_Implementation() override;
-	void OnPreSave_Implementation() override;
-	void OnDeath_Implementation() override;
-	void BeginPlay() override;
+	virtual void OnPreRestore_Implementation() override;
+	virtual void OnPostRestore_Implementation() override;
+	virtual void OnPreSave_Implementation() override;
+	virtual void OnDeath_Implementation() override;
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	UFUNCTION(BlueprintCallable, Category = Death)
+	virtual void BecomeRagdoll();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
-	bool bClearAnimInstanceOnDeath;
+	bool bDeferDeathRagdoll;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
-	bool bClearAnimationOnDeath;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
-	bool bSimulatePhysicsOnDeath;
+	float DeferDeathRagdollTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Saving)
+	bool bIsRestoring;
 private:
 	UPROPERTY(SaveGame)
 	FGuid ControllerSaveId;
+
+	UPROPERTY()
+	FTimerHandle DeferRagdollTimerHandle;
 };

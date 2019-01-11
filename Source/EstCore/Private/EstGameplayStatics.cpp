@@ -18,6 +18,7 @@
 #include "EstGameMode.h"
 #include "EstGameInstance.h"
 #include "EstNoPickupComponent.h"
+#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -692,4 +693,14 @@ void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldConte
 			}
 		}
 	}
+}
+
+FRotator UEstGameplayStatics::LocalRotationFromWorldDirection(FVector WorldDirection, FTransform WorldTransform)
+{
+	return UKismetMathLibrary::InverseTransformRotation(WorldTransform, UKismetMathLibrary::MakeRotFromX(WorldDirection));
+}
+
+int32 UEstGameplayStatics::RoundToNearestIntegerIncrement(float Value, int32 Increment)
+{
+	return FMath::RoundToInt(Value / (float)Increment) * Increment;
 }
