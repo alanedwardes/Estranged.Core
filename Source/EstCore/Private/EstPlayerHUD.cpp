@@ -242,7 +242,7 @@ void AEstPlayerHUD::DrawHealthIndicator()
 	const float Size = FMath::Min(Canvas->SizeY * HealthIndicatorSize, Canvas->SizeX * HealthIndicatorSize);
 	const FVector2D Position = FVector2D(Canvas->SizeX * HealthIndicatorPosition.X - Size * .5f, Canvas->SizeY * HealthIndicatorPosition.Y - Size * .5f);
 
-	const float HealthAlpha = Player->HealthComponent->GetAlpha();
+	const float HealthAlpha = FMath::Lerp(HealthDeadZone, 1.f - HealthDeadZone, Player->HealthComponent->GetAlpha());
 	const float Offset = Size * (1 - HealthAlpha);
 	const float Height = Size * HealthAlpha;
 
@@ -260,7 +260,7 @@ void AEstPlayerHUD::DrawBatteryIndicator()
 	const float Size = FMath::Min(Canvas->SizeY * BatteryIndicatorSize, Canvas->SizeX * BatteryIndicatorSize);
 	const FVector2D Position = FVector2D(Canvas->SizeX * BatteryIndicatorPosition.X - Size * .5f, Canvas->SizeY * BatteryIndicatorPosition.Y - Size * .5f);
 
-	const float BatteryAlpha = Player->Battery->GetAlpha();
+	const float BatteryAlpha = FMath::Lerp(BatteryDeadZone, 1.f - BatteryDeadZone, Player->Battery->GetAlpha());
 	const float Offset = Size * (1 - BatteryAlpha);
 	const float Height = Size * BatteryAlpha;
 	const FLinearColor Tint = Player->Flashlight->bVisible ? FLinearColor(1.f, 1.f, 1.f, HudColor.A) : FLinearColor(.75, .75, .75, HudColor.A);

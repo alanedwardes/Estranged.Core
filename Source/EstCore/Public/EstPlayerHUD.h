@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	FVector2D HealthIndicatorPosition;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+	float HealthDeadZone;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
 	UTexture* BatteryIndicatorForeground;
 
@@ -66,6 +69,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
 	FVector2D BatteryIndicatorPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
+	float BatteryDeadZone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
 	UFont* BuildLabelFont;
