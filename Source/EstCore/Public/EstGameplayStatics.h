@@ -139,7 +139,7 @@ public:
 	static void NewGuidIfInvalid(UPARAM(ref) FGuid &Guid) { Guid = Guid.IsValid() ? Guid : FGuid::NewGuid(); };
 
 	UFUNCTION(BlueprintCallable, Category = "Utilities", meta = (WorldContext = "WorldContextObject", DeterminesOutputType = "ActorClasses", DynamicOutputParam = "OutActors"))
-	static void FindAllLivingActorsOfClasses(const UObject* WorldContextObject, TSet<TSubclassOf<AActor>> ActorClasses, TSet<AActor*>& OutActors);
+	static void FindAllLivingActorsOfClasses(const UObject* WorldContextObject, TSet<TSubclassOf<AActor>> ActorClasses, TSet<AActor*>& OutActors, FName TagFilter);
 
 	UFUNCTION(BlueprintPure, Category = Math)
 	static FRotator LocalRotationFromWorldDirection(FVector WorldDirection, FTransform WorldTransform);

@@ -669,7 +669,7 @@ void UEstGameplayStatics::SetHighlightState(AActor* Actor, bool bIsHighlighted)
 	}
 }
 
-void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldContextObject, TSet<TSubclassOf<AActor>> ActorClasses, TSet<AActor*>& OutActors)
+void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldContextObject, TSet<TSubclassOf<AActor>> ActorClasses, TSet<AActor*>& OutActors, FName TagFilter)
 {
 	QUICK_SCOPE_CYCLE_COUNTER(UEstGameplayStatics_FindAllLivingActorsOfClasses);
 	OutActors.Reset();
@@ -683,6 +683,11 @@ void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldConte
 		{
 			AActor* Actor = *It;
 			if (Actor->IsPendingKill())
+			{
+				continue;
+			}
+
+			if (TagFilter != NAME_None && !Actor->ActorHasTag(TagFilter))
 			{
 				continue;
 			}
