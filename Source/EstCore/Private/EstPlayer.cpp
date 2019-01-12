@@ -131,7 +131,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	GetCharacterMovement()->RepulsionForce = 1.314f;
 	GetCharacterMovement()->MaxSimulationTimeStep = 0.0166f;
 
-	VelocityDamageThreshold = 600.f;
+	VelocityDamageThreshold = 800.f;
 	VelocityDamageMinimum = 10.f;
 }
 
