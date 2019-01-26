@@ -7,7 +7,27 @@
 #include "EstResourceComponent.h"
 #include "EstHealthComponent.h"
 #include "Runtime/Engine/Classes/Engine/Canvas.h"
+#include "Runtime/Engine/Public/SubtitleManager.h"
 #include "Kismet/KismetMathLibrary.h"
+
+void AEstPlayerHUD::BeginPlay()
+{
+	LastSubtitleTime = -BIG_NUMBER;
+
+	Super::BeginPlay();
+
+	Player = Cast<AEstPlayer>(GetOwningPawn());
+	if (Player.IsValid())
+	{
+		Player->OnTakeAnyDamage.AddDynamic(this, &AEstPlayerHUD::HandleDamage);
+		Player->OnChangeWeapon.AddDynamic(this, &AEstPlayerHUD::HandleChangeWeapon);
+		Player->OnShowHint.AddDynamic(this, &AEstPlayerHUD::HandleShowHint);
+		Player->OnHideHint.AddDynamic(this, &AEstPlayerHUD::HandleHideHint);
+		FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().AddUObject(this, &AEstPlayerHUD::HandleSetSubtitleText);
+		Controller = Cast<AEstPlayerController>(Player->GetController());
+		Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
+	}
+}
 
 void AEstPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -19,22 +39,7 @@ void AEstPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		Player->OnChangeWeapon.RemoveAll(this);
 		Player->OnShowHint.RemoveAll(this);
 		Player->OnHideHint.RemoveAll(this);
-	}
-}
-
-void AEstPlayerHUD::BeginPlay()
-{
-	Super::BeginPlay();
-
-	Player = Cast<AEstPlayer>(GetOwningPawn());
-	if (Player.IsValid())
-	{
-		Player->OnTakeAnyDamage.AddDynamic(this, &AEstPlayerHUD::HandleDamage);
-		Player->OnChangeWeapon.AddDynamic(this, &AEstPlayerHUD::HandleChangeWeapon);
-		Player->OnShowHint.AddDynamic(this, &AEstPlayerHUD::HandleShowHint);
-		Player->OnHideHint.AddDynamic(this, &AEstPlayerHUD::HandleHideHint);
-		Controller = Cast<AEstPlayerController>(Player->GetController());
-		Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
+		FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().RemoveAll(this);
 	}
 }
 
@@ -70,6 +75,7 @@ void AEstPlayerHUD::DrawHUD()
 		DrawAmmoLabels();
 		DrawHint();
 		DrawLoadingIndicator();
+		DrawSubtitles();
 	}
 
 	DrawGameSpecificHUD();
@@ -187,6 +193,43 @@ void AEstPlayerHUD::DrawLoadingIndicator()
 
 	DrawRect(FLinearColor::Black, 0.f, VerticalCenter - (BoxHeight * .5f), float(Canvas->SizeX), BoxHeight);
 	DrawText(LoadingLabel, FLinearColor::White, HorizontalCenter - (LabelWidth * .5f), VerticalCenter - (LabelHeight * .5f), LoadingLabelFont);
+}
+
+void AEstPlayerHUD::DrawSubtitles()
+{
+	const float VerticalCenter = float(Canvas->SizeY) * .8f;
+	const float HorizontalCenter = float(Canvas->SizeX) * .5f;
+
+	UFont* SubtitleFont = Canvas->SizeX < 1750 ? SubtitleFontSmall : SubtitleFontLarge;
+
+	const float TargetAlpha = bShouldDrawSubtitles ? 1.f : 0.f;
+	SubtitleAlpha = FMath::FInterpTo(SubtitleAlpha, TargetAlpha, GetWorld()->DeltaTimeSeconds, 10.f);
+
+	if (FMath::IsNearlyZero(SubtitleAlpha))
+	{
+		return;
+	}
+
+	const FLinearColor TextColor = FLinearColor(1.f, 1.f, 1.f, SubtitleAlpha);
+	const FLinearColor BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.5f * SubtitleAlpha);
+
+	float SubtitleWidth;
+	float SubtitleHeight;
+	GetTextSize(LastSubtitleText.ToString(), SubtitleWidth, SubtitleHeight, SubtitleFont);
+
+	// Scale subtiles based on the width of the screen, the font's size and a multiplier
+	const float SubtitleScale = float(Canvas->SizeX) / float(SubtitleFont->LegacyFontSize * 85);
+	SubtitleWidth *= SubtitleScale;
+	SubtitleHeight *= SubtitleScale;
+
+	float SubtitlePositionX = FMath::RoundToInt(HorizontalCenter - (SubtitleWidth * .5f));
+	float SubtitlePositionY = FMath::RoundToInt(VerticalCenter - (SubtitleHeight * .5f));
+
+	const float SubtitlePaddingX = .01f * Canvas->SizeX;
+	const float SubtitlePaddingY = .005f * Canvas->SizeX;
+
+	DrawRect(BackgroundColor, SubtitlePositionX - SubtitlePaddingX, SubtitlePositionY - SubtitlePaddingY, SubtitleWidth + (SubtitlePaddingX * 2.f), SubtitleHeight + (SubtitlePaddingY * 2.f));
+	DrawText(LastSubtitleText.ToString(), TextColor, SubtitlePositionX, SubtitlePositionY, SubtitleFont, SubtitleScale);
 }
 
 // TODO: This is expensive, needs caching
@@ -368,4 +411,18 @@ void AEstPlayerHUD::HandleShowHint(TArray<FName> Bindings, FText Label, bool bSh
 void AEstPlayerHUD::HandleHideHint()
 {
 	HintFinishTime = GetWorld()->TimeSeconds;
+}
+
+void AEstPlayerHUD::HandleSetSubtitleText(const FText &SubtitleText)
+{
+	const bool bHasSubtitle = !SubtitleText.IsEmpty();
+	const bool bDuringPaddingPeriod = GetWorld()->TimeSince(LastSubtitleTime) < 1.f;
+
+ 	bShouldDrawSubtitles = bHasSubtitle || bDuringPaddingPeriod;
+
+	if (bHasSubtitle)
+	{
+		LastSubtitleText = SubtitleText;
+		LastSubtitleTime = GetWorld()->TimeSeconds;
+	}
 }
