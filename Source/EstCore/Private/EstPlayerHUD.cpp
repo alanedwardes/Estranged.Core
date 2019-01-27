@@ -79,6 +79,9 @@ void AEstPlayerHUD::DrawHUD()
 	}
 
 	DrawGameSpecificHUD();
+
+	LastCanvasSizeX = Canvas->SizeX;
+	LastCanvasSizeY = Canvas->SizeY;
 }
 
 void AEstPlayerHUD::DrawGameSpecificHUD()
@@ -234,8 +237,8 @@ void AEstPlayerHUD::DrawSubtitles()
 	const float TargetSubtitleBoxX = SubtitlePositionX - SubtitlePaddingX;
 	const float TargetSubtitleBoxW = SubtitleWidth + (SubtitlePaddingX * 2.f);
 
-	// Don't animate from zero
-	if (FMath::IsNearlyZero(SubtitleBoxX))
+	// Don't animate from zero or when resolution changes
+	if (FMath::IsNearlyZero(SubtitleBoxX) || WasCanvasResized())
 	{
 		SubtitleBoxX = TargetSubtitleBoxX;
 		SubtitleBoxW = TargetSubtitleBoxW;
@@ -442,4 +445,9 @@ void AEstPlayerHUD::HandleSetSubtitleText(const FText &SubtitleText)
 		LastSubtitleText = SubtitleText;
 		LastSubtitleTime = GetWorld()->TimeSeconds;
 	}
+}
+
+bool AEstPlayerHUD::WasCanvasResized() const
+{
+	return Canvas->SizeX != LastCanvasSizeX || Canvas->SizeY != LastCanvasSizeY;
 }

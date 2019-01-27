@@ -156,6 +156,9 @@ public:
 
 	UFUNCTION()
 	virtual void HandleSetSubtitleText(const FText & SubtitleText);
+
+	UFUNCTION()
+	bool WasCanvasResized() const;
 protected:
 	UFUNCTION()
 	virtual bool ShouldDrawHUD();
@@ -237,4 +240,13 @@ protected:
 
 	UPROPERTY()
 	float SubtitleBoxW;
+
+	UPROPERTY()
+	int32 LastCanvasX;
+
+	UPROPERTY()
+	int32 LastCanvasSizeX;
+
+	UPROPERTY()
+	int32 LastCanvasSizeY;
 };
