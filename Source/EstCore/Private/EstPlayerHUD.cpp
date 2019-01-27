@@ -210,12 +210,15 @@ void AEstPlayerHUD::DrawSubtitles()
 		return;
 	}
 
+	const FString SubtitleText = LastSubtitleText.ToString();
+
 	const FLinearColor TextColor = FLinearColor(1.f, 1.f, 1.f, SubtitleAlpha);
+	const FLinearColor ShadowColor = FLinearColor(0.f, 0.f, 0.f, SubtitleAlpha);
 	const FLinearColor BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.5f * SubtitleAlpha);
 
 	float SubtitleWidth;
 	float SubtitleHeight;
-	GetTextSize(LastSubtitleText.ToString(), SubtitleWidth, SubtitleHeight, SubtitleFont);
+	GetTextSize(SubtitleText, SubtitleWidth, SubtitleHeight, SubtitleFont);
 
 	// Scale subtiles based on the width of the screen, the font's size and a multiplier
 	const float SubtitleScale = float(Canvas->SizeX) / float(SubtitleFont->LegacyFontSize * 85);
@@ -228,8 +231,22 @@ void AEstPlayerHUD::DrawSubtitles()
 	const float SubtitlePaddingX = .01f * Canvas->SizeX;
 	const float SubtitlePaddingY = .005f * Canvas->SizeX;
 
-	DrawRect(BackgroundColor, SubtitlePositionX - SubtitlePaddingX, SubtitlePositionY - SubtitlePaddingY, SubtitleWidth + (SubtitlePaddingX * 2.f), SubtitleHeight + (SubtitlePaddingY * 2.f));
-	DrawText(LastSubtitleText.ToString(), TextColor, SubtitlePositionX, SubtitlePositionY, SubtitleFont, SubtitleScale);
+	const float TargetSubtitleBoxX = SubtitlePositionX - SubtitlePaddingX;
+	const float TargetSubtitleBoxW = SubtitleWidth + (SubtitlePaddingX * 2.f);
+
+	// Don't animate from zero
+	if (FMath::IsNearlyZero(SubtitleBoxX))
+	{
+		SubtitleBoxX = TargetSubtitleBoxX;
+		SubtitleBoxW = TargetSubtitleBoxW;
+	}
+
+	SubtitleBoxX = FMath::FInterpTo(SubtitleBoxX, TargetSubtitleBoxX, GetWorld()->DeltaTimeSeconds, 15.f);
+	SubtitleBoxW = FMath::FInterpTo(SubtitleBoxW, TargetSubtitleBoxW, GetWorld()->DeltaTimeSeconds, 15.f);
+
+	DrawRect(BackgroundColor, SubtitleBoxX, SubtitlePositionY - SubtitlePaddingY, SubtitleBoxW, SubtitleHeight + (SubtitlePaddingY * 2.f));
+	DrawText(SubtitleText, ShadowColor, SubtitlePositionX + 1.f, SubtitlePositionY + 1.f, SubtitleFont, SubtitleScale);
+	DrawText(SubtitleText, TextColor, SubtitlePositionX, SubtitlePositionY, SubtitleFont, SubtitleScale);
 }
 
 // TODO: This is expensive, needs caching

@@ -231,4 +231,10 @@ protected:
 
 	UPROPERTY()
 	bool bShouldDrawSubtitles;
+
+	UPROPERTY()
+	float SubtitleBoxX;
+
+	UPROPERTY()
+	float SubtitleBoxW;
 };
