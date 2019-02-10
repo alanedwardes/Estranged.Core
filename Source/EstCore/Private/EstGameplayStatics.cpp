@@ -588,7 +588,7 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 	return true;
 }
 
-void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation)
+void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation, const float MaxDistance)
 {
 	FCollisionQueryParams QueryParams;
 	QueryParams.bTraceComplex = true;
@@ -608,7 +608,7 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 	AdjustedRotation = RandomProjectileSpread(ExitRotation, MaxSpread);
 
 	FVector TraceStart = ExitLocation;
-	const FVector TraceEnd = ExitLocation + (AdjustedRotation.Vector() * 100000.0);
+	const FVector TraceEnd = ExitLocation + (AdjustedRotation.Vector() * MaxDistance);
 
 	TArray<EPhysicalSurface> PassThroughSurfaces;
 	PassThroughSurfaces.Add(SURFACE_TYPE_FOLIAGE);
