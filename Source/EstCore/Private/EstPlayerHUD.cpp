@@ -200,6 +200,11 @@ void AEstPlayerHUD::DrawLoadingIndicator()
 
 void AEstPlayerHUD::DrawSubtitles()
 {
+	if (bDisableSubtitles)
+	{
+		return;
+	}
+
 	const float VerticalCenter = float(Canvas->SizeY) * .8f;
 	const float HorizontalCenter = float(Canvas->SizeX) * .5f;
 

@@ -67,6 +67,7 @@ void ApplyHudSettings(AEstPlayerHUD* HUD, UEstGameplaySave* GameplaySave)
 
 	HUD->bDisableHUD = GameplaySave->GetDisableHUD();
 	HUD->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
+	HUD->bDisableSubtitles = GameplaySave->GetDisableSubtitles();
 }
 
 void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerController* Controller)

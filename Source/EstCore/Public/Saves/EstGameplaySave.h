@@ -93,6 +93,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableAmbientOcclusion(bool NewDisableAmbientOcclusion) { DisableAmbientOcclusion = NewDisableAmbientOcclusion; };
 
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetDisableSubtitles() { return DisableSubtitles; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetDisableSubtitles(bool NewDisableSubtitles) { DisableSubtitles = NewDisableSubtitles; };
+
 private:
 	UPROPERTY()
 	float FieldOfView;
@@ -123,4 +129,7 @@ private:
 
 	UPROPERTY()
 	bool DisableAmbientOcclusion;
+
+	UPROPERTY()
+	bool DisableSubtitles;
 };

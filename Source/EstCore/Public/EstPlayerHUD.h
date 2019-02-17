@@ -124,6 +124,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
 	bool bEnableStatsForNerds;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
+	bool bDisableSubtitles;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
 	UFont* SubtitleFontLarge;
 
