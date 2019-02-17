@@ -152,7 +152,7 @@ public:
 	virtual void HandleChangeWeapon(AEstBaseWeapon* Weapon);
 
 	UFUNCTION()
-	virtual void HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden);
+	virtual void HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation);
 
 	UFUNCTION()
 	virtual void HandleHideHint();
@@ -222,6 +222,9 @@ protected:
 
 	UPROPERTY()
 	FText HintLabel;
+
+	UPROPERTY()
+	FVector HintWorldLocation;
 
 	UPROPERTY()
 	float HintFinishTime;

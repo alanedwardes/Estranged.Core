@@ -4,7 +4,7 @@
 #include "EstBaseCharacter.h"
 #include "EstPlayer.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnShowHintDelegate, TArray<FName>, Bindings, FText, Label, bool, bShowUntilHidden);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowHintDelegate, TArray<FName>, Bindings, FText, Label, bool, bShowUntilHidden, FVector, WorldLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideHintDelegate);
 
 /** The base class for all players in Estranged. */
@@ -172,7 +172,7 @@ public:
 	FOnShowHintDelegate OnShowHint;
 
 	UFUNCTION(BlueprintCallable, Category = Hint)
-	virtual void ShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden) { OnShowHint.Broadcast(Bindings, Label, bShowUntilHidden); };
+	virtual void ShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation) { OnShowHint.Broadcast(Bindings, Label, bShowUntilHidden, WorldLocation); };
 
 	UPROPERTY(BlueprintAssignable, Category = Hint)
 	FOnHideHintDelegate OnHideHint;

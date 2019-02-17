@@ -156,6 +156,15 @@ void AEstPlayerHUD::DrawHint()
 		return;
 	}
 
+	FVector HintProjectedLocation = Canvas->Project(HintWorldLocation);
+
+	const bool bIsWorldProjected = !HintWorldLocation.IsZero();
+	const bool bIsFacing = HintProjectedLocation.Z > 0.f;
+	if (!bIsFacing && bIsWorldProjected)
+	{
+		return;
+	}
+
 	const FString KeyLabel = HintBindings.Num() > 0 ? GetHintKeyLabels() : FString("INFO");
 
 	float KeyLabelWidth;
@@ -168,7 +177,12 @@ void AEstPlayerHUD::DrawHint()
 
 	const FVector2D HintPadding = FVector2D(HintLabelPadding.X * Canvas->SizeX, HintLabelPadding.Y * Canvas->SizeY);
 	const FVector2D HintSize = FVector2D(HintPadding.X + KeyLabelWidth + HintPadding.X + HintLabelWidth + HintPadding.X, HintPadding.Y + FMath::Max(KeyLabelHeight, HintLabelHeight) + HintPadding.Y);
-	const FVector2D HintPosition = FVector2D((Canvas->SizeX * HintLabelPosition.X) - (HintSize.X * .5f), (Canvas->SizeY * HintLabelPosition.Y) - (HintSize.Y * .5f));
+
+	FVector2D HintPosition = FVector2D(HintProjectedLocation.X, HintProjectedLocation.Y);
+	if (!bIsWorldProjected)
+	{
+		HintPosition = FVector2D((Canvas->SizeX * HintLabelPosition.X) - (HintSize.X * .5f), (Canvas->SizeY * HintLabelPosition.Y) - (HintSize.Y * .5f));
+	}
 
 	const FLinearColor TextColor = FLinearColor(1.f, 1.f, 1.f, HintLabelColor.A);
 
@@ -426,10 +440,11 @@ void AEstPlayerHUD::HandleChangeWeapon(AEstBaseWeapon *Weapon)
 	Firearm = Cast<AEstFirearmWeapon>(Weapon);
 }
 
-void AEstPlayerHUD::HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden)
+void AEstPlayerHUD::HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation)
 {
 	HintBindings = Bindings;
 	HintLabel = Label;
+	HintWorldLocation = WorldLocation;
 	HintFinishTime = GetWorld()->TimeSeconds + (bShowUntilHidden ? BIG_NUMBER : HintDuration);
 }
 
