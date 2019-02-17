@@ -709,3 +709,26 @@ int32 UEstGameplayStatics::RoundToNearestIntegerIncrement(float Value, int32 Inc
 {
 	return FMath::RoundToInt(Value / (float)Increment) * Increment;
 }
+
+TArray<AActor*> UEstGameplayStatics::SortActorArrayByClosest(AActor * SelfActor, TArray<AActor*> Actors)
+{
+	Algo::Sort(Actors, [&SelfActor](const AActor* LHS, const AActor* RHS)
+	{
+		return SelfActor->GetDistanceTo(LHS) < SelfActor->GetDistanceTo(RHS);
+	});
+
+	return Actors;
+}
+
+TArray<AActor*> UEstGameplayStatics::FilterActorArrayByVisible(TArray<AActor*> Actors)
+{
+	return Actors.FilterByPredicate([](const AActor* Actor)
+	{
+		if (Actor == nullptr)
+		{
+			return false;
+		}
+
+		return !Actor->bHidden;
+	});
+}

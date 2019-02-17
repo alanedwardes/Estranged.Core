@@ -146,4 +146,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Math)
 	static int32 RoundToNearestIntegerIncrement(float Value, int32 Increment);
+
+	UFUNCTION(BlueprintCallable, Category = Math)
+	static TArray<AActor*> SortActorArrayByClosest(AActor* SelfActor, TArray<AActor*> Actors);
+
+	UFUNCTION(BlueprintCallable, Category = Math)
+	static TArray<AActor*> FilterActorArrayByVisible(TArray<AActor*> Actors);
 };
