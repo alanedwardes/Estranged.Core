@@ -2,8 +2,7 @@
 
 #include "EstSkinnedMeshCacheComponent.h"
 #include "EstCore.h"
-#include "DestructibleComponent.h"
-#include "PhysXPublic.h"
+#include "Runtime/Engine/Classes/Components/SkinnedMeshComponent.h"
 
 UEstSkinnedMeshCacheComponent::UEstSkinnedMeshCacheComponent(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -25,8 +24,6 @@ void UEstSkinnedMeshCacheComponent::OnPreSave_Implementation()
 
 	for (const USkinnedMeshComponent* SkinnedMeshComponent : GetSkinnedMeshComponents())
 	{
-		const UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(SkinnedMeshComponent);
-
 		FEstSkinnedMeshComponentState SkinnedMeshState;
 		SkinnedMeshState.ComponentName = SkinnedMeshComponent->GetFName();
 		SkinnedMeshState.bIsSimulatingPhysics = SkinnedMeshComponent->IsSimulatingPhysics();
@@ -35,36 +32,17 @@ void UEstSkinnedMeshCacheComponent::OnPreSave_Implementation()
 		{
 			const FName BoneName = SkinnedMeshComponent->GetBoneName(i);
 
-			if (DestructibleComponent)
+			// If there is not body for this bone, skip it
+			if (SkinnedMeshComponent->GetBodyInstance(BoneName) == nullptr)
 			{
-				const int32 ChunkIndex = DestructibleComponent->BoneIdxToChunkIdx(i);
-				const PxRigidDynamic* PhysXActor = DestructibleComponent->ApexDestructibleActor->getChunkPhysXActor(ChunkIndex);
-
-				// If this is the root chunk, there is no physics actor, or the chunk is not kinematic, skip it
-				if (BoneName == FName("Root") || !PhysXActor || PhysXActor->getRigidBodyFlags() & PxRigidBodyFlag::eKINEMATIC)
-				{
-					continue;
-				}
-
-				FEstSkinnedMeshBoneState BoneState;
-				BoneState.BoneName = BoneName;
-				BoneState.BoneTransform = DestructibleComponent->GetBoneTransform(i);
-				SkinnedMeshState.BoneStates.Add(BoneState);
+				continue;
 			}
-			else
-			{
-				// If there is not body for this bone, skip it
-				if (SkinnedMeshComponent->GetBodyInstance(BoneName) == nullptr)
-				{
-					continue;
-				}
 
-				FEstSkinnedMeshBoneState BoneState;
-				BoneState.BoneName = BoneName;
-				BoneState.BoneTransform = SkinnedMeshComponent->GetBoneTransform(i);
-				BoneState.bIsSimulatingPhysics = SkinnedMeshComponent->IsSimulatingPhysics(BoneName);
-				SkinnedMeshState.BoneStates.Add(BoneState);
-			}
+			FEstSkinnedMeshBoneState BoneState;
+			BoneState.BoneName = BoneName;
+			BoneState.BoneTransform = SkinnedMeshComponent->GetBoneTransform(i);
+			BoneState.bIsSimulatingPhysics = SkinnedMeshComponent->IsSimulatingPhysics(BoneName);
+			SkinnedMeshState.BoneStates.Add(BoneState);
 		}
 
 		SkinnedMeshStates.Add(SkinnedMeshState);
@@ -79,23 +57,11 @@ void UEstSkinnedMeshCacheComponent::RestoreSkinnedMeshStates()
 	{
 		USkinnedMeshComponent* SkinnedMeshComponent = GetSkinnedMeshComponentByName(State.ComponentName);
 
-		UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(SkinnedMeshComponent);
-
 		for (const FEstSkinnedMeshBoneState BoneState : State.BoneStates)
 		{
-			if (DestructibleComponent)
-			{
-				const int32 BoneIndex = DestructibleComponent->GetBoneIndex(BoneState.BoneName);
-				const int32 ChunkIndex = DestructibleComponent->BoneIdxToChunkIdx(BoneIndex);
-				DestructibleComponent->ApexDestructibleActor->setDynamic(ChunkIndex);
-				// TODO: Set chunk location?
-			}
-			else
-			{
-				FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
-				BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);
-				BodyInstance->SetInstanceSimulatePhysics(BoneState.bIsSimulatingPhysics);
-			}
+			FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
+			BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);
+			BodyInstance->SetInstanceSimulatePhysics(BoneState.bIsSimulatingPhysics);
 		}
 	}
 }

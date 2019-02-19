@@ -18,7 +18,6 @@ namespace UnrealBuildTool.Rules
                     "Slate",
                     "SlateCore",
                     "AIModule",
-                    "ApexDestruction",
                     "PhysX",
                     "APEX"
             });
