@@ -361,13 +361,18 @@ void AEstPlayer::UpdateCameraTick(float DeltaSeconds)
 	FRotator Rotator;
 	GetActorEyesViewPoint(Location, Rotator);
 
+	const float SmoothSpeed = GetCharacterMovement()->IsFalling() && !bForceCameraInterpolation ? BIG_NUMBER : GetCharacterMovement()->IsCrouching() ? CameraSmoothSpeed * .5 : CameraSmoothSpeed;
+
 	const FVector CurrentLocation = Camera->GetComponentLocation();
-
-	const float SmoothSpeed = GetCharacterMovement()->IsFalling() ? BIG_NUMBER : GetCharacterMovement()->IsCrouching() ? CameraSmoothSpeed * .5 : CameraSmoothSpeed;
-
-	const float InteropZ = FMath::FInterpTo(CurrentLocation.Z, Location.Z, DeltaSeconds, SmoothSpeed);
-
-	Camera->SetWorldLocationAndRotation(FVector(Location.X, Location.Y, InteropZ), Rotator);
+	if (bForceCameraInterpolation)
+	{
+		Camera->SetWorldLocationAndRotation(FMath::VInterpTo(CurrentLocation, Location, DeltaSeconds, SmoothSpeed), Rotator);
+	}
+	else
+	{
+		const float InteropZ = FMath::FInterpTo(CurrentLocation.Z, Location.Z, DeltaSeconds, SmoothSpeed);
+		Camera->SetWorldLocationAndRotation(FVector(Location.X, Location.Y, InteropZ), Rotator);
+	}
 }
 
 void AEstPlayer::BeginPlay()

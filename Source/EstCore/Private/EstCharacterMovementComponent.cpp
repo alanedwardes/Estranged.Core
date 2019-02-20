@@ -1,6 +1,8 @@
 #include "EstCharacterMovementComponent.h"
 #include "Runtime/Engine/Classes/PhysicalMaterials/PhysicalMaterial.h"
 #include "EstCore.h"
+#include "EstPlayer.h"
+#include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "EstBaseCharacter.h"
 #include "EstImpactManifest.h"
 #include "EstImpactEffect.h"
@@ -168,6 +170,12 @@ void UEstCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float 
 {
 	Super::ProcessLanded(Hit, remainingTime, Iterations);
 
+	AEstPlayer* Player = Cast<AEstPlayer>(CharacterOwner);
+	if (Player != nullptr)
+	{
+		Player->bForceCameraInterpolation = false;
+	}
+
 	DoFootstep(FootstepIntensityLand);
 }
 
@@ -223,7 +231,16 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 		return Super::PhysFalling(deltaTime, Iterations);
 	}
 
+	FVector OriginalCameraLocation;
+
 	bCanJumpUp = false;
 	MoveUpdatedComponent(FinalLocation - UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentQuat(), false, nullptr, ETeleportType::TeleportPhysics);
+
+	AEstPlayer* Player = Cast<AEstPlayer>(CharacterOwner);
+	if (Player != nullptr)
+	{
+		Player->bForceCameraInterpolation = true;
+	}
+
 	EST_DEBUG(*FString::Printf(TEXT("Stepping up on to actor %s"), Result.Actor.IsValid() ? *Result.Actor->GetName() : TEXT("<none>")));
 }

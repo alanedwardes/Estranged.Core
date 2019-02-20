@@ -409,6 +409,9 @@ public:
 	bool bHasCheatedThisSession;
 
 	UPROPERTY()
+	bool bForceCameraInterpolation;
+
+	UPROPERTY()
 	bool bZoomDesired;
 
 	UPROPERTY()
