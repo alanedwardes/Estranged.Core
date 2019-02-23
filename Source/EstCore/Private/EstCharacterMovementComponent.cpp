@@ -15,6 +15,7 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxWalkSpeedCrouched = 200.0f;
 	MinJumpStepUpHeight = 10.f;
 	MaxJumpStepUpHeight = 85.f;
+	MaxJumpStepUpDistance = 64.f;
 	JumpStepUpBoost = 10.f;
 	JumpVelocityMultiplier = 1.25f;
 	FootstepDistanceSpeedMultiplier = 0.4f;
@@ -211,7 +212,7 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 	const ECollisionChannel CollisionChannel = UpdatedComponent->GetCollisionObjectType();
 
 	const FVector End = UpdatedComponent->GetComponentLocation() + FVector(0.f, 0.f, MinJumpStepUpHeight);
-	const FVector Start = UpdatedComponent->GetComponentLocation() + FVector(0.f, 0.f, MaxJumpStepUpHeight) + (UpdatedComponent->GetForwardVector() * CapsuleShape.Capsule.Radius);
+	const FVector Start = UpdatedComponent->GetComponentLocation() + FVector(0.f, 0.f, MaxJumpStepUpHeight) + (UpdatedComponent->GetForwardVector() * MaxJumpStepUpDistance);
 
 	FHitResult Result(1.f);
 	GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, CollisionChannel, CapsuleShape, CapsuleParams, ResponseParam);
@@ -219,8 +220,6 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 	{
 		return Super::PhysFalling(deltaTime, Iterations);
 	}
-
-	DrawDebugCapsule(GetWorld(), Result.Location, CapsuleShape.Capsule.HalfHeight, CapsuleShape.Capsule.Radius, FQuat::Identity, FColor::Cyan, false, 5.f);
 
 	FVector FinalLocation = Result.Location + FVector(0.f, 0.f, JumpStepUpBoost);
 

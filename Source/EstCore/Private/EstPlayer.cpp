@@ -361,7 +361,7 @@ void AEstPlayer::UpdateCameraTick(float DeltaSeconds)
 	FRotator Rotator;
 	GetActorEyesViewPoint(Location, Rotator);
 
-	const float SmoothSpeed = GetCharacterMovement()->IsFalling() && !bForceCameraInterpolation ? BIG_NUMBER : GetCharacterMovement()->IsCrouching() ? CameraSmoothSpeed * .5 : CameraSmoothSpeed;
+	const float SmoothSpeed = GetCharacterMovement()->IsCrouching() || bForceCameraInterpolation ? CameraSmoothSpeed * .5 : GetCharacterMovement()->IsFalling() ? BIG_NUMBER : CameraSmoothSpeed;
 
 	const FVector CurrentLocation = Camera->GetComponentLocation();
 	if (bForceCameraInterpolation)
