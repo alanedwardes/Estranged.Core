@@ -55,11 +55,8 @@ public:
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	class UEstImpactManifest *FootstepManifest;
 
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, SaveGame)
 	class UPhysicalMaterial* FootstepMaterialOverride;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
-	bool bFootstepMaterialOverride;
 
 	UPROPERTY(BlueprintAssignable, Category = "Footsteps")
 	FOnFootstepDelegate OnFootstep;

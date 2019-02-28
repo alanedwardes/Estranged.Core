@@ -125,7 +125,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	FHitResult OutHit;
 	GetWorld()->SweepSingleByChannel(OutHit, GetActorLocation(), EndTraceLocation, FQuat::Identity, ECC_Visibility, SweepCapsule, TraceParams);
 
-	const UPhysicalMaterial* PhysicalMaterial = bFootstepMaterialOverride ? FootstepMaterialOverride : OutHit.PhysMaterial.Get();
+	const UPhysicalMaterial* PhysicalMaterial = FootstepMaterialOverride == nullptr ? OutHit.PhysMaterial.Get() : FootstepMaterialOverride;
 	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
 
 	OnFootstep.Broadcast();
@@ -140,7 +140,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
 		UE_LOG(LogEstFootsteps, Log, TEXT("Playing for %s from hit on component %s"), *PhysicalMaterial->GetName(), *OutHit.Component->GetName());
 	}
-	else if (OutHit.bBlockingHit && !bFootstepMaterialOverride)
+	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
 	{
 		if (PhysicalMaterial == nullptr)
 		{

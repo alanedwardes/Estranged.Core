@@ -21,7 +21,6 @@ void AEstFootstepVolume::NotifyActorBeginOverlap(AActor *OtherActor)
 	}
 
 	MovementComponent->FootstepMaterialOverride = FootstepMaterialOverride;
-	MovementComponent->bFootstepMaterialOverride = true;
 }
 
 void AEstFootstepVolume::NotifyActorEndOverlap(AActor *OtherActor)
@@ -41,5 +40,4 @@ void AEstFootstepVolume::NotifyActorEndOverlap(AActor *OtherActor)
 	}
 
 	MovementComponent->FootstepMaterialOverride = nullptr;
-	MovementComponent->bFootstepMaterialOverride = false;
 }
