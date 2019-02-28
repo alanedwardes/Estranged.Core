@@ -123,7 +123,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	FCollisionShape SweepCapsule = FCollisionShape::MakeCapsule(20.f, 0.f);
 
 	FHitResult OutHit;
-	GetWorld()->SweepSingleByChannel(OutHit, GetActorLocation(), EndTraceLocation, FQuat::Identity, ECC_Visibility, SweepCapsule, TraceParams);
+	GetWorld()->SweepSingleByChannel(OutHit, GetActorLocation(), EndTraceLocation, FQuat::Identity, CHANNEL_FOOTSTEPS, SweepCapsule, TraceParams);
 
 	const UPhysicalMaterial* PhysicalMaterial = FootstepMaterialOverride == nullptr ? OutHit.PhysMaterial.Get() : FootstepMaterialOverride;
 	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
@@ -148,7 +148,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 		}
 		else
 		{
-			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s but no impact effect"), *PhysicalMaterial->GetName());
+			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s in actor %s but no impact effect"), *PhysicalMaterial->GetName(), *OutHit.GetActor()->GetName());
 		}
 	}
 
