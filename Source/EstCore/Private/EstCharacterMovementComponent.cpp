@@ -209,6 +209,7 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 	FCollisionResponseParams ResponseParam;
 	InitCollisionParams(CapsuleParams, ResponseParam);
 	const FCollisionShape CapsuleShape = GetPawnCapsuleCollisionShape(SHRINK_None);
+	const FCollisionShape CapsuleShapeCrouching = GetPawnCapsuleCollisionShape(SHRINK_HeightCustom, CrouchedHalfHeight);
 	const ECollisionChannel CollisionChannel = UpdatedComponent->GetCollisionObjectType();
 
 	const FVector End = UpdatedComponent->GetComponentLocation() + FVector(0.f, 0.f, MinJumpStepUpHeight);
@@ -223,16 +224,27 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 
 	FVector FinalLocation = Result.Location + FVector(0.f, 0.f, JumpStepUpBoost);
 
-	const bool bEncroached = GetWorld()->OverlapBlockingTestByChannel(FinalLocation, FQuat::Identity, CollisionChannel, CapsuleShape, CapsuleParams, ResponseParam);
-	if (bEncroached)
+	const bool bEncroachedStanding = GetWorld()->OverlapBlockingTestByChannel(FinalLocation, FQuat::Identity, CollisionChannel, CapsuleShape, CapsuleParams, ResponseParam);
+	bool bEncroachedCrouching = false;
+
+	if (bEncroachedStanding)
+	{
+		bEncroachedCrouching = GetWorld()->OverlapBlockingTestByChannel(FinalLocation, FQuat::Identity, CollisionChannel, CapsuleShapeCrouching, CapsuleParams, ResponseParam);
+	}
+
+	if (bEncroachedStanding && bEncroachedCrouching)
 	{
 		EST_DEBUG(TEXT("Player tried to step up but was encroached, ignoring."));
 		return Super::PhysFalling(deltaTime, Iterations);
 	}
 
-	FVector OriginalCameraLocation;
-
 	bCanJumpUp = false;
+
+	if (bEncroachedStanding)
+	{
+		Crouch();
+	}
+
 	MoveUpdatedComponent(FinalLocation - UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentQuat(), false, nullptr, ETeleportType::TeleportPhysics);
 
 	AEstPlayer* Player = Cast<AEstPlayer>(CharacterOwner);
