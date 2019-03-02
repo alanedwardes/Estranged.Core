@@ -1027,8 +1027,6 @@ void AEstPlayer::EquipWeapon_Implementation(AEstBaseWeapon* Weapon)
 	Weapon->WeaponMesh->bSelfShadowOnly = true;
 	Weapon->WeaponMesh->MarkRenderStateDirty();
 
-	ViewModelMesh->AnimClass = Weapon->PlayerAnimClass;
-	ViewModelMesh->InitAnim(true);
 	Weapon->AttachToComponent(ViewModelMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, Weapon->SocketName);
 }
 

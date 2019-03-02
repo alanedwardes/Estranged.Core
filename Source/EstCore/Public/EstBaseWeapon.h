@@ -130,9 +130,6 @@ public:
 	class TSubclassOf<UAnimInstance> EquippedWeaponAnimClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
-	class TSubclassOf<UAnimInstance> PlayerAnimClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	struct FEstWeaponAnimationManifest PlayerAnimManifest;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
