@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Runtime/CoreUObject/Public/UObject/Interface.h"
 #include "EstSaveRestore.generated.h"
 
 UENUM(BlueprintType, Meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
