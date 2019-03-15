@@ -18,6 +18,7 @@
 #include "EstGameMode.h"
 #include "EstGameInstance.h"
 #include "EstNoPickupComponent.h"
+#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
@@ -731,4 +732,19 @@ TArray<AActor*> UEstGameplayStatics::FilterActorArrayByVisible(TArray<AActor*> A
 
 		return !Actor->bHidden;
 	});
+}
+
+void UEstGameplayStatics::SetLightMapResolution(UStaticMeshComponent *Component, bool bNewOverrideLightMapRes, int32 NewOverriddenLightMapRes)
+{
+	if (Component == nullptr)
+	{
+		return;
+	}
+
+	Component->bOverrideLightMapRes = bNewOverrideLightMapRes;
+	Component->OverriddenLightMapRes = NewOverriddenLightMapRes;
+#if WITH_EDITOR
+	Component->InvalidateLightingCache();
+	Component->OnStaticMeshChanged().Broadcast(Component);
+#endif
 }

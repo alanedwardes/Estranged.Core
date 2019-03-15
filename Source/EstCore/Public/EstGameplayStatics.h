@@ -152,4 +152,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Math)
 	static TArray<AActor*> FilterActorArrayByVisible(TArray<AActor*> Actors);
+
+	UFUNCTION(BlueprintCallable, Category = Editor)
+	static void SetLightMapResolution(class UStaticMeshComponent* Component, bool bNewOverrideLightMapRes, int32 NewOverriddenLightMapRes);
 };
