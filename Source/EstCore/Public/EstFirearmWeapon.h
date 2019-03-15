@@ -39,6 +39,8 @@ public:
 
 	virtual void PrimaryFireEffects();
 
+	virtual bool OnUsed_Implementation(AEstBaseCharacter* User, class USceneComponent* UsedComponent);
+
 	/** Skeletal mesh for the current weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Effects)
 	class USpotLightComponent* MuzzleFlash;

@@ -2,6 +2,7 @@
 #include "Components/SpotLightComponent.h"
 #include "EstCore.h"
 #include "EstFirearmAmunition.h"
+#include "EstBaseCharacter.h"
 #include "Runtime/AIModule/Classes/Perception/AISense_Hearing.h"
 
 AEstFirearmWeapon::AEstFirearmWeapon(const class FObjectInitializer& PCIP)
@@ -66,6 +67,37 @@ void AEstFirearmWeapon::PrimaryFireEffects()
 
 	// Report the gunshot to the perception system
 	UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 1.f, GetOwner(), 1024.f);
+}
+
+bool AEstFirearmWeapon::OnUsed_Implementation(AEstBaseCharacter *User, USceneComponent *UsedComponent)
+{
+	// Check if the currently equipped weapon is a firearm, has the same ammo as
+	// this weapon, and the amunition implements the IEstInteractive interface
+	AEstFirearmWeapon* EquippedFirearm = Cast<AEstFirearmWeapon>(User->EquippedWeapon);
+	if (EquippedFirearm != nullptr && EquippedFirearm->AmunitionClass == AmunitionClass
+		&& AmunitionClass->ImplementsInterface(UEstInteractive::StaticClass()))
+	{
+		// Spawn ammunition for this weapon
+		AActor* AmmunitionActor = GetWorld()->SpawnActor(AmunitionClass);
+		if (AmmunitionActor == nullptr)
+		{
+			// If the ammo failed to spawn, fall back to base implementation
+			return Super::OnUsed_Implementation(User, UsedComponent);
+		}
+
+		// If the spawned ammo was used successfully, destroy this weapon
+		if (IEstInteractive::Execute_OnUsed(AmmunitionActor, User, WeaponMesh))
+		{
+			Destroy();
+			return true;
+		}
+		
+		// If the spawned ammo was not used, just destroy it
+		AmmunitionActor->Destroy();
+		return false;
+	}
+
+	return Super::OnUsed_Implementation(User, UsedComponent);
 }
 
 void AEstFirearmWeapon::SecondaryAttack()

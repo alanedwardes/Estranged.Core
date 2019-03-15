@@ -438,7 +438,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
 	FHitResult MoveHit;
-	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentRotation() + HoldSocketTransform.Rotator(), true, &MoveHit);
+	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentRotation() + HoldSocketTransform.Rotator(), true, &MoveHit, MOVECOMP_NoFlags, ETeleportType::TeleportPhysics);
 	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
 	{
 		// Add some force to any objects that were hit by this move action so they repel realistically
