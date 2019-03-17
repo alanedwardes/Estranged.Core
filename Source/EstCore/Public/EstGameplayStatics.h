@@ -155,4 +155,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Editor)
 	static void SetLightMapResolution(class UStaticMeshComponent* Component, bool bNewOverrideLightMapRes, int32 NewOverriddenLightMapRes);
+
+	UFUNCTION(BlueprintCallable, Category = Editor)
+	static void SetCsmSettings(class UDirectionalLightComponent* Component, float DynamicShadowDistanceStationaryLight, int32 DynamicShadowCascades, bool bUseInsetShadowsForMovableObjects);
 };

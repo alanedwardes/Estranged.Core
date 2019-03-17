@@ -19,6 +19,7 @@
 #include "EstGameInstance.h"
 #include "EstNoPickupComponent.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
+#include "Runtime/Engine/Classes/Components/DirectionalLightComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
@@ -747,4 +748,17 @@ void UEstGameplayStatics::SetLightMapResolution(UStaticMeshComponent *Component,
 	Component->InvalidateLightingCache();
 	Component->OnStaticMeshChanged().Broadcast(Component);
 #endif
+}
+
+void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, float DynamicShadowDistanceStationaryLight, int32 DynamicShadowCascades, bool bUseInsetShadowsForMovableObjects)
+{
+	if (Component == nullptr)
+	{
+		return;
+	}
+
+	Component->DynamicShadowDistanceStationaryLight = DynamicShadowDistanceStationaryLight;
+	Component->DynamicShadowCascades = DynamicShadowCascades;
+	Component->bUseInsetShadowsForMovableObjects = bUseInsetShadowsForMovableObjects;
+	Component->MarkRenderStateDirty();
 }
