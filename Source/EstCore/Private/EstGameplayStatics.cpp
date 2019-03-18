@@ -750,7 +750,7 @@ void UEstGameplayStatics::SetLightMapResolution(UStaticMeshComponent *Component,
 #endif
 }
 
-void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, float DynamicShadowDistanceStationaryLight, int32 DynamicShadowCascades, bool bUseInsetShadowsForMovableObjects)
+void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, float DynamicShadowDistanceStationaryLight, float CascadeDistributionExponent, int32 DynamicShadowCascades, bool bUseInsetShadowsForMovableObjects)
 {
 	if (Component == nullptr)
 	{
@@ -758,6 +758,7 @@ void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, 
 	}
 
 	Component->DynamicShadowDistanceStationaryLight = DynamicShadowDistanceStationaryLight;
+	Component->CascadeDistributionExponent = CascadeDistributionExponent;
 	Component->DynamicShadowCascades = DynamicShadowCascades;
 	Component->bUseInsetShadowsForMovableObjects = bUseInsetShadowsForMovableObjects;
 	Component->MarkRenderStateDirty();
