@@ -31,8 +31,8 @@ void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplayS
 	Player->Camera->PostProcessSettings.bOverride_MotionBlurMax = true;
 	Player->Camera->PostProcessSettings.MotionBlurMax = GameplaySave->GetDisableMotionBlur() ? 0.f : 1.f;
 
-	Player->Camera->PostProcessSettings.bOverride_ColorGamma = true;
-	Player->Camera->PostProcessSettings.ColorGamma = FVector4(GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma());
+	Player->Camera->PostProcessSettings.bOverride_ColorGain = true;
+	Player->Camera->PostProcessSettings.ColorGain = FVector4(GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma());
 
 	Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = true;
 	Player->Camera->PostProcessSettings.AmbientOcclusionIntensity = GameplaySave->GetDisableAmbientOcclusion() ? 0.f : .5f;
