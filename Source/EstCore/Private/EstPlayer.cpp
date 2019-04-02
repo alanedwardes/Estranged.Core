@@ -797,7 +797,6 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 
 	// Perform trace to retrieve hit info
 	FCollisionQueryParams TraceParams(FName(TEXT("PlayerInteractTrace")), true, this);
-	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bTraceComplex = true;
 	TraceParams.bReturnPhysicalMaterial = true;
 

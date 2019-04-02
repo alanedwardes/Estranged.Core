@@ -33,7 +33,7 @@ void AEstAIController::BeginPlay()
 	}
 }
 
-void AEstAIController::Possess(APawn *InPawn)
+void AEstAIController::OnPossess(APawn *InPawn)
 {
 	SetActorTickEnabled(true);
 	RunBehaviorTree(BehaviorTree);
@@ -41,7 +41,7 @@ void AEstAIController::Possess(APawn *InPawn)
 	Super::Possess(InPawn);
 }
 
-void AEstAIController::UnPossess()
+void AEstAIController::OnUnPossess()
 {
 	if (BrainComponent != nullptr)
 	{

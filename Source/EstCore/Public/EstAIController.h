@@ -27,8 +27,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void Possess(APawn* InPawn) override;
-	virtual void UnPossess() override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 
 	UFUNCTION(BlueprintCallable, Category = AI)
 	virtual void SetBlackboardFocusActor(AActor* FocusActor);
