@@ -38,7 +38,7 @@ void AEstAIController::OnPossess(APawn *InPawn)
 	SetActorTickEnabled(true);
 	RunBehaviorTree(BehaviorTree);
 
-	Super::Possess(InPawn);
+	Super::OnPossess(InPawn);
 }
 
 void AEstAIController::OnUnPossess()
@@ -50,7 +50,7 @@ void AEstAIController::OnUnPossess()
 	
 	SetActorTickEnabled(false);
 
-	Super::UnPossess();
+	Super::OnUnPossess();
 }
 
 void AEstAIController::SetBlackboardFocusActor(AActor *FocusActor)
