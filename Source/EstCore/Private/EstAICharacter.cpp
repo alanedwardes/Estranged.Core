@@ -100,4 +100,14 @@ void AEstAICharacter::BecomeRagdoll()
 	GetMesh()->SetAnimation(nullptr);
 	GetMesh()->SetAnimInstanceClass(nullptr);
 	GetMesh()->SetSimulatePhysics(true);
+
+	if (RagdollAngularDamping > 0)
+	{
+		GetMesh()->SetAngularDamping(RagdollAngularDamping);
+	}
+
+	if (RagdollLinearDamping > 0)
+	{
+		GetMesh()->SetLinearDamping(RagdollLinearDamping);
+	}
 }

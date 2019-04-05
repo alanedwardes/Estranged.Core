@@ -31,6 +31,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Saving)
 	bool bIsRestoring;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ragdoll)
+	float RagdollLinearDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ragdoll)
+	float RagdollAngularDamping;
 private:
 	UPROPERTY(SaveGame)
 	FGuid ControllerSaveId;
