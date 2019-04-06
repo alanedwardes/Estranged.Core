@@ -627,7 +627,7 @@ void AEstPlayer::UpdateViewModelTick(float DeltaSeconds)
 
 	if (HasWeapon())
 	{
-		const bool ShouldHolster = SomethingInFront || IsHoldingActor();
+		const bool ShouldHolster = SomethingInFront || IsHoldingActor() || HeadInWater;
 
 		if (ShouldHolster)
 		{
