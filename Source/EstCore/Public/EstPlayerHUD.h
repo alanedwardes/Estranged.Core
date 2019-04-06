@@ -43,17 +43,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
 	float FirearmReticuleSize;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
+	FVector2D StatusIndicatorOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
+	float StatusIndicatorSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
+	float StatusIndicatorSpacing;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	UTexture* HealthIndicatorForeground;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	UTexture* HealthIndicatorBackground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-	float HealthIndicatorSize;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-	FVector2D HealthIndicatorPosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	float HealthDeadZone;
@@ -65,13 +68,16 @@ public:
 	UTexture* BatteryIndicatorBackground;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
-	float BatteryIndicatorSize;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
-	FVector2D BatteryIndicatorPosition;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
 	float BatteryDeadZone;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Oxygen)
+	UTexture* OxygenIndicatorForeground;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Oxygen)
+	UTexture* OxygenIndicatorBackground;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Oxygen)
+	float OxygenDeadZone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
 	UFont* BuildLabelFont;
@@ -170,10 +176,13 @@ protected:
 	virtual void DrawReticule();
 
 	UFUNCTION()
-	virtual void DrawHealthIndicator();
+	virtual float DrawHealthIndicator(float LeftOffset);
 
 	UFUNCTION()
-	virtual void DrawBatteryIndicator();
+	virtual float DrawBatteryIndicator(float LeftOffset);
+
+	UFUNCTION()
+	virtual float DrawOxygenIndicator(float LeftOffset);
 
 	UFUNCTION()
 	virtual void DrawDamageIndicators();
@@ -213,6 +222,9 @@ protected:
 
 	UPROPERTY()
 	float LastDamageTime;
+
+	UPROPERTY()
+	float LastOxygenAlpha;
 
 	UPROPERTY()
 	FLinearColor HudColor = FLinearColor(1.f, 1.f, 1.f, 0.f);

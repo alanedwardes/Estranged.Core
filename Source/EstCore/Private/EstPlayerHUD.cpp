@@ -9,6 +9,7 @@
 #include "Runtime/Engine/Classes/Engine/Canvas.h"
 #include "Runtime/Engine/Public/SubtitleManager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "EstPlayer.h"
 
 void AEstPlayerHUD::BeginPlay()
 {
@@ -69,8 +70,14 @@ void AEstPlayerHUD::DrawHUD()
 	if (!Controller->bShowMouseCursor)
 	{
 		DrawReticule();
-		DrawHealthIndicator();
-		DrawBatteryIndicator();
+
+		// Start status indicator row
+		float StatusX = StatusIndicatorOffset.X;
+		StatusX += DrawHealthIndicator(StatusX);
+		StatusX += DrawBatteryIndicator(StatusX);
+		DrawOxygenIndicator(StatusX);
+		// End status indicator row
+
 		DrawDamageIndicators();
 		DrawAmmoLabels();
 		DrawHint();
@@ -314,15 +321,15 @@ void AEstPlayerHUD::DrawReticule()
 	DrawTexture(Reticule, Canvas->SizeX * .5f - Size * .5f, Canvas->SizeY * .5f - Size * .5f, Size, Size, 0, 0, 1, 1, ReticuleColor);
 }
 
-void AEstPlayerHUD::DrawHealthIndicator()
+float AEstPlayerHUD::DrawHealthIndicator(float LeftOffset)
 {
 	if (Player->HealthComponent->IsFrozen)
 	{
-		return;
+		return 0.f;
 	}
 
-	const float Size = FMath::Min(Canvas->SizeY * HealthIndicatorSize, Canvas->SizeX * HealthIndicatorSize);
-	const FVector2D Position = FVector2D(Canvas->SizeX * HealthIndicatorPosition.X - Size * .5f, Canvas->SizeY * HealthIndicatorPosition.Y - Size * .5f);
+	const float Size = FMath::Min(Canvas->SizeY * StatusIndicatorSize, Canvas->SizeX * StatusIndicatorSize);
+	const FVector2D Position = FVector2D(Canvas->SizeX * LeftOffset - Size * .5f, Canvas->SizeY * StatusIndicatorOffset.Y - Size * .5f);
 
 	const float HealthAlpha = FMath::Lerp(HealthDeadZone, 1.f - HealthDeadZone, Player->HealthComponent->GetAlpha());
 	const float Offset = Size * (1 - HealthAlpha);
@@ -330,25 +337,54 @@ void AEstPlayerHUD::DrawHealthIndicator()
 
 	DrawTexture(HealthIndicatorBackground, Position.X, Position.Y, Size, Size, 0, 0, 1, 1, HudColor);
 	DrawTexture(HealthIndicatorForeground, Position.X, Position.Y + Offset, Size, Height, 0, 1.f - HealthAlpha, 1, HealthAlpha, HudColor);
+
+	return StatusIndicatorSpacing;
 }
 
-void AEstPlayerHUD::DrawBatteryIndicator()
+float AEstPlayerHUD::DrawBatteryIndicator(float LeftOffset)
 {
 	if (Player->Flashlight->bHiddenInGame)
 	{
-		return;
+		return 0.f;
 	}
 
-	const float Size = FMath::Min(Canvas->SizeY * BatteryIndicatorSize, Canvas->SizeX * BatteryIndicatorSize);
-	const FVector2D Position = FVector2D(Canvas->SizeX * BatteryIndicatorPosition.X - Size * .5f, Canvas->SizeY * BatteryIndicatorPosition.Y - Size * .5f);
+	const float Size = FMath::Min(Canvas->SizeY * StatusIndicatorSize, Canvas->SizeX * StatusIndicatorSize);
+	const FVector2D Position = FVector2D(Canvas->SizeX * LeftOffset - Size * .5f, Canvas->SizeY * StatusIndicatorOffset.Y - Size * .5f);
 
 	const float BatteryAlpha = FMath::Lerp(BatteryDeadZone, 1.f - BatteryDeadZone, Player->Battery->GetAlpha());
 	const float Offset = Size * (1 - BatteryAlpha);
 	const float Height = Size * BatteryAlpha;
+
 	const FLinearColor Tint = Player->Flashlight->bVisible ? FLinearColor(1.f, 1.f, 1.f, HudColor.A) : FLinearColor(.75, .75, .75, HudColor.A);
 
 	DrawTexture(BatteryIndicatorBackground, Position.X, Position.Y, Size, Size, 0, 0, 1, 1, HudColor);
 	DrawTexture(BatteryIndicatorForeground, Position.X, Position.Y + Offset, Size, Height, 0, 1.f - BatteryAlpha, 1, BatteryAlpha, Tint);
+
+	return StatusIndicatorSpacing;
+}
+
+float AEstPlayerHUD::DrawOxygenIndicator(float LeftOffset)
+{
+	if (Player->Oxygen->IsFrozen)
+	{
+		return 0.f;
+	}
+
+	const float Size = FMath::Min(Canvas->SizeY * StatusIndicatorSize, Canvas->SizeX * StatusIndicatorSize);
+	const FVector2D Position = FVector2D(Canvas->SizeX * LeftOffset - Size * .5f, Canvas->SizeY * StatusIndicatorOffset.Y - Size * .5f);
+
+	const float OxygenAlpha = FMath::Lerp(OxygenDeadZone, 1.f - OxygenDeadZone, Player->Oxygen->GetAlpha());
+	const float Offset = Size * (1 - OxygenAlpha);
+	const float Height = Size * OxygenAlpha;
+
+	LastOxygenAlpha = FMath::FInterpTo(LastOxygenAlpha, Player->HeadInWater ? 1.f : 0.f, GetWorld()->DeltaTimeSeconds, 10.f);
+
+	const FLinearColor OxygenColor = HudColor.CopyWithNewOpacity(HudColor.A * LastOxygenAlpha);
+
+	DrawTexture(OxygenIndicatorBackground, Position.X, Position.Y, Size, Size, 0, 0, 1, 1, OxygenColor);
+	DrawTexture(OxygenIndicatorForeground, Position.X, Position.Y + Offset, Size, Height, 0, 1.f - OxygenAlpha, 1, OxygenAlpha, OxygenColor);
+
+	return StatusIndicatorSpacing;
 }
 
 void AEstPlayerHUD::DrawDamageIndicators()
