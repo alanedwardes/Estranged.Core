@@ -97,8 +97,6 @@ void AEstAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AEstAICharacter::BecomeRagdoll()
 {
-	GetMesh()->SetAnimation(nullptr);
-	GetMesh()->SetAnimInstanceClass(nullptr);
 	GetMesh()->SetSimulatePhysics(true);
 
 	if (RagdollAngularDamping > 0)
