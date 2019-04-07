@@ -7,6 +7,10 @@
 #include "Interfaces/EstInteractive.h"
 #include "EstCharacterMovementComponent.h"
 #include "EstHealthComponent.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "Runtime/Engine/Classes/Components/CapsuleComponent.h"
+#include "Runtime/Engine/Classes/Components/SpotLightComponent.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "EstGameInstance.h"
 #include "EstResourceComponent.h"
@@ -98,6 +102,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	ViewModelMesh->AttachToComponent(ViewModel, FAttachmentTransformRules::KeepRelativeTransform);
 	ViewModelMesh->bSelfShadowOnly = true;
 	ViewModelMesh->bCastInsetShadow = true;
+	ViewModelMesh->bCastShadowAsTwoSided = true;
 
 	AimInterpolationSpeed = 18.f;
 	AimingFieldOfView = 85.f;
