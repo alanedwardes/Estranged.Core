@@ -7,14 +7,11 @@
 #include "EstResourceComponent.h"
 #include "EstHealthComponent.h"
 #include "Runtime/Engine/Classes/Engine/Canvas.h"
-#include "Runtime/Engine/Public/SubtitleManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "EstPlayer.h"
 
 void AEstPlayerHUD::BeginPlay()
 {
-	LastSubtitleTime = -BIG_NUMBER;
-
 	Super::BeginPlay();
 
 	Player = Cast<AEstPlayer>(GetOwningPawn());
@@ -24,7 +21,6 @@ void AEstPlayerHUD::BeginPlay()
 		Player->OnChangeWeapon.AddDynamic(this, &AEstPlayerHUD::HandleChangeWeapon);
 		Player->OnShowHint.AddDynamic(this, &AEstPlayerHUD::HandleShowHint);
 		Player->OnHideHint.AddDynamic(this, &AEstPlayerHUD::HandleHideHint);
-		FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().AddUObject(this, &AEstPlayerHUD::HandleSetSubtitleText);
 		Controller = Cast<AEstPlayerController>(Player->GetController());
 		Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
 	}
@@ -40,7 +36,6 @@ void AEstPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		Player->OnChangeWeapon.RemoveAll(this);
 		Player->OnShowHint.RemoveAll(this);
 		Player->OnHideHint.RemoveAll(this);
-		FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().RemoveAll(this);
 	}
 }
 
@@ -82,7 +77,6 @@ void AEstPlayerHUD::DrawHUD()
 		DrawAmmoLabels();
 		DrawHint();
 		DrawLoadingIndicator();
-		DrawSubtitles();
 	}
 
 	DrawGameSpecificHUD();
@@ -217,65 +211,6 @@ void AEstPlayerHUD::DrawLoadingIndicator()
 
 	DrawRect(FLinearColor::Black, 0.f, VerticalCenter - (BoxHeight * .5f), float(Canvas->SizeX), BoxHeight);
 	DrawText(LoadingLabel, FLinearColor::White, HorizontalCenter - (LabelWidth * .5f), VerticalCenter - (LabelHeight * .5f), LoadingLabelFont);
-}
-
-void AEstPlayerHUD::DrawSubtitles()
-{
-	if (bDisableSubtitles)
-	{
-		return;
-	}
-
-	const float VerticalCenter = float(Canvas->SizeY) * .8f;
-	const float HorizontalCenter = float(Canvas->SizeX) * .5f;
-
-	UFont* SubtitleFont = Canvas->SizeX < 1750 ? SubtitleFontSmall : SubtitleFontLarge;
-
-	const float TargetAlpha = bShouldDrawSubtitles ? 1.f : 0.f;
-	SubtitleAlpha = FMath::FInterpTo(SubtitleAlpha, TargetAlpha, GetWorld()->DeltaTimeSeconds, 10.f);
-
-	if (FMath::IsNearlyZero(SubtitleAlpha))
-	{
-		return;
-	}
-
-	const FString SubtitleText = LastSubtitleText.ToString();
-
-	const FLinearColor TextColor = FLinearColor(1.f, 1.f, 1.f, SubtitleAlpha);
-	const FLinearColor ShadowColor = FLinearColor(0.f, 0.f, 0.f, SubtitleAlpha);
-	const FLinearColor BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.5f * SubtitleAlpha);
-
-	float SubtitleWidth;
-	float SubtitleHeight;
-	GetTextSize(SubtitleText, SubtitleWidth, SubtitleHeight, SubtitleFont);
-
-	// Scale subtiles based on the width of the screen, the font's size and a multiplier
-	const float SubtitleScale = float(Canvas->SizeX) / float(SubtitleFont->LegacyFontSize * 85);
-	SubtitleWidth *= SubtitleScale;
-	SubtitleHeight *= SubtitleScale;
-
-	float SubtitlePositionX = FMath::RoundToInt(HorizontalCenter - (SubtitleWidth * .5f));
-	float SubtitlePositionY = FMath::RoundToInt(VerticalCenter - (SubtitleHeight * .5f));
-
-	const float SubtitlePaddingX = .01f * Canvas->SizeX;
-	const float SubtitlePaddingY = .005f * Canvas->SizeX;
-
-	const float TargetSubtitleBoxX = SubtitlePositionX - SubtitlePaddingX;
-	const float TargetSubtitleBoxW = SubtitleWidth + (SubtitlePaddingX * 2.f);
-
-	// Don't animate from zero or when resolution changes
-	if (FMath::IsNearlyZero(SubtitleBoxX) || WasCanvasResized())
-	{
-		SubtitleBoxX = TargetSubtitleBoxX;
-		SubtitleBoxW = TargetSubtitleBoxW;
-	}
-
-	SubtitleBoxX = FMath::FInterpTo(SubtitleBoxX, TargetSubtitleBoxX, GetWorld()->DeltaTimeSeconds, 15.f);
-	SubtitleBoxW = FMath::FInterpTo(SubtitleBoxW, TargetSubtitleBoxW, GetWorld()->DeltaTimeSeconds, 15.f);
-
-	DrawRect(BackgroundColor, SubtitleBoxX, SubtitlePositionY - SubtitlePaddingY, SubtitleBoxW, SubtitleHeight + (SubtitlePaddingY * 2.f));
-	DrawText(SubtitleText, ShadowColor, SubtitlePositionX + 1.f, SubtitlePositionY + 1.f, SubtitleFont, SubtitleScale);
-	DrawText(SubtitleText, TextColor, SubtitlePositionX, SubtitlePositionY, SubtitleFont, SubtitleScale);
 }
 
 // TODO: This is expensive, needs caching
@@ -487,23 +422,4 @@ void AEstPlayerHUD::HandleShowHint(TArray<FName> Bindings, FText Label, bool bSh
 void AEstPlayerHUD::HandleHideHint()
 {
 	HintFinishTime = GetWorld()->TimeSeconds;
-}
-
-void AEstPlayerHUD::HandleSetSubtitleText(const FText &SubtitleText)
-{
-	const bool bHasSubtitle = !SubtitleText.IsEmpty();
-	const bool bDuringPaddingPeriod = GetWorld()->TimeSince(LastSubtitleTime) < 1.f;
-
- 	bShouldDrawSubtitles = bHasSubtitle || bDuringPaddingPeriod;
-
-	if (bHasSubtitle)
-	{
-		LastSubtitleText = SubtitleText;
-		LastSubtitleTime = GetWorld()->TimeSeconds;
-	}
-}
-
-bool AEstPlayerHUD::WasCanvasResized() const
-{
-	return Canvas->SizeX != LastCanvasSizeX || Canvas->SizeY != LastCanvasSizeY;
 }

@@ -405,6 +405,10 @@ public:
 
 	virtual void PlayReload() override;
 
+	/** Holds a reference to the HUD widget */
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "HUD")
+	class UEstHUDWidget* HUDWidget;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Category = "Cheats")
 	bool bHasCheatedThisSession;
 

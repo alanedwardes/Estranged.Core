@@ -130,15 +130,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
 	bool bEnableStatsForNerds;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
-	bool bDisableSubtitles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
-	UFont* SubtitleFontLarge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
-	UFont* SubtitleFontSmall;
-
 	UFUNCTION()
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -162,12 +153,6 @@ public:
 
 	UFUNCTION()
 	virtual void HandleHideHint();
-
-	UFUNCTION()
-	virtual void HandleSetSubtitleText(const FText & SubtitleText);
-
-	UFUNCTION()
-	bool WasCanvasResized() const;
 protected:
 	UFUNCTION()
 	virtual bool ShouldDrawHUD();
@@ -195,9 +180,6 @@ protected:
 
 	UFUNCTION()
 	virtual void DrawLoadingIndicator();
-
-	UFUNCTION()
-	virtual void DrawSubtitles();
 
 	UFUNCTION()
 	virtual const FString GetHintKeyLabels() const;
@@ -240,24 +222,6 @@ protected:
 
 	UPROPERTY()
 	float HintFinishTime;
-
-	UPROPERTY()
-	FText LastSubtitleText;
-
-	UPROPERTY()
-	float SubtitleAlpha;
-
-	UPROPERTY()
-	float LastSubtitleTime;
-
-	UPROPERTY()
-	bool bShouldDrawSubtitles;
-
-	UPROPERTY()
-	float SubtitleBoxX;
-
-	UPROPERTY()
-	float SubtitleBoxW;
 
 	UPROPERTY()
 	int32 LastCanvasX;
