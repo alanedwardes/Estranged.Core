@@ -2,6 +2,7 @@
 
 #include "EstHUDWidget.h"
 #include "Runtime/Engine/Public/SubtitleManager.h"
+#include "EstPlayer.h"
 #include "EstCore.h"
 
 void UEstHUDWidget::NativeConstruct()
@@ -13,12 +14,11 @@ void UEstHUDWidget::NativeConstruct()
 	Player = Cast<AEstPlayer>(GetOwningPlayerPawn());
 	if (Player.IsValid())
 	{
-		//Player->OnTakeAnyDamage.AddDynamic(this, &AEstPlayerHUD::HandleDamage);
-		//Player->OnChangeWeapon.AddDynamic(this, &AEstPlayerHUD::HandleChangeWeapon);
+		Player->OnChangeWeapon.AddDynamic(this, &UEstHUDWidget::HandleChangeWeapon);
 		Player->OnShowHint.AddDynamic(this, &UEstHUDWidget::HandleShowHint);
 		Player->OnHideHint.AddDynamic(this, &UEstHUDWidget::HandleHideHint);
 		Controller = Cast<AEstPlayerController>(Player->GetController());
-		//Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
+		Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
 	}
 
 	FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().AddUObject(this, &UEstHUDWidget::HandleSetSubtitleText);
@@ -27,6 +27,14 @@ void UEstHUDWidget::NativeConstruct()
 void UEstHUDWidget::NativeDestruct()
 {
 	FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().RemoveAll(this);
+
+	if (Player.IsValid())
+	{
+		Player->OnTakePointDamage.RemoveAll(this);
+		Player->OnChangeWeapon.RemoveAll(this);
+		Player->OnShowHint.RemoveAll(this);
+		Player->OnHideHint.RemoveAll(this);
+	}
 
 	Super::NativeDestruct();
 }
@@ -87,4 +95,29 @@ const FString UEstHUDWidget::GetHintKeyLabels() const
 	KeyLabelTemp.TrimStartAndEndInline();
 
 	return KeyLabelTemp;
+}
+
+void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)
+{
+	Firearm = Cast<AEstFirearmWeapon>(Weapon);
+}
+
+const FString UEstHUDWidget::GetClipLabel() const
+{
+	if (Firearm == nullptr)
+	{
+		return FString();
+	}
+
+	return FString::FromInt(Firearm->PrimaryAmmunition->ClipRemaining);
+}
+
+const FString UEstHUDWidget::GetAmmoLabel() const
+{
+	if (Firearm == nullptr)
+	{
+		return FString();
+	}
+
+	return FString::FromInt(Firearm->PrimaryAmmunition->AmmoRemaining);
 }

@@ -88,15 +88,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
 	FVector2D BuildLabelPosition;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
-	UFont* AmmoLabelRoundsFont;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
-	UFont* AmmoLabelMagazinesFont;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
-	FVector2D AmmoLabelPosition;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
 	FText LoadingLabelText;
 
@@ -147,9 +138,6 @@ protected:
 
 	UFUNCTION()
 	virtual void DrawDamageIndicators();
-
-	UFUNCTION()
-	virtual void DrawAmmoLabels();
 
 	UFUNCTION()
 	virtual void DrawLoadingIndicator();

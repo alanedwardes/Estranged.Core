@@ -70,7 +70,6 @@ void AEstPlayerHUD::DrawHUD()
 		// End status indicator row
 
 		DrawDamageIndicators();
-		DrawAmmoLabels();
 		DrawLoadingIndicator();
 	}
 
@@ -102,39 +101,6 @@ bool AEstPlayerHUD::ShouldDrawHUD()
 	}
 
 	return true;
-}
-
-void AEstPlayerHUD::DrawAmmoLabels()
-{
-	if (!Firearm.IsValid())
-	{
-		return;
-	}
-
-	const FString ClipLabel = FString::FromInt(Firearm->PrimaryAmmunition->ClipRemaining);
-	const FString AmmoLabel = FString::FromInt(Firearm->PrimaryAmmunition->AmmoRemaining);
-
-	float RoundsLabelRoundsWidth;
-	float RoundsLabelRoundsHeight;
-	GetTextSize(ClipLabel, RoundsLabelRoundsWidth, RoundsLabelRoundsHeight, AmmoLabelRoundsFont);
-	RoundsLabelRoundsHeight *= .75f;
-
-	float MagazinesLabelRoundsWidth;
-	float MagazinesLabelRoundsHeight;
-	GetTextSize(AmmoLabel, MagazinesLabelRoundsWidth, MagazinesLabelRoundsHeight, AmmoLabelMagazinesFont);
-
-	const float PositionX = Canvas->SizeX * AmmoLabelPosition.X;
-	const float PositionY = Canvas->SizeY * AmmoLabelPosition.Y;
-
-	const FLinearColor TextColor = FLinearColor(1.f, 1.f, 1.f, HudColor.A);
-	const FLinearColor ShadowColor = FLinearColor(0.f, 0.f, 0.f, HudColor.A);
-
-	DrawText(ClipLabel, ShadowColor, PositionX + 1, PositionY + 1, AmmoLabelRoundsFont);
-	DrawText(ClipLabel, TextColor, PositionX, PositionY, AmmoLabelRoundsFont);
-
-	const float MagazinesPositionX = (PositionX + RoundsLabelRoundsWidth) - MagazinesLabelRoundsWidth;
-	DrawText(AmmoLabel, ShadowColor, MagazinesPositionX + 1, PositionY + RoundsLabelRoundsHeight + 1, AmmoLabelMagazinesFont);
-	DrawText(AmmoLabel, TextColor, MagazinesPositionX, PositionY + RoundsLabelRoundsHeight, AmmoLabelMagazinesFont);
 }
 
 void AEstPlayerHUD::DrawLoadingIndicator()

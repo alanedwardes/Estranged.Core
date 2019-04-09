@@ -27,8 +27,19 @@ public:
 	UPROPERTY()
 	TWeakObjectPtr<class AEstPlayerController> Controller;
 
+	// Begin weapon
 	UPROPERTY()
 	TWeakObjectPtr<class AEstFirearmWeapon> Firearm;
+
+	UFUNCTION()
+	void HandleChangeWeapon(class AEstBaseWeapon *Weapon);
+
+	UFUNCTION(BlueprintCallable)
+	const FString GetClipLabel() const;
+	
+	UFUNCTION(BlueprintCallable)
+	const FString GetAmmoLabel() const;
+	// End weapon
 
 	// Begin subtitles
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
