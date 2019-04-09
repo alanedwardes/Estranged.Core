@@ -21,14 +21,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
 	bool bDisableHUD;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstPlayer> Player;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstPlayerController> Controller;
 
 	// Begin weapon
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstFirearmWeapon> Firearm;
 
 	UFUNCTION()
