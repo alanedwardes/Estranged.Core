@@ -88,24 +88,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
 	FVector2D BuildLabelPosition;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
-	UFont* HintKeyFont;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
-	UFont* HintLabelFont;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
-	FVector2D HintLabelPosition;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
-	FVector2D HintLabelPadding;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
-	FLinearColor HintLabelColor;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
-	float HintDuration;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
 	UFont* AmmoLabelRoundsFont;
 
@@ -147,12 +129,6 @@ public:
 
 	UFUNCTION()
 	virtual void HandleChangeWeapon(AEstBaseWeapon* Weapon);
-
-	UFUNCTION()
-	virtual void HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation);
-
-	UFUNCTION()
-	virtual void HandleHideHint();
 protected:
 	UFUNCTION()
 	virtual bool ShouldDrawHUD();
@@ -176,13 +152,7 @@ protected:
 	virtual void DrawAmmoLabels();
 
 	UFUNCTION()
-	virtual void DrawHint();
-
-	UFUNCTION()
 	virtual void DrawLoadingIndicator();
-
-	UFUNCTION()
-	virtual const FString GetHintKeyLabels() const;
 
 	UPROPERTY()
 	TWeakObjectPtr<class AEstPlayer> Player;
@@ -210,18 +180,6 @@ protected:
 
 	UPROPERTY()
 	FLinearColor HudColor = FLinearColor(1.f, 1.f, 1.f, 0.f);
-
-	UPROPERTY()
-	TArray<FName> HintBindings;
-
-	UPROPERTY()
-	FText HintLabel;
-
-	UPROPERTY()
-	FVector HintWorldLocation;
-
-	UPROPERTY()
-	float HintFinishTime;
 
 	UPROPERTY()
 	int32 LastCanvasX;
