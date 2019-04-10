@@ -3,7 +3,6 @@
 #include "EstSaveStatics.h"
 #include "EstCore.h"
 #include "EstPlayerController.h"
-#include "EstPlayerHUD.h"
 #include "Misc/UObjectToken.h"
 #include "Logging/MessageLog.h"
 #include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
@@ -58,18 +57,6 @@ void ApplyPlayerControllerSettings(AEstPlayerController* PlayerController, UEstG
 	PlayerController->UpdateCameraManager(0.f);
 }
 
-void ApplyHudSettings(AEstPlayerHUD* HUD, UEstGameplaySave* GameplaySave)
-{
-	if (HUD == nullptr)
-	{
-		EST_WARNING(TEXT("Attempting to apply gameplay settings with null HUD"));
-		return;
-	}
-
-	HUD->bDisableHUD = GameplaySave->GetDisableHUD();
-	HUD->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
-}
-
 void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* GameplaySave)
 {
 	if (HUDWidget == nullptr)
@@ -80,6 +67,7 @@ void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* Gameplay
 
 	HUDWidget->bDisableHUD = GameplaySave->GetDisableHUD();
 	HUDWidget->bDisableSubtitles = GameplaySave->GetDisableSubtitles();
+	HUDWidget->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
 }
 
 void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerController* Controller)
@@ -109,8 +97,6 @@ void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerC
 	ApplyPlayerSettings(Player, GameplaySave);
 
 	ApplyPlayerControllerSettings(PlayerController, GameplaySave);
-
-	ApplyHudSettings(Cast<AEstPlayerHUD>(PlayerController->GetHUD()), GameplaySave);
 
 	ApplyHudWidgetSettings(Player->HUDWidget, GameplaySave);
 }

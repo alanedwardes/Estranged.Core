@@ -43,12 +43,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
 	bool bIsLoading;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
-	bool bDisableHUD;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
-	bool bEnableStatsForNerds;
-
 	UFUNCTION()
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -59,14 +53,8 @@ public:
 	virtual void DrawHUD() override;
 
 	UFUNCTION()
-	virtual void DrawGameSpecificHUD();
-
-	UFUNCTION()
 	virtual void HandleDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 protected:
-	UFUNCTION()
-	virtual bool ShouldDrawHUD();
-
 	UFUNCTION()
 	virtual void DrawDamageIndicators();
 

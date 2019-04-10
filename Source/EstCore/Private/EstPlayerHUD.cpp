@@ -36,11 +36,6 @@ void AEstPlayerHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	if (bDisableHUD)
-	{
-		return;
-	}
-
 	if (!Player.IsValid())
 	{
 		return;
@@ -51,44 +46,11 @@ void AEstPlayerHUD::DrawHUD()
 		return;
 	}
 
-	const float FadeTarget = ShouldDrawHUD() ? 1.f : 0.f;
-	const float HudFadeTime = 4.f;
-	HudColor.A = FMath::FInterpTo(HudColor.A, FadeTarget, GetWorld()->DeltaTimeSeconds, HudFadeTime);
-
-	if (!Controller->bShowMouseCursor)
-	{
-		DrawDamageIndicators();
-		DrawLoadingIndicator();
-	}
-
-	DrawGameSpecificHUD();
+	DrawDamageIndicators();
+	DrawLoadingIndicator();
 
 	LastCanvasSizeX = Canvas->SizeX;
 	LastCanvasSizeY = Canvas->SizeY;
-}
-
-void AEstPlayerHUD::DrawGameSpecificHUD()
-{
-}
-
-bool AEstPlayerHUD::ShouldDrawHUD()
-{
-	if (Controller->PlayerCameraManager->FadeAmount > 0.f)
-	{
-		return false;
-	}
-
-	if (!Player->IsViewTarget())
-	{
-		return false;
-	}
-
-	if (Player->ActorHasTag(TAG_DEAD))
-	{
-		return false;
-	}
-
-	return true;
 }
 
 void AEstPlayerHUD::DrawLoadingIndicator()

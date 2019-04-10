@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/DataAsset.h"
+#include "EstImpactEffect.h"
 #include "EstImpactManifest.generated.h"
 
 /** Links physical materials to footstep sounds. */

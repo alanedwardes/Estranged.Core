@@ -5,6 +5,11 @@
 #include "EstPlayer.h"
 #include "EstCore.h"
 
+extern ENGINE_API float GAverageFPS;
+
+#define STATS_TEXT "%i (short) / %i (long)"
+#define STATS_TEXT_CHEATS "%i (short) / %i (long) / cheats"
+
 void UEstHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -95,6 +100,11 @@ const FString UEstHUDWidget::GetHintKeyLabels() const
 	KeyLabelTemp.TrimStartAndEndInline();
 
 	return KeyLabelTemp;
+}
+
+const FString UEstHUDWidget::GetStatsForNerds() const
+{
+	return FString::Printf(Player->bHasCheatedThisSession ? TEXT(STATS_TEXT_CHEATS) : TEXT(STATS_TEXT), FMath::RoundToInt(GAverageFPS), FMath::RoundToInt(FEstCoreModule::GetLongAverageFrameRate()));
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)
