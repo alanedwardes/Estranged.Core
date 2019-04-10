@@ -25,60 +25,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	FLinearColor DeathOverlayColor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
-	float NormalReticuleAlpha;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
-	UTexture* NormalReticule;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
-	float NormalReticuleSize;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
-	float FirearmReticuleAlpha;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
-	UTexture* FirearmReticule;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Reticule)
-	float FirearmReticuleSize;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	FVector2D StatusIndicatorOffset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float StatusIndicatorSize;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float StatusIndicatorSpacing;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-	UTexture* HealthIndicatorForeground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-	UTexture* HealthIndicatorBackground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-	float HealthDeadZone;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
-	UTexture* BatteryIndicatorForeground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
-	UTexture* BatteryIndicatorBackground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Battery)
-	float BatteryDeadZone;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Oxygen)
-	UTexture* OxygenIndicatorForeground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Oxygen)
-	UTexture* OxygenIndicatorBackground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Oxygen)
-	float OxygenDeadZone;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
 	UFont* BuildLabelFont;
 
@@ -117,24 +63,9 @@ public:
 
 	UFUNCTION()
 	virtual void HandleDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
-
-	UFUNCTION()
-	virtual void HandleChangeWeapon(AEstBaseWeapon* Weapon);
 protected:
 	UFUNCTION()
 	virtual bool ShouldDrawHUD();
-
-	UFUNCTION()
-	virtual void DrawReticule();
-
-	UFUNCTION()
-	virtual float DrawHealthIndicator(float LeftOffset);
-
-	UFUNCTION()
-	virtual float DrawBatteryIndicator(float LeftOffset);
-
-	UFUNCTION()
-	virtual float DrawOxygenIndicator(float LeftOffset);
 
 	UFUNCTION()
 	virtual void DrawDamageIndicators();
@@ -149,9 +80,6 @@ protected:
 	TWeakObjectPtr<class AEstPlayerController> Controller;
 
 	UPROPERTY()
-	TWeakObjectPtr<class AEstFirearmWeapon> Firearm;
-
-	UPROPERTY()
 	const UDamageType* LastDamageType;
 
 	UPROPERTY()
@@ -162,9 +90,6 @@ protected:
 
 	UPROPERTY()
 	float LastDamageTime;
-
-	UPROPERTY()
-	float LastOxygenAlpha;
 
 	UPROPERTY()
 	FLinearColor HudColor = FLinearColor(1.f, 1.f, 1.f, 0.f);

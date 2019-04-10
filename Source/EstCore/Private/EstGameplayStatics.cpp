@@ -763,3 +763,13 @@ void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, 
 	Component->bUseInsetShadowsForMovableObjects = bUseInsetShadowsForMovableObjects;
 	Component->MarkRenderStateDirty();
 }
+
+float UEstGameplayStatics::GetCameraFadeAmount(APlayerCameraManager * PlayerCameraManager)
+{
+	if (PlayerCameraManager == nullptr)
+	{
+		return 0.f;
+	}
+
+	return PlayerCameraManager->FadeAmount;
+}

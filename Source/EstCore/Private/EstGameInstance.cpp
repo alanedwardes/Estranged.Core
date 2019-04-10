@@ -21,7 +21,7 @@ void UEstGameInstance::Init()
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
 {
-	SetMenuVisibility(FEstMenuVisibilityContext(false, true));
+	SetMenuVisibility(FEstMenuVisibilityContext(false, false));
 }
 
 void UEstGameInstance::Shutdown()

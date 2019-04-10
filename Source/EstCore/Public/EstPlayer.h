@@ -439,7 +439,7 @@ public:
 	UPROPERTY()
 	bool SomethingInFront;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool HeadInWater;
 
 	UPROPERTY()

@@ -158,4 +158,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Editor)
 	static void SetCsmSettings(class UDirectionalLightComponent* Component, float DynamicShadowDistanceStationaryLight, float CascadeDistributionExponent, int32 DynamicShadowCascades, bool bUseInsetShadowsForMovableObjects);
+
+	UFUNCTION(BlueprintPure, Category = Player)
+	static float GetCameraFadeAmount(class APlayerCameraManager* PlayerCameraManager);
 };
