@@ -48,9 +48,6 @@ void AEstPlayerHUD::DrawHUD()
 
 	DrawDamageIndicators();
 	DrawLoadingIndicator();
-
-	LastCanvasSizeX = Canvas->SizeX;
-	LastCanvasSizeY = Canvas->SizeY;
 }
 
 void AEstPlayerHUD::DrawLoadingIndicator()

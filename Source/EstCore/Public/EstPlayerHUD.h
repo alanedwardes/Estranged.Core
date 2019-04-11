@@ -25,15 +25,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	FLinearColor DeathOverlayColor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
-	UFont* BuildLabelFont;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
-	FLinearColor BuildLabelColor;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Build)
-	FVector2D BuildLabelPosition;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
 	FText LoadingLabelText;
 
@@ -81,13 +72,4 @@ protected:
 
 	UPROPERTY()
 	FLinearColor HudColor = FLinearColor(1.f, 1.f, 1.f, 0.f);
-
-	UPROPERTY()
-	int32 LastCanvasX;
-
-	UPROPERTY()
-	int32 LastCanvasSizeX;
-
-	UPROPERTY()
-	int32 LastCanvasSizeY;
 };
