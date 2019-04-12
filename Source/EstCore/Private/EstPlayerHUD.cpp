@@ -47,28 +47,6 @@ void AEstPlayerHUD::DrawHUD()
 	}
 
 	DrawDamageIndicators();
-	DrawLoadingIndicator();
-}
-
-void AEstPlayerHUD::DrawLoadingIndicator()
-{
-	if (!bIsLoading)
-	{
-		return;
-	}
-
-	const FString LoadingLabel = LoadingLabelText.ToString();
-
-	float LabelWidth;
-	float LabelHeight;
-	GetTextSize(LoadingLabel, LabelWidth, LabelHeight, LoadingLabelFont);
-
-	const float BoxHeight = LabelHeight * 2.f;
-	const float VerticalCenter = float(Canvas->SizeY) * .5f;
-	const float HorizontalCenter = float(Canvas->SizeX) * .5f;
-
-	DrawRect(FLinearColor::Black, 0.f, VerticalCenter - (BoxHeight * .5f), float(Canvas->SizeX), BoxHeight);
-	DrawText(LoadingLabel, FLinearColor::White, HorizontalCenter - (LabelWidth * .5f), VerticalCenter - (LabelHeight * .5f), LoadingLabelFont);
 }
 
 void AEstPlayerHUD::DrawDamageIndicators()

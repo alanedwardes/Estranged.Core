@@ -25,15 +25,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	FLinearColor DeathOverlayColor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
-	FText LoadingLabelText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
-	UFont* LoadingLabelFont;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Loading)
-	bool bIsLoading;
-
 	UFUNCTION()
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -48,9 +39,6 @@ public:
 protected:
 	UFUNCTION()
 	virtual void DrawDamageIndicators();
-
-	UFUNCTION()
-	virtual void DrawLoadingIndicator();
 
 	UPROPERTY()
 	TWeakObjectPtr<class AEstPlayer> Player;
