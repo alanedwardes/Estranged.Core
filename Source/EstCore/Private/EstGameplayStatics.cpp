@@ -21,6 +21,7 @@
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Components/DirectionalLightComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
+#include "Runtime/Engine/Public/ComponentReregisterContext.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -762,6 +763,7 @@ void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, 
 	Component->DynamicShadowCascades = DynamicShadowCascades;
 	Component->bUseInsetShadowsForMovableObjects = bUseInsetShadowsForMovableObjects;
 	Component->MarkRenderStateDirty();
+	FGlobalComponentReregisterContext ReregisterContext;
 }
 
 float UEstGameplayStatics::GetCameraFadeAmount(APlayerCameraManager * PlayerCameraManager)

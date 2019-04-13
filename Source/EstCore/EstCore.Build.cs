@@ -19,7 +19,8 @@ namespace UnrealBuildTool.Rules
                     "SlateCore",
                     "AIModule",
                     "PhysX",
-                    "APEX"
+                    "APEX",
+                    "RenderCore"
             });
         }
     }
