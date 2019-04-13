@@ -19,6 +19,7 @@ public:
 	virtual void OnDeath_Implementation() override;
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void SpawnDefaultController() override;
 
 	UFUNCTION(BlueprintCallable, Category = Death)
 	virtual void BecomeRagdoll();
@@ -37,6 +38,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ragdoll)
 	float RagdollAngularDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, SaveGame, Category = Lifecycle)
+	bool bAutoSpawnController;
 private:
 	UPROPERTY(SaveGame)
 	FGuid ControllerSaveId;

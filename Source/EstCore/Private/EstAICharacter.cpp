@@ -12,6 +12,7 @@ AEstAICharacter::AEstAICharacter(const class FObjectInitializer& ObjectInitializ
 {
 	AutoPossessAI = EAutoPossessAI::Disabled;
 	DeferDeathRagdollTime = .5f;
+	bAutoSpawnController = true;
 }
 
 void AEstAICharacter::OnPreRestore_Implementation()
@@ -79,7 +80,7 @@ void AEstAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (Controller == nullptr && !HealthComponent->IsDepleted())
+	if (Controller == nullptr && !HealthComponent->IsDepleted() && bAutoSpawnController)
 	{
 		SpawnDefaultController();
 	}
@@ -93,6 +94,14 @@ void AEstAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 
 	Super::EndPlay(EndPlayReason);
+}
+
+void AEstAICharacter::SpawnDefaultController()
+{
+	// A controller spawn was requested, reset this
+	bAutoSpawnController = true;
+
+	Super::SpawnDefaultController();
 }
 
 void AEstAICharacter::BecomeRagdoll()
