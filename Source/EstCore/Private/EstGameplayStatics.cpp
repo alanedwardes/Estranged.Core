@@ -763,7 +763,6 @@ void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, 
 	Component->DynamicShadowCascades = DynamicShadowCascades;
 	Component->bUseInsetShadowsForMovableObjects = bUseInsetShadowsForMovableObjects;
 	Component->MarkRenderStateDirty();
-	FGlobalComponentReregisterContext ReregisterContext;
 }
 
 float UEstGameplayStatics::GetCameraFadeAmount(APlayerCameraManager * PlayerCameraManager)
