@@ -763,12 +763,6 @@ void UEstGameplayStatics::SetCsmSettings(UDirectionalLightComponent *Component, 
 	Component->DynamicShadowCascades = DynamicShadowCascades;
 	Component->bUseInsetShadowsForMovableObjects = bUseInsetShadowsForMovableObjects;
 	Component->MarkRenderStateDirty();
-	
-	{
-		// HACK - REMOVE THIS WHEN SHADOW BUG IN 4.22 IS FIXED
-		FlushRenderingCommands();
-		FGlobalComponentReregisterContext ReregisterContext;
-	}
 }
 
 float UEstGameplayStatics::GetCameraFadeAmount(APlayerCameraManager * PlayerCameraManager)
