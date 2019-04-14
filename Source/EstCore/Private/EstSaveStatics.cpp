@@ -15,6 +15,7 @@
 #include "Runtime/Engine/Classes/Engine/LevelStreaming.h"
 #include "Runtime/Engine/Classes/Engine/Scene.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
+#include "Runtime/Engine/Public/EngineUtils.h"
 
 void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
 {
@@ -192,12 +193,19 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 		if (Actor->GetClass()->IsChildOf(ALevelSequenceActor::StaticClass()))
 		{
 			ALevelSequenceActor* LevelSequenceActor = Cast<ALevelSequenceActor>(Actor);
+			if (LevelSequenceActor->ActorHasTag(TAG_NOSAVERESTORE))
+			{
+				continue;
+			}
+
 			// I don't know why this happens, but crash reports show it does
 			// (saving while level unloading?)
 			if (LevelSequenceActor->SequencePlayer != nullptr)
 			{
-				LevelState.SequenceStates.Add(SerializeSequence(LevelSequenceActor));
+				continue;
 			}
+
+			LevelState.SequenceStates.Add(SerializeSequence(LevelSequenceActor));
 		}
 
 		if (IsActorValidForSaving(Actor))

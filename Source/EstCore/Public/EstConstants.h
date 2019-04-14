@@ -2,6 +2,7 @@
 
 #define TAG_DEAD "DEAD"
 #define TAG_NOIMPACTS "NOIMPACTS"
+#define TAG_NOSAVERESTORE "NOSAVERESTORE"
 
 #define DEBUG_PERSIST_TIME 5.f
 #define DEBUG_COLOR FColor::Green
