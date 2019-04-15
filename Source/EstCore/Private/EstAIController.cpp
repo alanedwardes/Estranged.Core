@@ -55,22 +55,22 @@ void AEstAIController::OnUnPossess()
 
 void AEstAIController::SetBlackboardFocusActor(AActor *FocusActor)
 {
-	UBlackboardComponent* Blackboard = GetBlackboardComponent();
-	if (Blackboard != nullptr)
+	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
+	if (BlackboardComponent != nullptr)
 	{
-		Blackboard->SetValueAsObject(BLACKBOARD_FOCUS_ACTOR, FocusActor);
+		BlackboardComponent->SetValueAsObject(BLACKBOARD_FOCUS_ACTOR, FocusActor);
 	}
 }
 
 AActor* AEstAIController::GetBlackboardFocusActor()
 {
-	UBlackboardComponent* Blackboard = GetBlackboardComponent();
-	if (Blackboard == nullptr)
+	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
+	if (BlackboardComponent == nullptr)
 	{
 		return nullptr;
 	}
 
-	UObject* FocusActor = Blackboard->GetValueAsObject(BLACKBOARD_FOCUS_ACTOR);
+	UObject* FocusActor = BlackboardComponent->GetValueAsObject(BLACKBOARD_FOCUS_ACTOR);
 	if (FocusActor == nullptr)
 	{
 		return nullptr;

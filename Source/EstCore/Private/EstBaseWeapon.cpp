@@ -32,13 +32,13 @@ void AEstBaseWeapon::OnPostRestore_Implementation()
 		return;
 	}
 
-	AActor* Owner = UEstGameplayStatics::FindActorBySaveIdInWorld(GetWorld(), OwnerSaveId);
-	if (Owner == nullptr)
+	AActor* FoundOwner = UEstGameplayStatics::FindActorBySaveIdInWorld(GetWorld(), OwnerSaveId);
+	if (FoundOwner == nullptr)
 	{
 		return;
 	}
 
-	AEstBaseCharacter* Character = Cast<AEstBaseCharacter>(Owner);
+	AEstBaseCharacter* Character = Cast<AEstBaseCharacter>(FoundOwner);
 	if (Character == nullptr)
 	{
 		return;

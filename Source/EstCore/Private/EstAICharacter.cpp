@@ -26,10 +26,10 @@ void AEstAICharacter::OnPostRestore_Implementation()
 
 	if (!HealthComponent->IsDepleted())
 	{
-		AController* Controller = UEstGameplayStatics::FindActorBySaveIdInWorld<AController>(this, ControllerSaveId);
-		if (Controller != nullptr)
+		AController* FoundController = UEstGameplayStatics::FindActorBySaveIdInWorld<AController>(this, ControllerSaveId);
+		if (FoundController != nullptr)
 		{
-			Controller->Possess(this);
+			FoundController->Possess(this);
 		}
 	}
 
