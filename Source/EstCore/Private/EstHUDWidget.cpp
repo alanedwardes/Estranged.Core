@@ -102,6 +102,28 @@ const FString UEstHUDWidget::GetHintKeyLabels() const
 	return KeyLabelTemp;
 }
 
+const TSet<FKey> UEstHUDWidget::GetHintKeys() const
+{
+	TSet<FKey> Keys;
+	for (const FName Binding : HintBindings)
+	{
+		const FKey AxisKey = UEstGameplayStatics::FindBestKeyForAxis(Controller.Get(), Binding, Controller->bIsUsingGamepad);
+		const FKey ActionKey = UEstGameplayStatics::FindBestKeyForAction(Controller.Get(), Binding, Controller->bIsUsingGamepad);
+
+		if (AxisKey != EKeys::Invalid)
+		{
+			Keys.Add(AxisKey);
+		}
+
+		if (ActionKey != EKeys::Invalid)
+		{
+			Keys.Add(ActionKey);
+		}
+	}
+
+	return Keys;
+}
+
 const FString UEstHUDWidget::GetStatsForNerds() const
 {
 	return FString::Printf(Player->bHasCheatedThisSession ? TEXT(STATS_TEXT_CHEATS) : TEXT(STATS_TEXT), FMath::RoundToInt(GAverageFPS), FMath::RoundToInt(FEstCoreModule::GetLongAverageFrameRate()));

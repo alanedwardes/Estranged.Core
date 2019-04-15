@@ -90,5 +90,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	const FString GetHintKeyLabels() const;
+
+	UFUNCTION(BlueprintCallable)
+	const TSet<FKey> GetHintKeys() const;
 	// End hints
 };
