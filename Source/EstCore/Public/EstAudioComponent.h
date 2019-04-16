@@ -9,6 +9,8 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "EstAudioComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSoundPlayed);
+
 /**
  * 
  */
@@ -16,28 +18,14 @@ UCLASS(ClassGroup = (Audio, Common), hidecategories = (Object, ActorComponent, P
 class ESTCORE_API UEstAudioComponent : public UAudioComponent, public IEstSaveRestore
 {
 	GENERATED_BODY()
+
+	UEstAudioComponent(const FObjectInitializer& ObjectInitializer);
 	
 public:
 	// Begin IEstSaveRestore
 	void OnPreRestore_Implementation() override {};
-
-	void OnPostRestore_Implementation() override
-	{
-		SetSound(SAVE_Sound);
-
-		if (SAVE_bIsPlaying)
-		{
-			Play(SAVE_Position);
-		}
-	};
-
-	void OnPreSave_Implementation() override
-	{
-		SAVE_Position = GetPlayPosition();
-		SAVE_bIsPlaying = IsPlaying();
-		SAVE_Sound = Sound;
-	};
-
+	void OnPostRestore_Implementation() override;
+	void OnPreSave_Implementation() override;
 	void OnPostSave_Implementation() override {};
 	// End IEstSaveRestore
 
@@ -45,22 +33,15 @@ public:
 	virtual FGuid GetSaveId_Implementation() override { return FGuid(); };
 	// End SaveId
 
-	virtual void Play(float StartTime = 0.f) override
-	{
-		Super::Play(StartTime);
-		SoundGameStartTime = GetWorld()->TimeSeconds - StartTime;
-	};
+	UPROPERTY(BlueprintAssignable)
+	FOnSoundPlayed OnSoundPlayed;
+
+	virtual void Play(float StartTime = 0.f);
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);
 
 	UFUNCTION(BlueprintPure, Category = Sound)
-	virtual float GetPlayPosition()
-	{
-		if (!IsPlaying())
-		{
-			return 0.f;
-		}
-
-		return GetWorld()->TimeSeconds - SoundGameStartTime;
-	}
+	virtual float GetPlayPosition();
 
 private:
 	UPROPERTY(SaveGame)
