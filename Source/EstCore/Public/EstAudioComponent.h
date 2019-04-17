@@ -37,6 +37,9 @@ public:
 	FOnSoundPlayed OnSoundPlayed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
+	float FadeInTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
 	float FadeOutTime;
 
 	virtual void Play(float StartTime = 0.f);

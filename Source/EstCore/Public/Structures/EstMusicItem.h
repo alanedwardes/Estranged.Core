@@ -15,5 +15,8 @@ struct ESTCORE_API FEstMusicItem
 	class USoundBase* Music;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	float FadeInTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	float FadeOutTime;
 };

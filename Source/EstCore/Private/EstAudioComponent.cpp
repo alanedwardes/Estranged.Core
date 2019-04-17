@@ -17,10 +17,12 @@ void UEstAudioComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		const float PlayPosition = GetPlayPosition();
 		const float TimeLeft = Sound->Duration - PlayPosition;
 
-		const float Volume = FadeOutTime > 0.f ? FMath::Clamp(TimeLeft / FadeOutTime, 0.f, 1.f) : 1.f;
-		SetVolumeMultiplier(Volume);
+		const float FadeInMultiplier = FadeInTime > 0.f ? FMath::Clamp(PlayPosition / FadeInTime, .01f, 1.f) : 1.f;
+		const float FadeOutMultiplier = FadeOutTime > 0.f ? FMath::Clamp(TimeLeft / FadeOutTime, 0.f, 1.f) : 1.f;
+		SetVolumeMultiplier(FadeInMultiplier * FadeOutMultiplier);
 
-		if (PlayPosition >= Sound->Duration)
+		// Leave a bufffer otherwise there may be a noticable gap for loops
+		if (PlayPosition - .1f >= Sound->Duration)
 		{
 			Stop();
 			OnSoundPlayed.Broadcast();
