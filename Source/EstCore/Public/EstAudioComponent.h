@@ -36,6 +36,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnSoundPlayed OnSoundPlayed;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
+	float FadeOutTime;
+
 	virtual void Play(float StartTime = 0.f);
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);

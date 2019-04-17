@@ -14,9 +14,6 @@ struct ESTCORE_API FEstMusicItem
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	class USoundBase* Music;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
-	float StartedGameTime;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
-	float Position;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	float FadeOutTime;
 };

@@ -14,10 +14,16 @@ void UEstAudioComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	if (IsPlaying() && Sound != nullptr)
 	{
-		if (GetPlayPosition() >= Sound->Duration)
+		const float PlayPosition = GetPlayPosition();
+		const float TimeLeft = Sound->Duration - PlayPosition;
+
+		const float Volume = FadeOutTime > 0.f ? FMath::Clamp(TimeLeft / FadeOutTime, 0.f, 1.f) : 1.f;
+		SetVolumeMultiplier(Volume);
+
+		if (PlayPosition >= Sound->Duration)
 		{
-			OnSoundPlayed.Broadcast();
 			Stop();
+			OnSoundPlayed.Broadcast();
 		}
 	}
 }
