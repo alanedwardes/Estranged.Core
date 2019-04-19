@@ -56,6 +56,9 @@ public:
 	virtual float GetDuration();
 
 	UFUNCTION(BlueprintPure, Category = Sound)
+	virtual float GetPlayPositionWithinLoop();
+
+	UFUNCTION(BlueprintPure, Category = Sound)
 	virtual bool IsSuitableStopPoint();
 
 	UFUNCTION(BlueprintPure, Category = Sound)

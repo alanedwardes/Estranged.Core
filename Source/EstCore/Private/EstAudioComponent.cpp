@@ -15,7 +15,7 @@ void UEstAudioComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	if (IsPlaying() && Sound != nullptr)
 	{
 		const float PlayPosition = GetPlayPosition();
-		const float TimeLeft = GetDuration() - PlayPosition;
+		const float TimeLeft = GetDuration() - GetPlayPositionWithinLoop();
 
 		const float FadeInMultiplier = FadeInTime > 0.f ? FMath::Clamp(PlayPosition / FadeInTime, .01f, 1.f) : 1.f;
 		const float FadeOutMultiplier = FadeOutTime > 0.f ? FMath::Clamp(TimeLeft / FadeOutTime, 0.f, 1.f) : 1.f;
@@ -74,6 +74,11 @@ float UEstAudioComponent::GetDuration()
 	return Sound->Duration;
 }
 
+float UEstAudioComponent::GetPlayPositionWithinLoop()
+{
+	return FMath::Fmod(GetPlayPosition(), GetDuration());
+}
+
 bool UEstAudioComponent::IsSuitableStopPoint()
 {
 	if (Sound == nullptr)
@@ -81,7 +86,7 @@ bool UEstAudioComponent::IsSuitableStopPoint()
 		return true;
 	}
 
-	return FMath::Fmod(GetPlayPosition(), GetDuration()) < 1.f;
+	return GetPlayPositionWithinLoop() < 1.f;
 }
 
 bool UEstAudioComponent::IsLooping()
