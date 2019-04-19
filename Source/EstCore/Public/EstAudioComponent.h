@@ -9,7 +9,7 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "EstAudioComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSoundPlayed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLoopPlayed);
 
 /**
  * 
@@ -34,13 +34,16 @@ public:
 	// End SaveId
 
 	UPROPERTY(BlueprintAssignable)
-	FOnSoundPlayed OnSoundPlayed;
+	FOnLoopPlayed OnLoopPlayed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
 	float FadeInTime;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame)
 	float FadeOutTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
+	int32 LoopCount;
 
 	virtual void Play(float StartTime = 0.f);
 
@@ -49,6 +52,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = Sound)
 	virtual float GetPlayPosition();
 
+	UFUNCTION(BlueprintPure, Category = Sound)
+	virtual float GetDuration();
+
+	UFUNCTION(BlueprintPure, Category = Sound)
+	virtual bool IsSuitableStopPoint();
+
+	UFUNCTION(BlueprintPure, Category = Sound)
+	virtual bool IsLooping();
 private:
 	UPROPERTY(SaveGame)
 	bool SAVE_bIsPlaying;
