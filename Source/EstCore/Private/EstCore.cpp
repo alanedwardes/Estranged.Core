@@ -1,6 +1,12 @@
 #include "EstCore.h"
 #include "Modules/ModuleManager.h"
 
+#if PLATFORM_WINDOWS
+	THIRD_PARTY_INCLUDES_START
+		#include <SDL.h>
+	THIRD_PARTY_INCLUDES_END
+#endif
+
 extern ENGINE_API float GAverageFPS;
 
 IMPLEMENT_GAME_MODULE(FEstCoreModule, EstCore);
@@ -10,6 +16,11 @@ float FEstCoreModule::LongAverageFrameRate = 25.f;
 
 void FEstCoreModule::StartupModule()
 {
+#if PLATFORM_WINDOWS
+	SDL_Init(0);
+	SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+#endif
+
 	TickDelegate = FTickerDelegate::CreateRaw(this, &FEstCoreModule::Tick);
 	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
 }
@@ -22,6 +33,11 @@ bool FEstCoreModule::Tick(float DeltaTime)
 
 void FEstCoreModule::ShutdownModule()
 {
+#if PLATFORM_WINDOWS
+	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+	SDL_Quit();
+#endif
+
 	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 }
 

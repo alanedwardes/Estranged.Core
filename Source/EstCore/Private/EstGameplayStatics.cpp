@@ -23,6 +23,10 @@
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
 
+THIRD_PARTY_INCLUDES_START
+#include <SDL.h>
+THIRD_PARTY_INCLUDES_END
+
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
 	// The code below takes the pitch and yaw of the input FRotator, and adjusts them by a random number ranging from -MaxSpread to +MaxSpread. Roll is untouched.
