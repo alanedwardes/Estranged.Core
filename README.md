@@ -2,7 +2,7 @@
 Source code for the core gameplay module used by [Estranged: Act II](http://store.steampowered.com/app/582890).
 
 ## Compatibility
-* Unreal Engine 4.21.x
+* Unreal Engine 4.22.x
 
 ## Key Concepts
 * EstBaseCharacter - root of all characters, inherits from ACharacter
@@ -12,4 +12,3 @@ Source code for the core gameplay module used by [Estranged: Act II](http://stor
 * EstCharacterMovementComponent - provides additional movement like sprinting, responsible for scheduling footstep sounds
 * EstFirearmAmunition - component providing tracking of bullets / clips for a specific type of amunition
 * EstPlayerController - controller providing main menu visibility management
-* EstPlayerHUD - provides heads up display support for the player (aware of weapons, amunition etc)
