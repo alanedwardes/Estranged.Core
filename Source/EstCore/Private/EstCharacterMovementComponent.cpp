@@ -15,9 +15,8 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxWalkSpeedCrouched = 200.0f;
 	MinJumpStepUpHeight = 10.f;
 	MaxJumpStepUpHeight = 85.f;
-	MaxJumpStepUpDistance = 64.f;
+	MaxJumpStepUpDistance = 34.f;
 	JumpStepUpBoost = 10.f;
-	JumpVelocityMultiplier = 1.25f;
 	FootstepDistanceSpeedMultiplier = 0.4f;
 	FootstepAngle = 64.f;
 	FootstepTime = .25f;
@@ -186,7 +185,7 @@ bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves)
 	{
 		Velocity = FVector(Velocity.X * JumpVelocityMultiplier, Velocity.Y * JumpVelocityMultiplier, Velocity.Z);
 		DoFootstep(FootstepIntensityJump);
-		bCanJumpUp = true;
+		//bCanJumpUp = true;
 		return true;
 	}
 

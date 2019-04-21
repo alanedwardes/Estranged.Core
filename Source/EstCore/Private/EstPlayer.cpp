@@ -119,14 +119,14 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCharacterMovement()->bCanWalkOffLedges = true;
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
-	GetCharacterMovement()->GravityScale = 1.5f;
+	GetCharacterMovement()->GravityScale = 2.5f;
 	GetCharacterMovement()->Mass = 70.0f;
 	GetCharacterMovement()->GroundFriction = 2.0f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 512.f;
 	GetCharacterMovement()->bIgnoreBaseRotation = true;
 	GetCharacterMovement()->PerchRadiusThreshold = 16.f;
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
-	GetCharacterMovement()->JumpZVelocity = 350.f;
+	GetCharacterMovement()->JumpZVelocity = 750.f;
 	GetCharacterMovement()->Buoyancy = .99f;
 	GetCharacterMovement()->AirControl = 0.25f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = .1f;
@@ -135,9 +135,12 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	GetCharacterMovement()->MaxTouchForce = 100.f;
 	GetCharacterMovement()->RepulsionForce = 1.314f;
 	GetCharacterMovement()->MaxSimulationTimeStep = 0.0166f;
+	GetCharacterMovement()->StandingDownwardForceScale = 0.f;
 
-	VelocityDamageThreshold = 800.f;
+	VelocityDamageThreshold = 700.f;
 	VelocityDamageMinimum = 10.f;
+
+	PlayerThrowAngularVelocity = FVector(0.f, 100.f, 500.f);
 }
 
 void AEstPlayer::OnPreSave_Implementation()
@@ -307,8 +310,8 @@ void AEstPlayer::Tick(float DeltaSeconds)
 		AddMovementInput(FVector(0.f, 0.f, 1.f));
 	}
 
-	EST_DEBUG_SLOT(51, FString::Printf(TEXT("Health: %2.f, Stamina: %2.f, Flashlight: %2.f, Speed: %2.f, HeadInWater: %s, Oxygen: %2.f, FocalDistance: %2.f"),
-		HealthComponent->GetResource(), Stamina->GetResource(), Battery->GetResource(), GetVelocity().Size(), HeadInWater ? TEXT("Yes") : TEXT("No"), Oxygen->GetResource(), FocalDistance));
+	EST_DEBUG_SLOT(51, FString::Printf(TEXT("Health: %2.f, Stamina: %2.f, Flashlight: %2.f, Speed: %2.f, HeadInWater: %s, Oxygen: %2.f, FocalDistance: %2.f, SmoothZVelocity: %2.f"),
+		HealthComponent->GetResource(), Stamina->GetResource(), Battery->GetResource(), GetVelocity().Size(), HeadInWater ? TEXT("Yes") : TEXT("No"), Oxygen->GetResource(), FocalDistance, SmoothZVelocity));
 }
 
 void AEstPlayer::UpdatePostProcessingTick(float DeltaSeconds)
