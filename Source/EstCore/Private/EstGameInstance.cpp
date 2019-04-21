@@ -4,6 +4,7 @@
 #include "Runtime/SlateCore/Public/Application/SlateApplicationBase.h"
 #include "EstCore.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "EstMenuWidget.h"
 
 void UEstGameInstance::Init()
@@ -43,6 +44,7 @@ void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityC
 	VisibilityContext = InVisibilityContext;
 	if (VisibilityContext.bIsMenuVisible)
 	{
+		MenuUserWidget->SetOwningPlayer(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 		MenuUserWidget->AddToViewport();
 		MenuUserWidget->OnShowMenu(InVisibilityContext.MenuSection);
 

@@ -164,6 +164,9 @@ AActor* UEstGameplayStatics::MoveActorToLevel(AActor* Actor, ULevel* Level)
 
 void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings)
 {
+	check(PlayerController != nullptr);
+	check(PlayerController->PlayerInput != nullptr);
+
 	for (const FInputActionKeyMapping Mapping : PlayerController->PlayerInput->ActionMappings)
 	{
 		if (Mapping.Key.IsGamepadKey())
@@ -189,6 +192,9 @@ void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerCont
 
 void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerController, TArray<FName>& SortedAxisNames, TMap<FName, FKey>& Mappings)
 {
+	check(PlayerController != nullptr);
+	check(PlayerController->PlayerInput != nullptr);
+
 	for (const FInputAxisKeyMapping Mapping : PlayerController->PlayerInput->AxisMappings)
 	{
 		if (Mapping.Key.IsGamepadKey())
@@ -213,6 +219,9 @@ void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerContro
 
 FKey UEstGameplayStatics::FindBestKeyForAction(APlayerController* PlayerController, FName ActionName, bool bForGamepad)
 {
+	check(PlayerController != nullptr);
+	check(PlayerController->PlayerInput != nullptr);
+
 	const TArray<FInputActionKeyMapping> Mappings = PlayerController->PlayerInput->GetKeysForAction(ActionName);
 	for (const FInputActionKeyMapping Mapping : Mappings)
 	{
@@ -232,6 +241,9 @@ FKey UEstGameplayStatics::FindBestKeyForAction(APlayerController* PlayerControll
 
 FKey UEstGameplayStatics::FindBestKeyForAxis(APlayerController* PlayerController, FName AxisName, bool bForGamepad)
 {
+	check(PlayerController != nullptr);
+	check(PlayerController->PlayerInput != nullptr);
+
 	const TArray<FInputAxisKeyMapping> Mappings = PlayerController->PlayerInput->GetKeysForAxis(AxisName);
 	for (const FInputAxisKeyMapping Mapping : Mappings)
 	{
