@@ -51,6 +51,9 @@ public:
 	static void ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
+	static void ListAxisMappings(const APlayerController* PlayerController, TArray<FName> &SortedAxisNames, TMap<FName, FKey> &Mappings);
+
+	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
 	static FKey FindBestKeyForAction(APlayerController* PlayerController, FName ActionName, bool bForGamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))

@@ -187,6 +187,30 @@ void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerCont
 	});
 }
 
+void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerController, TArray<FName>& SortedAxisNames, TMap<FName, FKey>& Mappings)
+{
+	for (const FInputAxisKeyMapping Mapping : PlayerController->PlayerInput->AxisMappings)
+	{
+		if (Mapping.Key.IsGamepadKey())
+		{
+			continue;
+		}
+
+		if (Mapping.Key == EKeys::Escape)
+		{
+			continue;
+		}
+
+		Mappings.Add(Mapping.AxisName, Mapping.Key);
+	}
+
+	Mappings.GetKeys(SortedAxisNames);
+	SortedAxisNames.Sort([](const FName& LHS, const FName& RHS)
+	{
+		return LHS < RHS;
+	});
+}
+
 FKey UEstGameplayStatics::FindBestKeyForAction(APlayerController* PlayerController, FName ActionName, bool bForGamepad)
 {
 	const TArray<FInputActionKeyMapping> Mappings = PlayerController->PlayerInput->GetKeysForAction(ActionName);
