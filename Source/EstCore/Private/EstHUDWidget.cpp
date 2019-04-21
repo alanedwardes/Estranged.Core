@@ -12,8 +12,6 @@ extern ENGINE_API float GAverageFPS;
 
 void UEstHUDWidget::NativeConstruct()
 {
-	Super::NativeConstruct();
-
 	LastSubtitleTime = -BIG_NUMBER;
 
 	Player = Cast<AEstPlayer>(GetOwningPlayerPawn());
@@ -27,6 +25,8 @@ void UEstHUDWidget::NativeConstruct()
 	}
 
 	FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().AddUObject(this, &UEstHUDWidget::HandleSetSubtitleText);
+
+	Super::NativeConstruct();
 }
 
 void UEstHUDWidget::NativeDestruct()
