@@ -17,6 +17,7 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxJumpStepUpHeight = 85.f;
 	MaxJumpStepUpDistance = 34.f;
 	JumpStepUpBoost = 10.f;
+	JumpVelocityMultiplier = 1.25f;
 	FootstepDistanceSpeedMultiplier = 0.4f;
 	FootstepAngle = 64.f;
 	FootstepTime = .25f;
