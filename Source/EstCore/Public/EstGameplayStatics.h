@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "EstImpactEffect.h"
 #include "Saves/EstSave.h"
+#include "EstCarryableUserData.h"
 #include "EstGameplayStatics.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, FHitResult, HitResult);
@@ -164,4 +165,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Player)
 	static float GetCameraFadeAmount(class APlayerCameraManager* PlayerCameraManager);
+
+	UFUNCTION(BlueprintCallable, Category = Player)
+	static UEstCarryableUserData* GetCarryableUserDataFromMesh(class UPrimitiveComponent* PrimitiveComponent);
 };

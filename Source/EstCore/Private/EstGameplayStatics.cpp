@@ -22,6 +22,8 @@
 #include "Runtime/Engine/Classes/Components/DirectionalLightComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -624,6 +626,13 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 		return false;
 	}
 
+	UEstCarryableUserData* CarryableUserData = GetCarryableUserDataFromMesh(PrimitiveToHold);
+	if (CarryableUserData != nullptr && !CarryableUserData->bCanPlayerPickUp)
+	{
+		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as asset contains carryable user data stating it cannot be picked up"));
+		return false;
+	}
+
 	return true;
 }
 
@@ -809,4 +818,21 @@ float UEstGameplayStatics::GetCameraFadeAmount(APlayerCameraManager * PlayerCame
 	}
 
 	return PlayerCameraManager->FadeAmount;
+}
+
+UEstCarryableUserData* UEstGameplayStatics::GetCarryableUserDataFromMesh(UPrimitiveComponent* PrimitiveComponent)
+{
+	UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(PrimitiveComponent);
+	if (StaticMeshComponent != nullptr && StaticMeshComponent->GetStaticMesh() != nullptr)
+	{
+		return StaticMeshComponent->GetStaticMesh()->GetAssetUserData<UEstCarryableUserData>();
+	}
+
+	USkinnedMeshComponent* SkinnedMeshComponent = Cast<USkinnedMeshComponent>(PrimitiveComponent);
+	if (SkinnedMeshComponent != nullptr && SkinnedMeshComponent->SkeletalMesh != nullptr)
+	{
+		return SkinnedMeshComponent->SkeletalMesh->GetAssetUserData<UEstCarryableUserData>();
+	}
+
+	return nullptr;
 }
