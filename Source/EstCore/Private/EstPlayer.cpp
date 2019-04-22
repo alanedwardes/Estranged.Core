@@ -432,10 +432,8 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	FVector BoxExtent;
 	HeldActorBounds.GetCenterAndExtents(Origin, BoxExtent);
 
-	FTransform HoldSocketTransform = HeldPrimitive->GetSocketTransform(HOLD_SOCKET, ERelativeTransformSpace::RTS_Actor);
-
 	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
-	const FVector DesiredLocation = HeldLocation - Origin - HoldSocketTransform.GetLocation();
+	const FVector DesiredLocation = HeldLocation - Origin - HeldPrimitiveTransform.GetLocation();
 
 	// NOTE: It is not safe to update the physics properties AFTER the move
 	// because the move could have triggered something which destroys
@@ -446,7 +444,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
 
 	FHitResult MoveHit;
-	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentRotation() + HoldSocketTransform.Rotator(), true, &MoveHit, MOVECOMP_NoFlags, ETeleportType::TeleportPhysics);
+	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentRotation() + HeldPrimitiveTransform.Rotator(), true, &MoveHit, MOVECOMP_NoFlags, ETeleportType::TeleportPhysics);
 	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
 	{
 		// Add some force to any objects that were hit by this move action so they repel realistically
@@ -857,6 +855,9 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 
 	HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
 	HeldPrimitive->SetEnableGravity(false);
+
+	UEstCarryableUserData* CarryableUserData = UEstGameplayStatics::GetCarryableUserDataFromMesh(HeldPrimitive.Get());
+	HeldPrimitiveTransform = CarryableUserData == nullptr ? FTransform::Identity : CarryableUserData->CarryTransform;
 
 	// Must be last, the act of picking up an actor may make it self destruct
 	if (HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))

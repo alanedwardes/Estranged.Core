@@ -28,7 +28,6 @@
 
 #define WEAPON_SOCKET "WeaponSocket"
 #define BARREL_SOCKET "BarrelSocket"
-#define HOLD_SOCKET "HoldSocket"
 #define HIGHLIGHT_MATERIAL_PARAMETER "Highlight"
 
 #define BLACKBOARD_FOCUS_ACTOR "FocusActor"

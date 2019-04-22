@@ -228,6 +228,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	struct FBox HeldActorBounds;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	FTransform HeldPrimitiveTransform;
+
 	/** Actor the player is currently using */
 	TWeakObjectPtr<class UObject> UsingObject;
 

@@ -19,4 +19,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bCanPlayerPickUp;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FTransform CarryTransform;
 };
