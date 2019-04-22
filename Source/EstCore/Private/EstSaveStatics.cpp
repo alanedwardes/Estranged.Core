@@ -185,7 +185,12 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 {
 	for (AActor* Actor : TSet<AActor*>(Level->Actors))
 	{
-		if (!Actor)
+		if (Actor == nullptr)
+		{
+			continue;
+		}
+
+		if (Actor->IsPendingKill())
 		{
 			continue;
 		}
@@ -198,9 +203,7 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 				continue;
 			}
 
-			// I don't know why this happens, but crash reports show it does
-			// (saving while level unloading?)
-			if (LevelSequenceActor->SequencePlayer != nullptr)
+			if (LevelSequenceActor->SequencePlayer == nullptr)
 			{
 				continue;
 			}
