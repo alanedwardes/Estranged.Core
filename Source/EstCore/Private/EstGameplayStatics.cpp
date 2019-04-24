@@ -768,13 +768,18 @@ TArray<AActor*> UEstGameplayStatics::SortActorArrayByClosest(AActor * SelfActor,
 	return Actors;
 }
 
-TArray<AActor*> UEstGameplayStatics::FilterActorArrayByVisible(TArray<AActor*> Actors)
+TArray<AActor*> UEstGameplayStatics::FilterActorArrayByVisible(TArray<AActor*> Actors, TArray<UClass*> AlwaysAllowed)
 {
-	return Actors.FilterByPredicate([](const AActor* Actor)
+	return Actors.FilterByPredicate([&AlwaysAllowed](const AActor* Actor)
 	{
 		if (Actor == nullptr)
 		{
 			return false;
+		}
+
+		if (AlwaysAllowed.Contains(Actor->GetClass()))
+		{
+			return true;
 		}
 
 		return !Actor->bHidden;
