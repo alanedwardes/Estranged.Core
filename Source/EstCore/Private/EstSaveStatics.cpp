@@ -198,11 +198,6 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 		if (Actor->GetClass()->IsChildOf(ALevelSequenceActor::StaticClass()))
 		{
 			ALevelSequenceActor* LevelSequenceActor = Cast<ALevelSequenceActor>(Actor);
-			if (LevelSequenceActor->ActorHasTag(TAG_NOSAVERESTORE))
-			{
-				continue;
-			}
-
 			if (LevelSequenceActor->SequencePlayer == nullptr)
 			{
 				continue;
