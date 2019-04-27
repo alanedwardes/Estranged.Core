@@ -190,6 +190,11 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 			continue;
 		}
 
+		if (Actor->ActorHasTag(TAG_NOSAVERESTORE))
+		{
+			continue;
+		}
+
 		if (Actor->IsPendingKill())
 		{
 			continue;
