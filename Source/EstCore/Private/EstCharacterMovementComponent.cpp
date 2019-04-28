@@ -148,7 +148,9 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 		}
 		else
 		{
-			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s in actor %s but no impact effect"), *PhysicalMaterial->GetName(), *OutHit.GetActor()->GetName());
+			FString ActorName = OutHit.GetActor() == nullptr ? "null" : OutHit.GetActor()->GetName();
+
+			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s in actor %s but no impact effect"), *PhysicalMaterial->GetName(), *ActorName);
 		}
 	}
 
