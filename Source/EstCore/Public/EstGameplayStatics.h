@@ -91,9 +91,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = Math)
 	static bool IsLocationInsideActor(FVector Location, AActor* Actor);
 
-	UFUNCTION(BlueprintCallable, Category = "Internationalization")
-	static TArray<FString> GetAllCultures();
-
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	static bool IsUsingGamepad(const APawn* Pawn);
 

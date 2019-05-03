@@ -10,7 +10,6 @@
 #include "Components/SkinnedMeshComponent.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
-#include "Internationalization/Internationalization.h"
 #include "GenericPlatform/GenericPlatformCrashContext.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerInput.h"
 #include "Runtime/Engine/Public/TimerManager.h"
@@ -460,11 +459,6 @@ bool UEstGameplayStatics::IsLocationInsideActor(FVector Location, AActor* Actor)
 	}
 
 	return Actor->GetComponentsBoundingBox().IsInsideOrOn(Location);
-}
-
-TArray<FString> UEstGameplayStatics::GetAllCultures()
-{
-	return FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Game);
 }
 
 bool UEstGameplayStatics::IsUsingGamepad(const APawn* Pawn)
