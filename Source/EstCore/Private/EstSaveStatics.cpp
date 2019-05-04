@@ -387,8 +387,21 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 {
 	for (TActorIterator<ALevelSequenceActor> LevelSequenceActor(World); LevelSequenceActor; ++LevelSequenceActor)
 	{
+		if (*LevelSequenceActor == nullptr)
+		{
+			continue;
+		}
+
+		if (LevelSequenceActor->IsPendingKill())
+		{
+			continue;
+		}
+
 		if (LevelSequenceActor->GetFName() == SequenceState.ActorName)
 		{
+			// There have been crash reports from this area of the code, do some sanity checks
+			check(LevelSequenceActor->SequencePlayer != nullptr);
+
 			const bool bIsAtStart = SequenceState.FrameNumber == 0;
 			const bool bIsAtEnd = SequenceState.FrameNumber >= LevelSequenceActor->SequencePlayer->GetEndTime().Time.FrameNumber.Value;
 
