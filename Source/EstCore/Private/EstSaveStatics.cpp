@@ -66,7 +66,7 @@ void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* Gameplay
 		return;
 	}
 
-	HUDWidget->bDisableHUD = GameplaySave->GetDisableHUD();
+	HUDWidget->SetVisibility(GameplaySave->GetDisableHUD() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
 	HUDWidget->bDisableSubtitles = GameplaySave->GetDisableSubtitles();
 	HUDWidget->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
 }

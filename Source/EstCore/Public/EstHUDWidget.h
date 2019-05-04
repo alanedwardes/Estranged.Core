@@ -18,9 +18,6 @@ class ESTCORE_API UEstHUDWidget : public UUserWidget
 	virtual void HandleSetSubtitleText(const FText & SubtitleText);
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
-	bool bDisableHUD;
-
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstPlayer> Player;
 
