@@ -89,7 +89,7 @@ public:
 	static TArray<FString> GetValidMemoryDumpPaths();
 
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-	static TSet<FName> GetStreamingLevels(UObject* WorldContextObject);
+	static const TArray<class ULevelStreaming*> GetStreamingLevels(UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = Math)
 	static bool IsLocationInsideActor(FVector Location, AActor* Actor);
