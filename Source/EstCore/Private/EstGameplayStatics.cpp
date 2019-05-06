@@ -384,6 +384,11 @@ bool UEstGameplayStatics::IsSlowerMachine()
 		return true;
 	}
 
+	if (FParse::Param(FCommandLine::Get(), TEXT("lowendmachine")))
+	{
+		return true;
+	}
+
 	return false;
 }
 
