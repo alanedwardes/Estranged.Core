@@ -23,6 +23,7 @@
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
+#include "Engine/LevelStreaming.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -449,6 +450,25 @@ TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
 	}
 
 	return ValidMemoryDumpPaths;
+}
+
+TSet<FName> UEstGameplayStatics::GetStreamingLevels(UObject* WorldContextObject)
+{
+	TSet<FName> StreamingLevelNames;
+
+	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		for (const ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
+		{
+			FString Prefix;
+			FString Suffix;
+			StreamingLevel->GetWorldAssetPackageName().Split("/", &Prefix, &Suffix, ESearchCase::CaseSensitive, ESearchDir::FromEnd);
+
+			StreamingLevelNames.Add(FName(*Suffix));
+		}
+	}
+
+	return StreamingLevelNames;
 }
 
 bool UEstGameplayStatics::IsLocationInsideActor(FVector Location, AActor* Actor)
