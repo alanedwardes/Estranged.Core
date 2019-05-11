@@ -1032,8 +1032,13 @@ void AEstPlayer::EquipWeapon_Implementation(AEstBaseWeapon* Weapon)
 
 	Super::EquipWeapon_Implementation(Weapon);
 
-	Weapon->WeaponMesh->bSelfShadowOnly = true;
-	Weapon->WeaponMesh->MarkRenderStateDirty();
+	TArray<UPrimitiveComponent*> Primitives;
+	Weapon->GetComponents<UPrimitiveComponent>(Primitives);
+	for (UPrimitiveComponent* Primitive : Primitives)
+	{
+		Primitive->bSelfShadowOnly = true;
+		Primitive->MarkRenderStateDirty();
+	}
 
 	Weapon->AttachToComponent(ViewModelMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, Weapon->SocketName);
 }
@@ -1045,8 +1050,13 @@ void AEstPlayer::UnequipWeapon_Implementation()
 		return;
 	}
 
-	EquippedWeapon->WeaponMesh->bSelfShadowOnly = false;
-	EquippedWeapon->WeaponMesh->MarkRenderStateDirty();
+	TArray<UPrimitiveComponent*> Primitives;
+	EquippedWeapon->GetComponents<UPrimitiveComponent>(Primitives);
+	for (UPrimitiveComponent* Primitive : Primitives)
+	{
+		Primitive->bSelfShadowOnly = false;
+		Primitive->MarkRenderStateDirty();
+	}
 
 	Super::UnequipWeapon_Implementation();
 }
