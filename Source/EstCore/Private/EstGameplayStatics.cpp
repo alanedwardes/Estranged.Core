@@ -850,3 +850,11 @@ UEstCarryableUserData* UEstGameplayStatics::GetCarryableUserDataFromMesh(UPrimit
 
 	return nullptr;
 }
+
+void UEstGameplayStatics::MarkRenderStateDirty(UPrimitiveComponent* PrimitiveComponent)
+{
+	if (PrimitiveComponent != nullptr)
+	{
+		PrimitiveComponent->MarkRenderStateDirty();
+	}
+}

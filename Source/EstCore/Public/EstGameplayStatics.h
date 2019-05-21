@@ -168,4 +168,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Player)
 	static UEstCarryableUserData* GetCarryableUserDataFromMesh(class UPrimitiveComponent* PrimitiveComponent);
+
+	UFUNCTION(BlueprintCallable, Category = Rendering)
+	static void MarkRenderStateDirty(UPrimitiveComponent* PrimitiveComponent);
 };
