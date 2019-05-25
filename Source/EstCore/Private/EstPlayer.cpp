@@ -12,6 +12,7 @@
 #include "Runtime/Engine/Classes/Components/SpotLightComponent.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsHandleComponent.h"
 #include "EstGameInstance.h"
 #include "EstResourceComponent.h"
 #include "Saves/EstGameplaySave.h"
@@ -103,6 +104,9 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	ViewModelMesh->bSelfShadowOnly = true;
 	ViewModelMesh->bCastInsetShadow = true;
 	ViewModelMesh->bCastShadowAsTwoSided = true;
+
+	CarryHandle = PCIP.CreateDefaultSubobject<UPhysicsHandleComponent>(this, TEXT("CarryHandle"));
+	CarryHandle->bInterpolateTarget = false;
 
 	AimInterpolationSpeed = 18.f;
 	AimingFieldOfView = 85.f;
@@ -390,6 +394,8 @@ void AEstPlayer::BeginPlay()
 	Camera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 }
 
+static FVector LastMove;
+
 void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 {
 	if (!IsHoldingActor())
@@ -434,22 +440,9 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 
 	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
 	const FVector DesiredLocation = HeldLocation - Origin - HeldPrimitiveTransform.GetLocation();
+	const FRotator DesiredRotation = (GetCapsuleComponent()->GetComponentRotation() + HeldPrimitiveTransform.Rotator());
 
-	// NOTE: It is not safe to update the physics properties AFTER the move
-	// because the move could have triggered something which destroys
-	// the held actor or primitive
-	HeldPrimitive->SetPhysicsLinearVelocity(FVector::ZeroVector);
-	HeldPrimitive->SetAllPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
-
-	const FVector InterpolatedLocation = FMath::VInterpTo(HeldActor->GetActorLocation(), DesiredLocation, DeltaSeconds, PlayerInteractionHeldUpdateSpeed);
-
-	FHitResult MoveHit;
-	HeldPrimitive->MoveComponent(InterpolatedLocation - HeldActor->GetActorLocation(), GetCapsuleComponent()->GetComponentRotation() + HeldPrimitiveTransform.Rotator(), true, &MoveHit, MOVECOMP_NoFlags, ETeleportType::TeleportPhysics);
-	if (MoveHit.Component.IsValid() && MoveHit.Component->IsSimulatingPhysics())
-	{
-		// Add some force to any objects that were hit by this move action so they repel realistically
-		MoveHit.Component->AddForceAtLocation(MoveHit.Normal * -(100000.f), MoveHit.ImpactPoint);
-	}
+	CarryHandle->SetTargetLocationAndRotation(DesiredLocation, DesiredRotation);
 }
 
 void AEstPlayer::UpdateFlashlightTick(float DeltaSeconds)
@@ -864,11 +857,15 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	{
 		IEstCarryable::Execute_OnPickedUp(HeldActor.Get(), this);
 	}
+
+	CarryHandle->GrabComponentAtLocationWithRotation(HeldPrimitive.Get(), NAME_None, HeldPrimitive->GetComponentLocation(), HeldPrimitive->GetComponentRotation());
 }
 
 void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 {
 	ensure(IsHoldingActor());
+
+	CarryHandle->ReleaseComponent();
 
 	GetCapsuleComponent()->IgnoreActorWhenMoving(HeldActor.Get(), false);
 

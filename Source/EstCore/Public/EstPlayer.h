@@ -94,6 +94,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fighting", meta = (UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 	float AimingFieldOfView;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	class UPhysicsHandleComponent* CarryHandle;
+
 	/** Skeletal mesh for the current weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fighting")
 	class USceneComponent* ViewModel;
