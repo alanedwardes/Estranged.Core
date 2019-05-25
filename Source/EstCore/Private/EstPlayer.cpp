@@ -106,7 +106,8 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	ViewModelMesh->bCastShadowAsTwoSided = true;
 
 	CarryHandle = PCIP.CreateDefaultSubobject<UPhysicsHandleComponent>(this, TEXT("CarryHandle"));
-	CarryHandle->bInterpolateTarget = false;
+	CarryHandle->LinearStiffness = 1500.f;
+	CarryHandle->AngularStiffness = 3000.f;
 
 	AimInterpolationSpeed = 18.f;
 	AimingFieldOfView = 85.f;
