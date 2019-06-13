@@ -853,13 +853,13 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	UEstCarryableUserData* CarryableUserData = UEstGameplayStatics::GetCarryableUserDataFromMesh(HeldPrimitive.Get());
 	HeldPrimitiveTransform = CarryableUserData == nullptr ? FTransform::Identity : CarryableUserData->CarryTransform;
 
+	CarryHandle->GrabComponentAtLocationWithRotation(HeldPrimitive.Get(), NAME_None, HeldPrimitive->GetComponentLocation(), HeldPrimitive->GetComponentRotation());
+
 	// Must be last, the act of picking up an actor may make it self destruct
 	if (HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))
 	{
 		IEstCarryable::Execute_OnPickedUp(HeldActor.Get(), this);
 	}
-
-	CarryHandle->GrabComponentAtLocationWithRotation(HeldPrimitive.Get(), NAME_None, HeldPrimitive->GetComponentLocation(), HeldPrimitive->GetComponentRotation());
 }
 
 void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
