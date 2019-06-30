@@ -45,9 +45,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	int32 LoopCount;
 
-	virtual void Play(float StartTime = 0.f);
-
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);
+	virtual void Play(float StartTime = 0.f) override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	UFUNCTION(BlueprintPure, Category = Sound)
 	virtual float GetPlayPosition();
@@ -63,6 +62,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Sound)
 	virtual bool IsLooping();
+
+	UFUNCTION(BlueprintCallable, Category = Sound)
+	virtual void SetSoundIfDifferent(USoundBase* NewSound);
 private:
 	UPROPERTY(SaveGame)
 	bool SAVE_bIsPlaying;

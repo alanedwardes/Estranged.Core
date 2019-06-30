@@ -49,9 +49,23 @@ void UEstAudioComponent::OnPreSave_Implementation()
 
 void UEstAudioComponent::Play(float StartTime)
 {
+	if (IsLooping() && IsPlaying())
+	{
+		// If we are already playing, ignore this
+		return;
+	}
+
 	Super::Play(StartTime);
 	LoopCount = 0;
 	SoundGameStartTime = GetWorld()->TimeSeconds - StartTime;
+}
+
+void UEstAudioComponent::SetSoundIfDifferent(USoundBase *NewSound)
+{
+	if (NewSound != Sound)
+	{
+		Super::SetSound(NewSound);
+	}
 }
 
 float UEstAudioComponent::GetPlayPosition()
@@ -86,7 +100,7 @@ bool UEstAudioComponent::IsSuitableStopPoint()
 		return true;
 	}
 
-	return GetPlayPositionWithinLoop() < 1.f;
+	return GetPlayPositionWithinLoop() < 0.5f;
 }
 
 bool UEstAudioComponent::IsLooping()
