@@ -170,5 +170,17 @@ public:
 	static UEstCarryableUserData* GetCarryableUserDataFromMesh(class UPrimitiveComponent* PrimitiveComponent);
 
 	UFUNCTION(BlueprintCallable, Category = Rendering)
-	static void MarkRenderStateDirty(UActorComponent* ActorComponent);
+	static void MarkRenderStateDirty(class UActorComponent* ActorComponent);
+
+	UFUNCTION(BlueprintPure, Category = Audio)
+	static float GetDuration(class UAudioComponent* AudioComponent);
+
+	UFUNCTION(BlueprintPure, Category = Audio)
+	static float GetPlayPositionWithinLoop(class UAudioComponent* AudioComponent, float PlayPosition);
+
+	UFUNCTION(BlueprintPure, Category = Audio)
+	static bool IsSuitableStopPoint(class UAudioComponent* AudioComponent, float PlayPosition);
+
+	UFUNCTION(BlueprintPure, Category = Audio)
+	static bool IsLooping(class UAudioComponent* AudioComponent);
 };

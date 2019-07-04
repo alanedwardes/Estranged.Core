@@ -5,7 +5,12 @@
 #include "EstCore.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "EstAudioComponent.h"
 #include "EstMenuWidget.h"
+#include "EstGameplayStatics.h"
+#include "Runtime/Engine/Public/ActiveSound.h"
+#include "Runtime/Engine/Public/AudioDevice.h"
+#include "Async.h"
 
 void UEstGameInstance::Init()
 {
@@ -17,17 +22,53 @@ void UEstGameInstance::Init()
 
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UEstGameInstance::PreLoadMap);
 
+	FTickerDelegate TickDelegate = FTickerDelegate::CreateUObject(this, &UEstGameInstance::Tick);
+	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
+
 	Super::Init();
 }
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
 {
+	FadeMusic();
 	SetMenuVisibility(FEstMenuVisibilityContext(false, false));
+}
+
+void UEstGameInstance::FadeMusic()
+{
+	if (AudioComponent == nullptr)
+	{
+		return;
+	}
+
+	AudioComponent->FadeOut(5.f, 0.f);
+	NextMusic = FEstMusic();
+}
+
+void UEstGameInstance::PlayMusic(FEstMusic Music)
+{
+	if (LazilyCreateAudioComponent(Music.Sound))
+	{
+		if (!AudioComponent->IsPlaying())
+		{
+			PlayMusicInternal(Music);
+		}
+		else if (Music.bShouldFadeCurrent)
+		{
+			FadeMusic();
+			NextMusic = Music;
+		}
+		else
+		{
+			NextMusic = Music;
+		}
+	}
 }
 
 void UEstGameInstance::Shutdown()
 {
 	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
+	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 
 	MenuSlateWidget = nullptr;
 
@@ -59,4 +100,65 @@ void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityC
 	{
 		MenuUserWidget->RemoveFromViewport();
 	}
+}
+
+bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
+{
+	if (AudioComponent != nullptr)
+	{
+		return true;
+	}
+	
+	AudioComponent = FAudioDevice::CreateComponent(Sound);
+	if (AudioComponent)
+	{
+		AudioComponent->SetVolumeMultiplier(1.0f);
+		AudioComponent->SetPitchMultiplier(1.0f);
+		AudioComponent->bAllowSpatialization = false;
+		AudioComponent->bIsUISound = true;
+		AudioComponent->bAutoDestroy = false;
+		AudioComponent->bIgnoreForFlushing = true;
+		AudioComponent->SubtitlePriority = -1.f;
+		AudioComponent->AddToRoot();
+		return true;
+	}
+
+	return false;
+}
+
+void UEstGameInstance::PlayMusicInternal(FEstMusic Music)
+{
+	if (LazilyCreateAudioComponent(Music.Sound))
+	{
+		AudioComponent->SetVolumeMultiplier(1.f);
+		AudioComponent->SetSound(Music.Sound);
+		AudioComponent->Play();
+		MusicStartTime = GameInstanceTime;
+	}
+}
+
+bool UEstGameInstance::Tick(float DeltaTime)
+{
+	GameInstanceTime += DeltaTime;
+
+	const float PlayPosition = GameInstanceTime - MusicStartTime;
+
+	if (AudioComponent != nullptr)
+	{
+		if (NextMusic.IsSet())
+		{
+			bool bIsLooping = UEstGameplayStatics::IsLooping(AudioComponent);
+			bool bIsSuitableStopPoint = UEstGameplayStatics::IsSuitableStopPoint(AudioComponent, PlayPosition);
+			bool bIsPlaying = AudioComponent->IsPlaying();
+
+			if (!bIsPlaying || (bIsLooping && bIsSuitableStopPoint))
+			{
+				FEstMusic Next = NextMusic.GetValue();
+				NextMusic.Reset();
+				PlayMusicInternal(Next);
+			}
+		}
+	}
+
+	return true;
 }

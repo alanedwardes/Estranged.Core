@@ -48,6 +48,19 @@ struct FEstMenuVisibilityContext
 	FName MenuSection;
 };
 
+USTRUCT(BlueprintType)
+struct FEstMusic
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundBase* Sound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShouldFadeCurrent;
+};
+
 UCLASS()
 class ESTCORE_API UEstGameInstance : public UGameInstance
 {
@@ -59,6 +72,12 @@ public:
 	virtual void Shutdown() override;
 
 	virtual void PreLoadMap(const FString & InMapName);
+
+	UFUNCTION(BlueprintCallable, Category = Sound)
+	virtual void FadeMusic();
+
+	UFUNCTION(BlueprintCallable, Category = Sound)
+	virtual void PlayMusic(FEstMusic Music);
 
 	UFUNCTION(BlueprintPure, Category = UI)
 	virtual bool GetMenuVisibleForever() { return VisibilityContext.bIsMenuVisibleForever; };
@@ -72,6 +91,14 @@ public:
 	TSharedPtr<SWidget> GetRawMenuWidget() { return MenuSlateWidget; }
 
 private:
+	virtual void PlayMusicInternal(FEstMusic Music);
+	virtual bool Tick(float DeltaTime);
+	FDelegateHandle TickDelegateHandle;
+	TOptional<FEstMusic> NextMusic;
+	float MusicStartTime;
+	float GameInstanceTime;
+	bool LazilyCreateAudioComponent(class USoundBase* Sound);
+	class UAudioComponent* AudioComponent;
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;
 	FEstMenuVisibilityContext VisibilityContext;

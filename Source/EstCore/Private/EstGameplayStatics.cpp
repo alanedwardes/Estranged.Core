@@ -858,3 +858,38 @@ void UEstGameplayStatics::MarkRenderStateDirty(UActorComponent* ActorComponent)
 		ActorComponent->MarkRenderStateDirty();
 	}
 }
+
+float UEstGameplayStatics::GetDuration(UAudioComponent* AudioComponent)
+{
+	if (AudioComponent == nullptr || AudioComponent->Sound == nullptr)
+	{
+		return 0.f;
+	}
+
+	return AudioComponent->Sound->Duration;
+}
+
+float UEstGameplayStatics::GetPlayPositionWithinLoop(UAudioComponent* AudioComponent, float PlayPosition)
+{
+	return FMath::Fmod(PlayPosition, UEstGameplayStatics::GetDuration(AudioComponent));
+}
+
+bool UEstGameplayStatics::IsSuitableStopPoint(UAudioComponent* AudioComponent, float PlayPosition)
+{
+	if (AudioComponent == nullptr || AudioComponent->Sound == nullptr)
+	{
+		return true;
+	}
+
+	return UEstGameplayStatics::GetPlayPositionWithinLoop(AudioComponent, PlayPosition) < 0.5f;
+}
+
+bool UEstGameplayStatics::IsLooping(UAudioComponent* AudioComponent)
+{
+	if (AudioComponent == nullptr || AudioComponent->Sound == nullptr)
+	{
+		return false;
+	}
+
+	return AudioComponent->Sound->IsLooping();
+}
