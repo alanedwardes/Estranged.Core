@@ -42,7 +42,17 @@ void UEstGameInstance::FadeMusic()
 	}
 
 	AudioComponent->FadeOut(5.f, 0.f);
+	bWasFadingOut = true;
 	NextMusic = FEstMusic();
+}
+
+void UEstGameInstance::StopMusic()
+{
+	if (AudioComponent != nullptr)
+	{
+		AudioComponent->Stop();
+		NextMusic.Reset();
+	}
 }
 
 void UEstGameInstance::PlayMusic(FEstMusic Music)
@@ -132,7 +142,17 @@ void UEstGameInstance::PlayMusicInternal(FEstMusic Music)
 	{
 		AudioComponent->SetVolumeMultiplier(1.f);
 		AudioComponent->SetSound(Music.Sound);
-		AudioComponent->Play();
+
+		if (bWasFadingOut && UEstGameplayStatics::IsLooping(AudioComponent))
+		{
+			AudioComponent->FadeIn(5.f);
+		}
+		else
+		{
+			AudioComponent->Play();
+		}
+
+		bWasFadingOut = false;
 		MusicStartTime = GameInstanceTime;
 	}
 }

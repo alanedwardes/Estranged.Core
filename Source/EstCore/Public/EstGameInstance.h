@@ -77,6 +77,9 @@ public:
 	virtual void FadeMusic();
 
 	UFUNCTION(BlueprintCallable, Category = Sound)
+	virtual void StopMusic();
+
+	UFUNCTION(BlueprintCallable, Category = Sound)
 	virtual void PlayMusic(FEstMusic Music);
 
 	UFUNCTION(BlueprintPure, Category = UI)
@@ -89,16 +92,18 @@ public:
 	TSubclassOf<class UUserWidget> MenuWidgetType;
 
 	TSharedPtr<SWidget> GetRawMenuWidget() { return MenuSlateWidget; }
-
 private:
+	class UAudioComponent* AudioComponent;
+
 	virtual void PlayMusicInternal(FEstMusic Music);
 	virtual bool Tick(float DeltaTime);
+	bool LazilyCreateAudioComponent(class USoundBase* Sound);
+
 	FDelegateHandle TickDelegateHandle;
 	TOptional<FEstMusic> NextMusic;
 	float MusicStartTime;
 	float GameInstanceTime;
-	bool LazilyCreateAudioComponent(class USoundBase* Sound);
-	class UAudioComponent* AudioComponent;
+	bool bWasFadingOut;
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;
 	FEstMenuVisibilityContext VisibilityContext;
