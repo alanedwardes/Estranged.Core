@@ -42,8 +42,8 @@ void UEstGameInstance::FadeMusic()
 	}
 
 	AudioComponent->FadeOut(5.f, 0.f);
+	NextMusic.Reset();
 	bWasFadingOut = true;
-	NextMusic = FEstMusic();
 }
 
 void UEstGameInstance::StopMusic()
@@ -112,6 +112,26 @@ void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityC
 	}
 }
 
+FEstMusic UEstGameInstance::GetMusic()
+{
+	// Shortcut the next transition
+	if (NextMusic.IsSet())
+	{
+		return NextMusic.GetValue();
+	}
+
+	if (AudioComponent == nullptr || !AudioComponent->IsPlaying() || bWasFadingOut)
+	{
+		return FEstMusic();
+	}
+
+	FEstMusic Music;
+	Music.Sound = AudioComponent->Sound;
+	Music.Position = GetPlayPosition();
+	Music.bShouldFadeCurrent = true;
+	return Music;
+}
+
 bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 {
 	if (AudioComponent != nullptr)
@@ -136,6 +156,16 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 	return false;
 }
 
+float UEstGameInstance::GetPlayPosition()
+{
+	if (AudioComponent == nullptr)
+	{
+		return 0.f;
+	}
+
+	return UEstGameplayStatics::GetPlayPositionWithinLoop(AudioComponent, GameInstanceTime - MusicStartTime);
+}
+
 void UEstGameInstance::PlayMusicInternal(FEstMusic Music)
 {
 	if (LazilyCreateAudioComponent(Music.Sound))
@@ -145,11 +175,11 @@ void UEstGameInstance::PlayMusicInternal(FEstMusic Music)
 
 		if (bWasFadingOut && UEstGameplayStatics::IsLooping(AudioComponent))
 		{
-			AudioComponent->FadeIn(5.f);
+			AudioComponent->FadeIn(5.f, 1.f, Music.Position);
 		}
 		else
 		{
-			AudioComponent->Play();
+			AudioComponent->Play(Music.Position);
 		}
 
 		bWasFadingOut = false;
@@ -161,14 +191,12 @@ bool UEstGameInstance::Tick(float DeltaTime)
 {
 	GameInstanceTime += DeltaTime;
 
-	const float PlayPosition = GameInstanceTime - MusicStartTime;
-
 	if (AudioComponent != nullptr)
 	{
 		if (NextMusic.IsSet())
 		{
 			bool bIsLooping = UEstGameplayStatics::IsLooping(AudioComponent);
-			bool bIsSuitableStopPoint = UEstGameplayStatics::IsSuitableStopPoint(AudioComponent, PlayPosition);
+			bool bIsSuitableStopPoint = UEstGameplayStatics::IsSuitableStopPoint(AudioComponent, GetPlayPosition());
 			bool bIsPlaying = AudioComponent->IsPlaying();
 
 			if (!bIsPlaying || (bIsLooping && bIsSuitableStopPoint))

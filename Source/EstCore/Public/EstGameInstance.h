@@ -59,6 +59,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bShouldFadeCurrent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Position;
 };
 
 UCLASS()
@@ -88,6 +91,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = UI)
 	virtual void SetMenuVisibility(FEstMenuVisibilityContext InVisibilityContext);
 
+	UFUNCTION(BlueprintPure, Category = Sound)
+	virtual FEstMusic GetMusic();
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> MenuWidgetType;
 
@@ -95,6 +101,7 @@ public:
 private:
 	class UAudioComponent* AudioComponent;
 
+	virtual float GetPlayPosition();
 	virtual void PlayMusicInternal(FEstMusic Music);
 	virtual bool Tick(float DeltaTime);
 	bool LazilyCreateAudioComponent(class USoundBase* Sound);
