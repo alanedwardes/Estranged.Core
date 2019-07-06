@@ -8,9 +8,7 @@
 #include "EstAudioComponent.h"
 #include "EstMenuWidget.h"
 #include "EstGameplayStatics.h"
-#include "Runtime/Engine/Public/ActiveSound.h"
 #include "Runtime/Engine/Public/AudioDevice.h"
-#include "Async.h"
 
 void UEstGameInstance::Init()
 {

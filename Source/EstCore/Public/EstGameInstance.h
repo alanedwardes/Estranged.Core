@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "EstMusic.h"
 #include "EstGameInstance.generated.h"
 
 USTRUCT(BlueprintType)
@@ -46,22 +47,6 @@ struct FEstMenuVisibilityContext
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName MenuSection;
-};
-
-USTRUCT(BlueprintType)
-struct FEstMusic
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USoundBase* Sound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bShouldFadeCurrent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Position;
 };
 
 UCLASS()
