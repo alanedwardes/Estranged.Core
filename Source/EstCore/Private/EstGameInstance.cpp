@@ -147,6 +147,7 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 		AudioComponent->bAutoDestroy = false;
 		AudioComponent->bIgnoreForFlushing = true;
 		AudioComponent->SubtitlePriority = -1.f;
+		AudioComponent->Play();
 		AudioComponent->AddToRoot();
 		return true;
 	}
@@ -168,17 +169,8 @@ void UEstGameInstance::PlayMusicInternal(FEstMusic Music)
 {
 	if (LazilyCreateAudioComponent(Music.Sound))
 	{
-		AudioComponent->SetVolumeMultiplier(1.f);
 		AudioComponent->SetSound(Music.Sound);
-
-		if (bWasFadingOut && UEstGameplayStatics::IsLooping(AudioComponent))
-		{
-			AudioComponent->FadeIn(5.f, 1.f, Music.Position);
-		}
-		else
-		{
-			AudioComponent->Play(Music.Position);
-		}
+		AudioComponent->FadeIn(Music.bNoFadeIn ? 0.f : 5.f, 1.f, Music.Position);
 
 		bWasFadingOut = false;
 		MusicStartTime = GameInstanceTime;

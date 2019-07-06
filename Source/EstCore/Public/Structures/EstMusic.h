@@ -9,11 +9,14 @@ struct ESTCORE_API FEstMusic
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-		USoundBase* Sound;
+	USoundBase* Sound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-		bool bShouldFadeCurrent;
+	bool bShouldFadeCurrent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-		float Position;
+	bool bNoFadeIn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
+	float Position;
 };

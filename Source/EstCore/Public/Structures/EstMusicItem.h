@@ -9,14 +9,5 @@ struct ESTCORE_API FEstMusicItem
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	bool bIsLooping;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	class USoundBase* Music;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	float FadeInTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	float FadeOutTime;
 };
