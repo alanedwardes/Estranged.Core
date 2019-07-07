@@ -147,6 +147,7 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 		AudioComponent->bAutoDestroy = false;
 		AudioComponent->bIgnoreForFlushing = true;
 		AudioComponent->SubtitlePriority = -1.f;
+		AudioComponent->SoundClassOverride = MusicSoundClass;
 		AudioComponent->Play();
 		AudioComponent->AddToRoot();
 		return true;

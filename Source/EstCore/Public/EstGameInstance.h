@@ -61,23 +61,26 @@ public:
 
 	virtual void PreLoadMap(const FString & InMapName);
 
-	UFUNCTION(BlueprintCallable, Category = Sound)
+	UFUNCTION(BlueprintCallable, Category = Music)
 	virtual void FadeMusic();
 
-	UFUNCTION(BlueprintCallable, Category = Sound)
+	UFUNCTION(BlueprintCallable, Category = Music)
 	virtual void StopMusic();
 
-	UFUNCTION(BlueprintCallable, Category = Sound)
+	UFUNCTION(BlueprintCallable, Category = Music)
 	virtual void PlayMusic(FEstMusic Music);
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Music)
+	class USoundClass* MusicSoundClass;
+
+	UFUNCTION(BlueprintPure, Category = Music)
+	virtual FEstMusic GetMusic();
 
 	UFUNCTION(BlueprintPure, Category = UI)
 	virtual bool GetMenuVisibleForever() { return VisibilityContext.bIsMenuVisibleForever; };
 
 	UFUNCTION(BlueprintCallable, Category = UI)
 	virtual void SetMenuVisibility(FEstMenuVisibilityContext InVisibilityContext);
-
-	UFUNCTION(BlueprintPure, Category = Sound)
-	virtual FEstMusic GetMusic();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> MenuWidgetType;
@@ -96,6 +99,7 @@ private:
 	float MusicStartTime;
 	float GameInstanceTime;
 	bool bWasFadingOut;
+
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;
 	FEstMenuVisibilityContext VisibilityContext;
