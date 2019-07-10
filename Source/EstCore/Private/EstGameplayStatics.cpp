@@ -16,6 +16,7 @@
 #include "AudioDevice.h"
 #include "EstGameMode.h"
 #include "EstGameInstance.h"
+#include "Runtime/Online/HTTP/Public/Http.h"
 #include "EstNoPickupComponent.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Components/DirectionalLightComponent.h"
@@ -892,4 +893,22 @@ bool UEstGameplayStatics::IsLooping(UAudioComponent* AudioComponent)
 	}
 
 	return AudioComponent->Sound->IsLooping();
+}
+
+void UEstGameplayStatics::PingUrl(FString Url, const FPingUrlResultDelegate &Callback)
+{
+	TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+	HttpRequest->SetVerb("GET");
+	HttpRequest->SetURL(Url);
+	HttpRequest->OnProcessRequestComplete().BindStatic([](FHttpRequestPtr RefHttpRequest, FHttpResponsePtr RefHttpResponse, bool bSucceeded, FPingUrlResultDelegate RefCallback)
+	{
+		if (!bSucceeded || !RefHttpResponse.IsValid())
+		{
+			RefCallback.ExecuteIfBound(false);
+			return;
+		}
+
+		RefCallback.ExecuteIfBound(RefHttpResponse->GetResponseCode() < 500);
+	}, Callback);
+	HttpRequest->ProcessRequest();
 }

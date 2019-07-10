@@ -11,6 +11,7 @@
 #include "EstGameplayStatics.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, FHitResult, HitResult);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FPingUrlResultDelegate, bool, bSuccess);
 
 UCLASS()
 class ESTCORE_API UEstGameplayStatics : public UBlueprintFunctionLibrary
@@ -183,4 +184,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Audio)
 	static bool IsLooping(class UAudioComponent* AudioComponent);
+
+	UFUNCTION(BlueprintCallable, Category = Rendering)
+	static void PingUrl(FString Url, const FPingUrlResultDelegate &Callback);
 };
