@@ -37,6 +37,12 @@ public:
 	virtual void SetGamma(float NewGamma) { Gamma = NewGamma; }
 
 	UFUNCTION(BlueprintCallable)
+	virtual bool GetEnableCommentary() { return EnableCommentary; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetEnableCommentary(bool NewEnableCommentary) { EnableCommentary = NewEnableCommentary; }
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool GetEnableStatsForNerds() { return EnableStatsForNerds; }
 
 	UFUNCTION(BlueprintCallable)
@@ -114,6 +120,9 @@ private:
 
 	UPROPERTY()
 	bool EnableStatsForNerds;
+
+	UPROPERTY()
+	bool EnableCommentary;
 
 	UPROPERTY()
 	bool DisableHighlight;
