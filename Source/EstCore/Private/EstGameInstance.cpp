@@ -28,7 +28,11 @@ void UEstGameInstance::Init()
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
 {
-	FadeMusic();
+	if (InMapName != "/Game/Maps/Travel")
+	{
+		FadeMusic();
+	}
+
 	SetMenuVisibility(FEstMenuVisibilityContext(false, false));
 }
 
