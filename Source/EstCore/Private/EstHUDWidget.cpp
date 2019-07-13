@@ -126,7 +126,7 @@ const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 
 const FString UEstHUDWidget::GetStatsForNerds() const
 {
-	return FString::Printf(Player->bHasCheatedThisSession ? TEXT(STATS_TEXT_CHEATS) : TEXT(STATS_TEXT), FMath::RoundToInt(GAverageFPS), FMath::RoundToInt(FEstCoreModule::GetLongAverageFrameRate()));
+	return FString::Printf(TEXT(STATS_TEXT), FMath::RoundToInt(GAverageFPS), FMath::RoundToInt(FEstCoreModule::GetLongAverageFrameRate()));
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)

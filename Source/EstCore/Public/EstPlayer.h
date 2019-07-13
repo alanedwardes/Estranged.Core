@@ -415,9 +415,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "HUD")
 	class UEstHUDWidget* HUDWidget;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame, Category = "Cheats")
-	bool bHasCheatedThisSession;
-
 	UPROPERTY()
 	bool bForceCameraInterpolation;
 
