@@ -24,6 +24,7 @@
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
+#include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -70,7 +71,12 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 
 	if (ImpactEffect.ParticleSystem != nullptr)
 	{
-		UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, ClosestBoneName, Position, ImpactNormal.Rotation(), FVector(Scale), AttachLocation);
+		UParticleSystemComponent* ParticleSystemComponent = UGameplayStatics::SpawnEmitterAttached(ImpactEffect.ParticleSystem, Component, ClosestBoneName, Position, ImpactNormal.Rotation(), FVector(Scale), AttachLocation);
+		if (ParticleSystemComponent != nullptr)
+		{
+			// Always draw particles behind (fixes sorting issues with water)
+			ParticleSystemComponent->SetTranslucentSortPriority(-1);
+		}
 	}
 
 	if (ImpactEffect.ParticleSystemDebris != nullptr)
