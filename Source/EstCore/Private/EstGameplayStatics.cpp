@@ -680,18 +680,22 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 	PassThroughSurfaces.Add(SURFACE_TYPE_WATER);
 	PassThroughSurfaces.Add(SURFACE_TYPE_FLESH);
 
-	FHitResult HitResult;
+	TArray<FHitResult> HitResults;
+
 	int32 NumIterations = 0;
 	do
 	{
+		FHitResult HitResult;
 		if (!SourceComponent->GetWorld()->LineTraceSingleByProfile(HitResult, TraceStart, TraceEnd, PROFILE_BULLET, QueryParams))
 		{
 			// Only continue if blocking hit
 			return;
 		}
+
+		HitResults.Add(HitResult);
 		
-		// Execute delegate with hit
-		OnBulletHit.Execute(HitResult);
+		// Execute delegate with hits
+		OnBulletHit.Execute(HitResults);
 
 		// Only continue if we got a physical material
 		if (!HitResult.PhysMaterial.IsValid())

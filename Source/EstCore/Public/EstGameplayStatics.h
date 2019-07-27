@@ -10,7 +10,7 @@
 #include "EstCarryableUserData.h"
 #include "EstGameplayStatics.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, FHitResult, HitResult);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, const TArray<FHitResult>&, HitResults);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FPingUrlResultDelegate, bool, bSuccess);
 
 UCLASS()
