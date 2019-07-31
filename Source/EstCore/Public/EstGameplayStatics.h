@@ -187,4 +187,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Rendering)
 	static void PingUrl(FString Url, const FPingUrlResultDelegate &Callback);
+
+	UFUNCTION(BlueprintPure, Category = Conversion)
+	static FString ToString(int64 Integer) { return FString::Printf(TEXT("%lld"), Integer);	}
+
+	UFUNCTION(BlueprintPure, Category = Conversion)
+	static FText ToText(int64 Integer) { return FText::AsNumber(Integer); }
 };
