@@ -193,4 +193,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Conversion)
 	static FText ToText(int64 Integer) { return FText::AsNumber(Integer); }
+
+	UFUNCTION(BlueprintPure, Category = Conversion)
+	static float Divide(int64 Integer, int64 Divisor) { return float(double(Integer) / double(Divisor)); };
 };
