@@ -25,6 +25,7 @@
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
+#include "Misc/ConfigCacheIni.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -921,4 +922,34 @@ void UEstGameplayStatics::PingUrl(FString Url, const FPingUrlResultDelegate &Cal
 		RefCallback.ExecuteIfBound(RefHttpResponse->GetResponseCode() < 500);
 	}, Callback);
 	HttpRequest->ProcessRequest();
+}
+
+#define I18N_INI_SECTION TEXT("Internationalization")
+#define I18N_CULTURE_INI_KEY I18N_INI_SECTION, TEXT("Culture")
+
+bool UEstGameplayStatics::IsUsingPlatformCulture()
+{
+	return GetGameUserSettingsIniCulture().IsEmpty();
+}
+
+FString UEstGameplayStatics::GetGameUserSettingsIniCulture()
+{
+	FString Culture;
+	if (GConfig->GetString(I18N_CULTURE_INI_KEY, Culture, GGameUserSettingsIni))
+	{
+		return Culture;
+	}
+
+	return FString();
+}
+
+void UEstGameplayStatics::ClearGameUserSettingsIniCulture()
+{
+	if (GIsEditor)
+	{
+		return;
+	}
+
+	GConfig->EmptySection(I18N_INI_SECTION, GGameUserSettingsIni);
+	GConfig->Flush(false, GGameUserSettingsIni);
 }

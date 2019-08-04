@@ -196,4 +196,13 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Conversion)
 	static float Divide(int64 Integer, int64 Divisor) { return float(double(Integer) / double(Divisor)); };
+
+	UFUNCTION(BlueprintPure, Category = Internationalization)
+	static bool IsUsingPlatformCulture();
+
+	UFUNCTION(BlueprintPure, Category = Internationalization)
+	static FString GetGameUserSettingsIniCulture();
+
+	UFUNCTION(BlueprintCallable, Category = Internationalization)
+	static void ClearGameUserSettingsIniCulture();
 };
