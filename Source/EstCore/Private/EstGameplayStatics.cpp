@@ -672,8 +672,9 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 
 	AdjustedRotation = RandomProjectileSpread(ExitRotation, MaxSpread);
 
+	float TraceDistance = MaxDistance;
+	FVector TraceDirection = AdjustedRotation.Vector();
 	FVector TraceStart = ExitLocation;
-	const FVector TraceEnd = ExitLocation + (AdjustedRotation.Vector() * MaxDistance);
 
 	TArray<EPhysicalSurface> PassThroughSurfaces;
 	PassThroughSurfaces.Add(SURFACE_TYPE_FOLIAGE);
@@ -687,7 +688,12 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 	do
 	{
 		FHitResult HitResult;
-		if (!SourceComponent->GetWorld()->LineTraceSingleByProfile(HitResult, TraceStart, TraceEnd, PROFILE_BULLET, QueryParams))
+		
+		bool bIsblockingHit = SourceComponent->GetWorld()->LineTraceSingleByProfile(HitResult, TraceStart, TraceStart + (TraceDirection * TraceDistance), PROFILE_BULLET, QueryParams);
+
+		//DrawDebugLine(SourceComponent->GetWorld(), HitResult.TraceStart, HitResult.Location, bIsblockingHit ? FColor::Red : FColor::Green, false, 5.f);
+
+		if (!bIsblockingHit)
 		{
 			// Only continue if blocking hit
 			return;
@@ -708,14 +714,15 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 		const EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
 		if (!PassThroughSurfaces.Contains(PhysicalSurface))
 		{
-			// Only continue if we can pass through this surface
-			return;
+			TraceDirection = FMath::GetReflectionVector(TraceDirection, HitResult.ImpactNormal);
 		}
 
 		// Set up trace for next iteration
 		TraceStart = HitResult.Location;
+		TraceDistance -= HitResult.Distance;
 		QueryParams.AddIgnoredActor(HitResult.GetActor());
-	} while (NumIterations++ < 4); // Go through at most 4 surfaces
+
+	} while (NumIterations++ < 4 && TraceDistance < MaxDistance); // Go through at most 4 surfaces
 }
 
 AEstPlayer* UEstGameplayStatics::GetEstPlayerPawn(const UObject* WorldContextObject, int32 PlayerIndex)
