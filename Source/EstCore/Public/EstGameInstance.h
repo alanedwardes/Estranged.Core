@@ -98,6 +98,7 @@ private:
 	TOptional<FEstMusic> NextMusic;
 	float MusicStartTime;
 	float GameInstanceTime;
+	float MusicFadeCompleteTime;
 	bool bWasFadingOut;
 
 	TSharedPtr<SWidget> MenuSlateWidget;

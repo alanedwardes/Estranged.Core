@@ -39,7 +39,9 @@ void UEstGameInstance::FadeMusic()
 		return;
 	}
 
-	AudioComponent->FadeOut(5.f, 0.f);
+	const float FadeOutTime = 10.f;
+	AudioComponent->FadeOut(FadeOutTime, 0.f);
+	MusicFadeCompleteTime = GameInstanceTime + FadeOutTime;
 	NextMusic.Reset();
 	bWasFadingOut = true;
 }
@@ -159,7 +161,7 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 		AudioComponent->bIsMusic = true;
 		AudioComponent->SubtitlePriority = -1.f;
 		AudioComponent->SoundClassOverride = MusicSoundClass;
-		AudioComponent->Play();
+		AudioComponent->Stop();
 		return true;
 	}
 
@@ -199,8 +201,9 @@ bool UEstGameInstance::Tick(float DeltaTime)
 			bool bIsLooping = UEstGameplayStatics::IsLooping(AudioComponent);
 			bool bIsSuitableStopPoint = UEstGameplayStatics::IsSuitableStopPoint(AudioComponent, GetPlayPosition());
 			bool bIsPlaying = AudioComponent->IsPlaying();
+			bool bIsFadeCompleted = !bWasFadingOut || MusicFadeCompleteTime < GameInstanceTime;
 
-			if (!bIsPlaying || (bIsLooping && bIsSuitableStopPoint))
+			if (!bIsPlaying || (bIsLooping && bIsSuitableStopPoint && bIsFadeCompleted))
 			{
 				FEstMusic Next = NextMusic.GetValue();
 				NextMusic.Reset();
