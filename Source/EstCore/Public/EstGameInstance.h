@@ -92,7 +92,7 @@ private:
 	virtual float GetPlayPosition();
 	virtual void PlayMusicInternal(FEstMusic Music);
 	virtual bool Tick(float DeltaTime);
-	bool LazilyCreateAudioComponent(class USoundBase* Sound);
+	bool LazilyCreateAudioComponent();
 
 	FDelegateHandle TickDelegateHandle;
 	TOptional<FEstMusic> NextMusic;

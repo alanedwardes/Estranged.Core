@@ -57,7 +57,7 @@ void UEstGameInstance::StopMusic()
 
 void UEstGameInstance::PlayMusic(FEstMusic Music)
 {
-	if (LazilyCreateAudioComponent(Music.Sound))
+	if (LazilyCreateAudioComponent())
 	{
 		if (!AudioComponent->IsPlaying())
 		{
@@ -132,41 +132,33 @@ FEstMusic UEstGameInstance::GetMusic()
 	return Music;
 }
 
-bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
+bool UEstGameInstance::LazilyCreateAudioComponent()
 {
 	if (AudioComponent != nullptr)
 	{
 		return true;
 	}
-	
-	// If this is PIE, we have to use the world
-	if (GEngine && GEngine->GameViewport && GEngine->GameViewport->bIsPlayInEditorViewport)
+
+	FAudioDevice* AudioDevice = GEngine->GetActiveAudioDevice();
+	if (AudioDevice == nullptr)
 	{
-		AudioComponent = FAudioDevice::CreateComponent(Sound, GetWorld());
-		AudioComponent->Stop();
-	}
-	else
-	{
-		AudioComponent = FAudioDevice::CreateComponent(Sound);
-		AudioComponent->AddToRoot();
-		AudioComponent->Play(); // Does not work first time if not playing
+		return false;
 	}
 
-	if (AudioComponent)
-	{
-		AudioComponent->SetVolumeMultiplier(1.0f);
-		AudioComponent->SetPitchMultiplier(1.0f);
-		AudioComponent->bAllowSpatialization = false;
-		AudioComponent->bIsUISound = true;
-		AudioComponent->bAutoDestroy = false;
-		AudioComponent->bIgnoreForFlushing = true;
-		AudioComponent->bIsMusic = true;
-		AudioComponent->SubtitlePriority = -1.f;
-		AudioComponent->SoundClassOverride = MusicSoundClass;
-		return true;
-	}
+	AudioComponent = NewObject<UAudioComponent>();
+	AudioComponent->AddToRoot();
+	AudioComponent->AudioDeviceHandle = AudioDevice->DeviceHandle;
+	AudioComponent->SetVolumeMultiplier(1.0f);
+	AudioComponent->SetPitchMultiplier(1.0f);
+	AudioComponent->bAllowSpatialization = false;
+	AudioComponent->bIsUISound = true;
+	AudioComponent->bAutoDestroy = false;
+	AudioComponent->bIgnoreForFlushing = true;
+	AudioComponent->bIsMusic = true;
+	AudioComponent->SubtitlePriority = -1.f;
+	AudioComponent->SoundClassOverride = MusicSoundClass;
 
-	return false;
+	return true;
 }
 
 float UEstGameInstance::GetPlayPosition()
@@ -181,10 +173,18 @@ float UEstGameInstance::GetPlayPosition()
 
 void UEstGameInstance::PlayMusicInternal(FEstMusic Music)
 {
-	if (LazilyCreateAudioComponent(Music.Sound))
+	if (LazilyCreateAudioComponent())
 	{
 		AudioComponent->SetSound(Music.Sound);
-		AudioComponent->FadeIn(Music.bNoFadeIn ? 0.f : 5.f, 1.f, Music.Position);
+
+		if (Music.bNoFadeIn)
+		{
+			AudioComponent->Play(Music.Position);
+		}
+		else
+		{
+			AudioComponent->FadeIn(5.f, 1.f, Music.Position);
+		}
 
 		bWasFadingOut = false;
 		MusicStartTime = GameInstanceTime;
