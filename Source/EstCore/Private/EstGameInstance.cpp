@@ -39,7 +39,7 @@ void UEstGameInstance::FadeMusic()
 		return;
 	}
 
-	const float FadeOutTime = 10.f;
+	const float FadeOutTime = 5.f;
 	AudioComponent->FadeOut(FadeOutTime, 0.f);
 	MusicFadeCompleteTime = GameInstanceTime + FadeOutTime;
 	NextMusic.Reset();
