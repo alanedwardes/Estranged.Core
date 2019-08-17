@@ -137,7 +137,17 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 		return true;
 	}
 	
-	AudioComponent = FAudioDevice::CreateComponent(Sound);
+	// If this is PIE, we have to use the world
+	if (GEngine && GEngine->GameViewport && GEngine->GameViewport->bIsPlayInEditorViewport)
+	{
+		AudioComponent = FAudioDevice::CreateComponent(Sound, GetWorld());
+	}
+	else
+	{
+		AudioComponent = FAudioDevice::CreateComponent(Sound);
+		AudioComponent->AddToRoot();
+	}
+
 	if (AudioComponent)
 	{
 		AudioComponent->SetVolumeMultiplier(1.0f);
@@ -146,10 +156,10 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 		AudioComponent->bIsUISound = true;
 		AudioComponent->bAutoDestroy = false;
 		AudioComponent->bIgnoreForFlushing = true;
+		AudioComponent->bIsMusic = true;
 		AudioComponent->SubtitlePriority = -1.f;
 		AudioComponent->SoundClassOverride = MusicSoundClass;
 		AudioComponent->Play();
-		AudioComponent->AddToRoot();
 		return true;
 	}
 
