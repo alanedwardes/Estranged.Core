@@ -143,11 +143,13 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 	if (GEngine && GEngine->GameViewport && GEngine->GameViewport->bIsPlayInEditorViewport)
 	{
 		AudioComponent = FAudioDevice::CreateComponent(Sound, GetWorld());
+		AudioComponent->Stop();
 	}
 	else
 	{
 		AudioComponent = FAudioDevice::CreateComponent(Sound);
 		AudioComponent->AddToRoot();
+		AudioComponent->Play(); // Does not work first time if not playing
 	}
 
 	if (AudioComponent)
@@ -161,7 +163,6 @@ bool UEstGameInstance::LazilyCreateAudioComponent(USoundBase* Sound)
 		AudioComponent->bIsMusic = true;
 		AudioComponent->SubtitlePriority = -1.f;
 		AudioComponent->SoundClassOverride = MusicSoundClass;
-		AudioComponent->Stop();
 		return true;
 	}
 
