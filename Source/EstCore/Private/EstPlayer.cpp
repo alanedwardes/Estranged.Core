@@ -141,6 +141,8 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	GetCharacterMovement()->RepulsionForce = 1.314f;
 	GetCharacterMovement()->MaxSimulationTimeStep = 0.0166f;
 	GetCharacterMovement()->StandingDownwardForceScale = 0.f;
+	GetCharacterMovement()->MaxFlySpeed = 4096.f;
+	GetCharacterMovement()->BrakingDecelerationFlying = 512.f;
 
 	VelocityDamageThreshold = 700.f;
 	VelocityDamageMinimum = 10.f;
