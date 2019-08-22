@@ -26,6 +26,7 @@
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "Misc/ConfigCacheIni.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -689,7 +690,7 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 	{
 		FHitResult HitResult;
 		
-		bool bIsblockingHit = SourceComponent->GetWorld()->LineTraceSingleByProfile(HitResult, TraceStart, TraceStart + (TraceDirection * TraceDistance), PROFILE_BULLET, QueryParams);
+		const bool bIsblockingHit = SourceComponent->GetWorld()->LineTraceSingleByProfile(HitResult, TraceStart, TraceStart + (TraceDirection * TraceDistance), PROFILE_BULLET, QueryParams);
 
 		//DrawDebugLine(SourceComponent->GetWorld(), HitResult.TraceStart, HitResult.Location, bIsblockingHit ? FColor::Red : FColor::Green, false, 5.f);
 
@@ -712,8 +713,23 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 
 		// Get the surface type from this physical material
 		const EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+
+		// If we don't pass through, we may reflect
 		if (!PassThroughSurfaces.Contains(PhysicalSurface))
 		{
+			if (HitResult.PhysMaterial->Density < 1.0f)
+			{
+				// This material is not dense enough to ricochet
+				return;
+			}
+
+			const float Dot = FMath::Abs(FVector::DotProduct((HitResult.Location - HitResult.TraceStart).GetSafeNormal(), HitResult.Normal));
+			if (Dot > 0.5f)
+			{
+				// The angle isn't narrow enough to ricochet
+				return;
+			}
+
 			TraceDirection = FMath::GetReflectionVector(TraceDirection, HitResult.ImpactNormal);
 		}
 
