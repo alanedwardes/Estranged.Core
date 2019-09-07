@@ -60,10 +60,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Life)
 	void OnDeath();
 
-	UFUNCTION()
 	virtual bool CanJumpInternal_Implementation() const override;
 
-	UFUNCTION()
 	virtual bool CanCrouch() override;
 
 	UFUNCTION()
