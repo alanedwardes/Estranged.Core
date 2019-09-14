@@ -978,6 +978,17 @@ void UEstGameplayStatics::ClearGameUserSettingsIniCulture()
 	GConfig->Flush(false, GGameUserSettingsIni);
 }
 
+void UEstGameplayStatics::ParseVersion(FString Version, TArray<int32> &Components)
+{
+	TArray<FString> VersionParts;
+	Version.ParseIntoArray(VersionParts, TEXT("."));
+
+	for (FString Part : VersionParts)
+	{
+		Components.Add(FCString::Atoi(*Part));
+	}
+}
+
 FString UEstGameplayStatics::GetProjectVersion()
 {
 	const UGeneralProjectSettings& ProjectSettings = *GetDefault<UGeneralProjectSettings>();

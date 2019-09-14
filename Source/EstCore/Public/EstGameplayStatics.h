@@ -206,6 +206,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Internationalization)
 	static void ClearGameUserSettingsIniCulture();
 
-	UFUNCTION(BlueprintCallable, Category = Project)
+	UFUNCTION(BlueprintPure, Category = Parsing)
+	static void ParseVersion(FString Version, TArray<int32> &Components);
+
+	UFUNCTION(BlueprintPure, Category = Project)
 	static FString GetProjectVersion();
 };
