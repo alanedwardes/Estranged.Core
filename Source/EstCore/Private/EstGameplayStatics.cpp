@@ -27,6 +27,7 @@
 #include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "Misc/ConfigCacheIni.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Runtime/EngineSettings/Classes/GeneralProjectSettings.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -975,4 +976,10 @@ void UEstGameplayStatics::ClearGameUserSettingsIniCulture()
 
 	GConfig->EmptySection(I18N_INI_SECTION, GGameUserSettingsIni);
 	GConfig->Flush(false, GGameUserSettingsIni);
+}
+
+FString UEstGameplayStatics::GetProjectVersion()
+{
+	const UGeneralProjectSettings& ProjectSettings = *GetDefault<UGeneralProjectSettings>();
+	return ProjectSettings.ProjectVersion;
 }

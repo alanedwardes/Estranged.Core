@@ -9,6 +9,7 @@ namespace UnrealBuildTool.Rules
             PublicDependencyModuleNames.AddRange(
                 new string[] {
                     "Core",
+                    "EngineSettings",
                     "InputCore",
                     "CoreUObject",
                     "MovieScene",

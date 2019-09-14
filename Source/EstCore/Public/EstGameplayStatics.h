@@ -205,4 +205,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Internationalization)
 	static void ClearGameUserSettingsIniCulture();
+
+	UFUNCTION(BlueprintCallable, Category = Project)
+	static FString GetProjectVersion();
 };
