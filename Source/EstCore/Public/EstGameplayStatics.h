@@ -211,4 +211,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Project)
 	static FString GetProjectVersion();
+
+	UFUNCTION(BlueprintCallable, Category = Platform)
+	static void SetPlatformMouseCursorState(bool bShowMouseCursor);
 };

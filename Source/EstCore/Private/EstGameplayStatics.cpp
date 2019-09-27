@@ -28,6 +28,7 @@
 #include "Misc/ConfigCacheIni.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Runtime/EngineSettings/Classes/GeneralProjectSettings.h"
+#include "Framework/Application/SlateApplication.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -993,4 +994,13 @@ FString UEstGameplayStatics::GetProjectVersion()
 {
 	const UGeneralProjectSettings& ProjectSettings = *GetDefault<UGeneralProjectSettings>();
 	return ProjectSettings.ProjectVersion;
+}
+
+void UEstGameplayStatics::SetPlatformMouseCursorState(bool bShowMouseCursor)
+{
+	TSharedPtr<GenericApplication> PlatformApplication = FSlateApplication::Get().GetPlatformApplication();
+	if (PlatformApplication.IsValid() && PlatformApplication->Cursor.IsValid())
+	{
+		PlatformApplication->Cursor->Show(bShowMouseCursor);
+	}
 }
