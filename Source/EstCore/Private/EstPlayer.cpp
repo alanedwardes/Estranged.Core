@@ -683,8 +683,8 @@ bool AEstPlayer::IsViewTarget()
 		return false;
 	}
 
-	// If we're fading, we're no longer the target (or still being transitioned to)
-	if (UEstGameplayStatics::GetCameraFadeAmount(PlayerCameraManager) > .75f)
+	// If we're faded out, assume we're not the target
+	if (UEstGameplayStatics::GetCameraFadeAmount(PlayerCameraManager) > 0.99f)
 	{
 		return false;
 	}
