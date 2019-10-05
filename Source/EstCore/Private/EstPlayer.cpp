@@ -934,7 +934,7 @@ void AEstPlayer::SetupPlayerInputComponent(UInputComponent* InInputComponent)
 
 void AEstPlayer::MoveForwardInput(float Value)
 {
-	if (FMath::IsNearlyZero(Value))
+	if (!IsViewTarget() || FMath::IsNearlyZero(Value))
 	{
 		return;
 	}
@@ -958,7 +958,7 @@ void AEstPlayer::MoveForwardInput(float Value)
 
 void AEstPlayer::MoveRightInput(float Value)
 {
-	if (FMath::IsNearlyZero(Value))
+	if (!IsViewTarget() || FMath::IsNearlyZero(Value))
 	{
 		return;
 	}
