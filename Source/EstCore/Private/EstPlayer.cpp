@@ -553,8 +553,8 @@ void AEstPlayer::InWaterCheckSubTick()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
-	const FVector HeadBox(1.f);
-	if (GetWorld()->OverlapBlockingTestByChannel(Location, Rotator.Quaternion(), CHANNEL_PLAYER_WATER_CHECK, FCollisionShape::MakeBox(HeadBox), Params))
+	const bool bIsInWater = GetWorld()->OverlapBlockingTestByChannel(Location, Rotator.Quaternion(), CHANNEL_PLAYER_WATER_CHECK, FCollisionShape::MakeBox(FVector(1.f)), Params);
+	if (bIsInWater && IsViewTarget())
 	{
 		Oxygen->SetChangePerSecond(-5.f);
 		HeadInWater = true;
@@ -679,6 +679,12 @@ bool AEstPlayer::IsViewTarget()
 
 	// If we are animating to a target, we might not be the target
 	if (PlayerCameraManager->PendingViewTarget.Target != nullptr)
+	{
+		return false;
+	}
+
+	// If we're fading, we're no longer the target (or still being transitioned to)
+	if (UEstGameplayStatics::GetCameraFadeAmount(PlayerCameraManager) > .75f)
 	{
 		return false;
 	}
