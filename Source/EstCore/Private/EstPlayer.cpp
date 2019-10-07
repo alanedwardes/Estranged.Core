@@ -250,7 +250,7 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	Stamina->SetResource(0.f);
 
-	if (!bWasDeadBefore)
+	if (!bWasDeadBefore && !HealthComponent->GetIsFrozen())
 	{
 		USoundBase** Sound = DamageSounds.Find(DamageEvent.DamageTypeClass);
 		if (Sound != nullptr)
