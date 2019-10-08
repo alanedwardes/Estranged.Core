@@ -6,6 +6,24 @@
 #include "Blueprint/UserWidget.h"
 #include "EstHUDWidget.generated.h"
 
+USTRUCT(BlueprintType)
+struct ESTCORE_API FEstSubtitle
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGuid SubtitleId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText SubtitleText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsCaption;
+
+	bool bIsHidden;
+};
+
 UCLASS(abstract)
 class ESTCORE_API UEstHUDWidget : public UUserWidget
 {
@@ -51,16 +69,22 @@ public:
 	bool bDisableSubtitles;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	float LastSubtitleTime;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	bool bShouldDrawSubtitles;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FText LastSubtitleText;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	float SubtitleAlpha;
+	TArray<FEstSubtitle> Subtitles;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Subtitles)
+	void OnShowSubtitle(FEstSubtitle Subtitle);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Subtitles)
+	void OnHideSubtitle(FEstSubtitle Subtitle);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Subtitles)
+	void OnDestroySubtitle(FEstSubtitle Subtitle);
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<FText> Captions;
 	// End subtitles
 
 	// Begin hints
@@ -91,4 +115,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const TSet<FKey> GetHintKeys() const;
 	// End hints
+private:
+	virtual void NewSubtitle(const FText &SubtitleText);
 };

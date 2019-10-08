@@ -12,8 +12,6 @@ extern ENGINE_API float GAverageFPS;
 
 void UEstHUDWidget::NativeConstruct()
 {
-	LastSubtitleTime = -BIG_NUMBER;
-
 	Player = Cast<AEstPlayer>(GetOwningPlayerPawn());
 	if (Player.IsValid())
 	{
@@ -44,21 +42,42 @@ void UEstHUDWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UEstHUDWidget::HandleSetSubtitleText(const FText & SubtitleText)
+void UEstHUDWidget::NewSubtitle(const FText &SubtitleText)
 {
-	const bool bHasSubtitle = !SubtitleText.IsEmpty();
-	const bool bDuringPaddingPeriod = GetWorld()->TimeSince(LastSubtitleTime) < 1.f;
-
-	bShouldDrawSubtitles = bHasSubtitle || bDuringPaddingPeriod;
-
-	if (bHasSubtitle)
+	if (Subtitles.Num() > 0)
 	{
-		LastSubtitleText = SubtitleText;
-		LastSubtitleTime = GetWorld()->TimeSeconds;
+		FEstSubtitle *LastSubtitle = &Subtitles.Top();
+		if (!LastSubtitle->bIsHidden)
+		{
+			LastSubtitle->bIsHidden = true;
+			OnHideSubtitle(*LastSubtitle);
+		}
 	}
 
-	const float TargetAlpha = bShouldDrawSubtitles ? 1.f : 0.f;
-	SubtitleAlpha = FMath::FInterpTo(SubtitleAlpha, TargetAlpha, GetWorld()->DeltaTimeSeconds, 10.f);
+	if (!SubtitleText.IsEmpty())
+	{
+		FEstSubtitle NewSubtitle;
+		NewSubtitle.bIsHidden = false;
+		NewSubtitle.bIsCaption = Captions.FindByPredicate([&](const FText Item) { return Item.EqualTo(SubtitleText); }) != nullptr;
+		NewSubtitle.SubtitleId = FGuid::NewGuid();
+		NewSubtitle.SubtitleText = SubtitleText;
+		Subtitles.Add(NewSubtitle);
+		OnShowSubtitle(NewSubtitle);
+	}
+
+	if (Subtitles.Num() > 5)
+	{
+		OnDestroySubtitle(Subtitles.Pop());
+	}
+}
+
+void UEstHUDWidget::HandleSetSubtitleText(const FText &SubtitleText)
+{
+	if (!LastSubtitleText.EqualTo(SubtitleText))
+	{
+		NewSubtitle(SubtitleText);
+		LastSubtitleText = SubtitleText;
+	}
 }
 
 void UEstHUDWidget::HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation)
