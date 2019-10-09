@@ -67,7 +67,8 @@ void UEstHUDWidget::NewSubtitle(const FText &SubtitleText)
 
 	if (Subtitles.Num() > 5)
 	{
-		OnDestroySubtitle(Subtitles.Pop());
+		OnDestroySubtitle(Subtitles[0]);
+		Subtitles.RemoveAt(0);
 	}
 }
 
