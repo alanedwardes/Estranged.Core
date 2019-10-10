@@ -18,9 +18,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText SubtitleText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bIsCaption;
-
 	bool bIsHidden;
 };
 
@@ -82,9 +79,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = Subtitles)
 	void OnDestroySubtitle(FEstSubtitle Subtitle);
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<FText> Captions;
 	// End subtitles
 
 	// Begin hints

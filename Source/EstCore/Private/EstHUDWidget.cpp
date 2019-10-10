@@ -58,7 +58,6 @@ void UEstHUDWidget::NewSubtitle(const FText &SubtitleText)
 	{
 		FEstSubtitle NewSubtitle;
 		NewSubtitle.bIsHidden = false;
-		NewSubtitle.bIsCaption = Captions.FindByPredicate([&](const FText Item) { return Item.EqualTo(SubtitleText); }) != nullptr;
 		NewSubtitle.SubtitleId = FGuid::NewGuid();
 		NewSubtitle.SubtitleText = SubtitleText;
 		Subtitles.Add(NewSubtitle);
