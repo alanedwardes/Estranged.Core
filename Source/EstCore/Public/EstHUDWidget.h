@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText SubtitleText;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsClosedCaption;
+
 	bool bIsHidden;
 };
 
@@ -64,6 +67,9 @@ public:
 	// Begin subtitles
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bDisableSubtitles;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bEnableClosedCaptions;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FText LastSubtitleText;

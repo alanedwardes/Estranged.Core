@@ -105,6 +105,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableSubtitles(bool NewDisableSubtitles) { DisableSubtitles = NewDisableSubtitles; };
 
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetEnableClosedCaptions() { return EnableClosedCaptions; };
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetEnableClosedCaptions(bool NewEnableClosedCaptions) { EnableClosedCaptions = NewEnableClosedCaptions; };
+
 private:
 	UPROPERTY()
 	float FieldOfView;
@@ -141,4 +147,7 @@ private:
 
 	UPROPERTY()
 	bool DisableSubtitles;
+
+	UPROPERTY()
+	bool EnableClosedCaptions;
 };

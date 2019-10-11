@@ -56,7 +56,10 @@ void UEstHUDWidget::NewSubtitle(const FText &SubtitleText)
 
 	if (!SubtitleText.IsEmpty())
 	{
+		FString SubtitleString = SubtitleText.ToString();
+
 		FEstSubtitle NewSubtitle;
+		NewSubtitle.bIsClosedCaption = SubtitleString.StartsWith(TEXT("[")) && SubtitleString.EndsWith(TEXT("]"));
 		NewSubtitle.bIsHidden = false;
 		NewSubtitle.SubtitleId = FGuid::NewGuid();
 		NewSubtitle.SubtitleText = SubtitleText;
