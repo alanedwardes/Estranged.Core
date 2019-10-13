@@ -70,6 +70,8 @@ void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* Gameplay
 	HUDWidget->bDisableSubtitles = GameplaySave->GetDisableSubtitles();
 	HUDWidget->bEnableClosedCaptions = GameplaySave->GetEnableClosedCaptions();
 	HUDWidget->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
+	HUDWidget->bUseSimpleSubtitleFont = GameplaySave->GetUseSimpleSubtitleFont();
+	HUDWidget->SubtitleFontSizeMultiplier = GameplaySave->GetSubtitleFontSizeMultiplier();
 }
 
 void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerController* Controller)

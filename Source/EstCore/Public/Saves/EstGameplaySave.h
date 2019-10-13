@@ -111,6 +111,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetEnableClosedCaptions(bool NewEnableClosedCaptions) { EnableClosedCaptions = NewEnableClosedCaptions; };
 
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetUseSimpleSubtitleFont() { return UseSimpleSubtitleFont; };
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetUseSimpleSubtitleFont(bool NewUseSimpleSubtitleFont) { UseSimpleSubtitleFont = NewUseSimpleSubtitleFont; };
+
+	UFUNCTION(BlueprintCallable)
+	virtual float GetSubtitleFontSizeMultiplier() { return SubtitleFontSizeMultiplier; };
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetSubtitleFontSizeMultiplier(bool NewSubtitleFontSizeMultiplier) { SubtitleFontSizeMultiplier = NewSubtitleFontSizeMultiplier; };
+
 private:
 	UPROPERTY()
 	float FieldOfView;
@@ -150,4 +162,10 @@ private:
 
 	UPROPERTY()
 	bool EnableClosedCaptions;
+
+	UPROPERTY()
+	bool UseSimpleSubtitleFont;
+
+	UPROPERTY()
+	float SubtitleFontSizeMultiplier;
 };

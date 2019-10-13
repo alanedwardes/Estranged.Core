@@ -71,14 +71,20 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool GetEnableSubtitles() { return !bDisableSubtitles; };
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bDisableSubtitles;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bEnableClosedCaptions;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bForceClosedCaptions;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	bool bUseSimpleSubtitleFont;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	float SubtitleFontSizeMultiplier;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FText LastSubtitleText;
