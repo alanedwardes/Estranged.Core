@@ -65,11 +65,20 @@ public:
 	// End weapon
 
 	// Begin subtitles
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UFUNCTION(BlueprintPure)
+	bool GetEnableClosedCaptions() { return bEnableClosedCaptions || bForceClosedCaptions; };
+
+	UFUNCTION(BlueprintPure)
+	bool GetEnableSubtitles() { return !bDisableSubtitles; };
+
+	UPROPERTY()
 	bool bDisableSubtitles;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY()
 	bool bEnableClosedCaptions;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bForceClosedCaptions;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FText LastSubtitleText;
