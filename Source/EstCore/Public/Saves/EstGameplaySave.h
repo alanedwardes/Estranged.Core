@@ -122,7 +122,7 @@ public:
 	virtual float GetSubtitleFontSizeMultiplier() { return SubtitleFontSizeMultiplier; };
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetSubtitleFontSizeMultiplier(bool NewSubtitleFontSizeMultiplier) { SubtitleFontSizeMultiplier = NewSubtitleFontSizeMultiplier; };
+	virtual void SetSubtitleFontSizeMultiplier(float NewSubtitleFontSizeMultiplier) { SubtitleFontSizeMultiplier = NewSubtitleFontSizeMultiplier; };
 
 private:
 	UPROPERTY()
