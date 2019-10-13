@@ -12,14 +12,20 @@ struct ESTCORE_API FEstSubtitle
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FGuid SubtitleId;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FText SubtitleText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bIsClosedCaption;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	bool bUseSimpleSubtitleFont;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	float SubtitleFontSizeMultiplier;
 
 	bool bIsHidden;
 };

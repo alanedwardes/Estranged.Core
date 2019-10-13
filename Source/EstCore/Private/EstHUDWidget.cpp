@@ -63,6 +63,8 @@ void UEstHUDWidget::NewSubtitle(const FText &SubtitleText)
 		NewSubtitle.bIsHidden = false;
 		NewSubtitle.SubtitleId = FGuid::NewGuid();
 		NewSubtitle.SubtitleText = SubtitleText;
+		NewSubtitle.bUseSimpleSubtitleFont = bUseSimpleSubtitleFont;
+		NewSubtitle.SubtitleFontSizeMultiplier = SubtitleFontSizeMultiplier;
 		Subtitles.Add(NewSubtitle);
 		OnShowSubtitle(NewSubtitle);
 	}

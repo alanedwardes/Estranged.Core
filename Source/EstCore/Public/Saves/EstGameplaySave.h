@@ -20,6 +20,7 @@ public:
 		Gamma = 1.0;
 		DisableMotionBlur = true; // Default motion blur off
 		DisableTemporalAntiAliasing = true; // Default to TXAA off
+		SubtitleFontSizeMultiplier = 1.f;
 	}
 
 	virtual FString GetSlotName() { return  TEXT("Gameplay"); };
