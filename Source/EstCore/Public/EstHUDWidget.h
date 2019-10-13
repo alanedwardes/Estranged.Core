@@ -86,6 +86,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bForceClosedCaptions;
 
+	UFUNCTION(BlueprintCallable)
+	void SetForceClosedCaptions(bool bNewForceClosedCaptions) { bForceClosedCaptions = bNewForceClosedCaptions; };
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bUseSimpleSubtitleFont;
 
