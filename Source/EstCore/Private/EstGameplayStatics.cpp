@@ -174,14 +174,14 @@ AActor* UEstGameplayStatics::MoveActorToLevel(AActor* Actor, ULevel* Level)
 	return Actor;
 }
 
-void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings)
+void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings, bool bForGamepad)
 {
 	check(PlayerController != nullptr);
 	check(PlayerController->PlayerInput != nullptr);
 
 	for (const FInputActionKeyMapping Mapping : PlayerController->PlayerInput->ActionMappings)
 	{
-		if (Mapping.Key.IsGamepadKey())
+		if (bForGamepad != Mapping.Key.IsGamepadKey())
 		{
 			continue;
 		}
@@ -202,14 +202,14 @@ void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerCont
 	});
 }
 
-void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerController, TArray<FName>& SortedAxisNames, TMap<FName, FKey>& Mappings)
+void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerController, TArray<FName>& SortedAxisNames, TMap<FName, FKey>& Mappings, bool bForGamepad)
 {
 	check(PlayerController != nullptr);
 	check(PlayerController->PlayerInput != nullptr);
 
 	for (const FInputAxisKeyMapping Mapping : PlayerController->PlayerInput->AxisMappings)
 	{
-		if (Mapping.Key.IsGamepadKey())
+		if (bForGamepad != Mapping.Key.IsGamepadKey())
 		{
 			continue;
 		}

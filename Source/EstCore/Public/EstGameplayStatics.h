@@ -50,10 +50,10 @@ public:
 	static AActor* MoveActorToLevel(AActor* Actor, ULevel* Level);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings);
+	static void ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings, bool bForGamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void ListAxisMappings(const APlayerController* PlayerController, TArray<FName> &SortedAxisNames, TMap<FName, FKey> &Mappings);
+	static void ListAxisMappings(const APlayerController* PlayerController, TArray<FName> &SortedAxisNames, TMap<FName, FKey> &Mappings, bool bForGamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
 	static FKey FindBestKeyForAction(APlayerController* PlayerController, FName ActionName, bool bForGamepad);
