@@ -273,7 +273,7 @@ FKey UEstGameplayStatics::FindBestKeyForAxis(APlayerController* PlayerController
 	return EKeys::Invalid;
 }
 
-void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, FName ActionName, FInputChord InputChord, bool bForGamepad)
+void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, FName ActionName, FInputChord InputChord)
 {
 	check(PlayerController != nullptr);
 	check(PlayerController->PlayerInput != nullptr);
@@ -286,7 +286,7 @@ void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, 
 			continue;
 		}
 
-		if (Existing.Key.IsGamepadKey() != bForGamepad)
+		if (Existing.Key.IsGamepadKey() != InputChord.Key.IsGamepadKey())
 		{
 			continue;
 		}
@@ -318,7 +318,7 @@ FString UEstGameplayStatics::GetKeyDisplayName(FKey Key)
 	return DisplayName;
 }
 
-void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FName AxisName, FKey InputKey, float Scale, bool bForGamepad)
+void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FName AxisName, FKey InputKey, float Scale)
 {
 	check(PlayerController != nullptr);
 	check(PlayerController->PlayerInput != nullptr);
@@ -331,7 +331,7 @@ void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FN
 			continue;
 		}
 
-		if (Existing.Key.IsGamepadKey() != bForGamepad)
+		if (Existing.Key.IsGamepadKey() != InputKey.IsGamepadKey())
 		{
 			continue;
 		}

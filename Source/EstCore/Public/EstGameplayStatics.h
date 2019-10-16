@@ -62,10 +62,10 @@ public:
 	static FKey FindBestKeyForAxis(APlayerController* PlayerController, FName AxisNames, bool bForGamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void AddAxisMapping(APlayerController* PlayerController, FName AxisName, FKey InputKey, float Scale, bool bForGamepad);
+	static void AddAxisMapping(APlayerController* PlayerController, FName AxisName, FKey InputKey, float Scale);
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void AddActionMapping(APlayerController* PlayerController, FName ActionName, FInputChord InputKey, bool bForGamepad);
+	static void AddActionMapping(APlayerController* PlayerController, FName ActionName, FInputChord InputKey);
 
 	UFUNCTION(BlueprintCallable, Category = Game)
 	static FString GetKeyDisplayName(FKey Key);
