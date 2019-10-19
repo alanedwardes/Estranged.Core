@@ -35,6 +35,9 @@ struct FEstActorState
 	FGuid SaveId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ActorName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FTransform ActorTransform;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

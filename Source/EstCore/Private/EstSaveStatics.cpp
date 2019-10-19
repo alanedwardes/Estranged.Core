@@ -167,6 +167,7 @@ FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 	UWorld* World = WorldContextObject->GetWorld();
 
 	SerializeLevel(World->PersistentLevel, WorldState.PersistentLevelState);
+	WorldState.PersistentLevelState.LevelName = World->PersistentLevel->GetOuter()->GetFName();
 
 	for (ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
 	{
@@ -290,6 +291,7 @@ void UEstSaveStatics::SerializeActor(AActor* Actor, FEstActorState& ActorState)
 	IEstSaveRestore::Execute_OnPreSave(Actor);
 
 	ActorState.SaveId = IEstSaveRestore::Execute_GetSaveId(Actor);
+	ActorState.ActorName = Actor->GetFName();
 	ActorState.ActorClass = Actor->GetClass();
 	ActorState.ActorTransform = Actor->GetActorTransform();
 	ActorState.ActorTags = Actor->Tags;
