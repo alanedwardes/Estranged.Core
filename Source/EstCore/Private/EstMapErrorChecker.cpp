@@ -40,6 +40,7 @@ void AEstMapErrorChecker::CheckForErrors()
 					->AddToken(FTextToken::Create(FText::FromString("Savable actor")))
 					->AddToken(FUObjectToken::Create(Actor))
 					->AddToken(FTextToken::Create(FText::FromString("has no SaveId property.")));
+				continue;
 			}
 
 			const FGuid SaveId = *SaveIdProperty->ContainerPtrToValuePtr<FGuid>(Actor);
@@ -49,6 +50,7 @@ void AEstMapErrorChecker::CheckForErrors()
 					->AddToken(FTextToken::Create(FText::FromString("Actor")))
 					->AddToken(FUObjectToken::Create(Actor->GetClass()))
 					->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
+				continue;
 			}
 
 			if (EditorSeenSaveIds.Contains(SaveId))
