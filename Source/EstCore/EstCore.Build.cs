@@ -9,6 +9,7 @@ namespace UnrealBuildTool.Rules
             PublicDependencyModuleNames.AddRange(
                 new string[] {
                     "Core",
+                    "JsonUtilities",
                     "EngineSettings",
                     "InputCore",
                     "CoreUObject",
