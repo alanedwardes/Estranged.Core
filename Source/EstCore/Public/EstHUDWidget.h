@@ -48,6 +48,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstPlayerController> Controller;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = General)
+	void OnSettingsUpdated();
+
 	// Begin stats
 	UFUNCTION(BlueprintCallable)
 	const FString GetStatsForNerds() const;

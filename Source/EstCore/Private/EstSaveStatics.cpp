@@ -72,6 +72,7 @@ void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* Gameplay
 	HUDWidget->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
 	HUDWidget->bUseSimpleSubtitleFont = GameplaySave->GetUseSimpleSubtitleFont();
 	HUDWidget->SubtitleFontSizeMultiplier = GameplaySave->GetSubtitleFontSizeMultiplier();
+	HUDWidget->OnSettingsUpdated();
 }
 
 void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerController* Controller)
