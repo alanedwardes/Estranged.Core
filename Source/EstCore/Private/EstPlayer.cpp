@@ -328,7 +328,7 @@ void AEstPlayer::UpdatePostProcessingTick(float DeltaSeconds)
 		Camera->PostProcessSettings.VignetteIntensity = FMath::FInterpTo(Camera->PostProcessSettings.VignetteIntensity, VignetteIntensityTarget, DeltaSeconds, VignetteInterpolationSpeed);
 	}
 
-	if (bDisableDepthOfField || !IsViewTarget())
+	if (bDisableDepthOfField || HeadInWater || !IsViewTarget())
 	{
 		Camera->PostProcessSettings.DepthOfFieldFarBlurSize = 0.f;
 		Camera->PostProcessSettings.DepthOfFieldFocalDistance = 0.f;
@@ -336,29 +336,20 @@ void AEstPlayer::UpdatePostProcessingTick(float DeltaSeconds)
 	}
 	else
 	{
-		if (HeadInWater)
+		if (bIsAiming)
 		{
-			Camera->PostProcessSettings.DepthOfFieldNearBlurSize = 0.f;
-			Camera->PostProcessSettings.DepthOfFieldFarBlurSize = 2.f;
-			Camera->PostProcessSettings.DepthOfFieldFocalDistance = 64.f;
+			Camera->PostProcessSettings.DepthOfFieldFocalDistance = 48.f;
+			Camera->PostProcessSettings.DepthOfFieldNearBlurSize = 2.f;
+			Camera->PostProcessSettings.DepthOfFieldFarBlurSize = 0.f;
 		}
 		else
 		{
-			if (bIsAiming)
-			{
-				Camera->PostProcessSettings.DepthOfFieldFocalDistance = 48.f;
-				Camera->PostProcessSettings.DepthOfFieldNearBlurSize = 2.f;
-				Camera->PostProcessSettings.DepthOfFieldFarBlurSize = 0.f;
-			}
-			else
-			{
-				const float FarBlurSizeTarget = FocalDistance < 128.f ? 1.f : 0.f;
+			const float FarBlurSizeTarget = FocalDistance < 128.f ? 1.f : 0.f;
 
-				const float BlurInterpolationSpeed = 5.f;
-				Camera->PostProcessSettings.DepthOfFieldNearBlurSize = 0.f;
-				Camera->PostProcessSettings.DepthOfFieldFarBlurSize = FMath::FInterpTo(Camera->PostProcessSettings.DepthOfFieldFarBlurSize, FarBlurSizeTarget, DeltaSeconds, BlurInterpolationSpeed);
-				Camera->PostProcessSettings.DepthOfFieldFocalDistance = FMath::FInterpTo(Camera->PostProcessSettings.DepthOfFieldFocalDistance, FocalDistance, DeltaSeconds, BlurInterpolationSpeed);
-			}
+			const float BlurInterpolationSpeed = 5.f;
+			Camera->PostProcessSettings.DepthOfFieldNearBlurSize = 0.f;
+			Camera->PostProcessSettings.DepthOfFieldFarBlurSize = FMath::FInterpTo(Camera->PostProcessSettings.DepthOfFieldFarBlurSize, FarBlurSizeTarget, DeltaSeconds, BlurInterpolationSpeed);
+			Camera->PostProcessSettings.DepthOfFieldFocalDistance = FMath::FInterpTo(Camera->PostProcessSettings.DepthOfFieldFocalDistance, FocalDistance, DeltaSeconds, BlurInterpolationSpeed);
 		}
 	}
 }
