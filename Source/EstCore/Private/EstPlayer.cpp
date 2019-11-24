@@ -313,6 +313,17 @@ void AEstPlayer::UpdatePostProcessingTick(float DeltaSeconds)
 		const float VignetteInterpolationSpeed = 4.f;
 		Camera->PostProcessSettings.VignetteIntensity = FMath::FInterpTo(Camera->PostProcessSettings.VignetteIntensity, VignetteIntensityTarget, DeltaSeconds, VignetteInterpolationSpeed);
 	}
+
+	if (HeadInWater && IsViewTarget())
+	{
+		Camera->PostProcessSettings.bOverride_ScreenPercentage = true;
+		Camera->PostProcessSettings.ScreenPercentage = 50.f;
+	}
+	else
+	{
+		Camera->PostProcessSettings.bOverride_ScreenPercentage = false;
+		Camera->PostProcessSettings.ScreenPercentage = 100.f;
+	}
 }
 
 void AEstPlayer::UpdateCameraTick(float DeltaSeconds)
