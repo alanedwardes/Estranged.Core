@@ -429,17 +429,29 @@ TArray<FString> UEstGameplayStatics::ListSaveGames(FString Directory)
 
 TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
 {
+    const UGeneralProjectSettings& ProjectSettings = *GetDefault<UGeneralProjectSettings>();
+    
+#if PLATFORM_MAC
+    FString CrashFolder = FPaths::Combine(*FPaths::EngineSavedDir(), TEXT("Crashes"));
+#else
 	FString CrashFolder = FPaths::Combine(*FPaths::ProjectSavedDir(), TEXT("Crashes"));
+#endif
 
-	TArray<FString> AllMemoryDumpPaths;
-	IFileManager::Get().FindFilesRecursive(AllMemoryDumpPaths, *CrashFolder, *FGenericCrashContext::UE4MinidumpName, true, false);
-
+    TArray<FString> AllMemoryDumpPaths;
+    IFileManager::Get().FindFilesRecursive(AllMemoryDumpPaths, *CrashFolder, TEXT("*.dmp"), true, false);
+    
 	TArray<FString> ValidMemoryDumpPaths;
 	for (const FString MemoryDumpPath : AllMemoryDumpPaths)
 	{
-		const int64 MemoryDumpSize = IFileManager::Get().FileSize(*MemoryDumpPath);
-
+        // Ensure it's one of ours (some platforms share crash dump caches)
+        if (!MemoryDumpPath.Contains(ProjectSettings.ProjectName))
+        {
+            EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it does not contain the project name %s"), *MemoryDumpPath, *ProjectSettings.ProjectName));
+            continue;
+        }
+        
 		// Ensure not too small
+        const int64 MemoryDumpSize = IFileManager::Get().FileSize(*MemoryDumpPath);
 		if (MemoryDumpSize < 1024)
 		{
 			EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it is too small"), *MemoryDumpPath));
@@ -450,7 +462,7 @@ TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
 		if (MemoryDumpSize > (1024 * 1024 * 9))
 		{
 			EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it is too big"), *MemoryDumpPath));
-			ValidMemoryDumpPaths.Add(MemoryDumpPath);
+			continue;
 		}
 
 		// Ensure not more than a month old
