@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "EstMusic.h"
+#include "Structures/EstMusic.h"
 #include "EstGameInstance.generated.h"
 
 USTRUCT(BlueprintType)

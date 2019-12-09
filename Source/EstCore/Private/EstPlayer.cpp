@@ -466,7 +466,7 @@ void AEstPlayer::UpdateFlashlightTick(float DeltaSeconds)
 	Flashlight->SetAttenuationRadius(FMath::FInterpTo(Flashlight->AttenuationRadius, AttenuationTarget, DeltaSeconds, 8.f));
 
 	// Construct the target transform
-	const FTransform Target = FTransform(Camera->RelativeRotation, Camera->RelativeLocation + Camera->RelativeRotation.RotateVector(Offset));
+	const FTransform Target = FTransform(Camera->GetRelativeRotation(), Camera->GetRelativeLocation() + Camera->GetRelativeRotation().RotateVector(Offset));
 	
 	// Interpolate, taking into account the player's speed
 	Flashlight->SetRelativeTransform(UKismetMathLibrary::TInterpTo(Flashlight->GetRelativeTransform(), Target, DeltaSeconds, GetMovementComponent()->GetMaxSpeed() / 25.f));

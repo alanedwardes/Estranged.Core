@@ -198,7 +198,7 @@ void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerCont
 	Mappings.GetKeys(SortedActionNames);
 	SortedActionNames.Sort([](const FName& LHS, const FName& RHS)
 	{
-		return LHS < RHS;
+		return LHS.FastLess(RHS);
 	});
 }
 
@@ -225,7 +225,7 @@ void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerContro
 	Mappings.GetKeys(SortedAxisNames);
 	SortedAxisNames.Sort([](const FName& LHS, const FName& RHS)
 	{
-		return LHS < RHS;
+		return LHS.FastLess(RHS);
 	});
 }
 
@@ -840,7 +840,7 @@ TArray<AActor*> UEstGameplayStatics::FilterActorArrayByVisible(TArray<AActor*> A
 			return true;
 		}
 
-		return !Actor->bHidden;
+		return !Actor->IsHidden();
 	});
 }
 

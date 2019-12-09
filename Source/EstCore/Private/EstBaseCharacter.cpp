@@ -147,7 +147,7 @@ bool AEstBaseCharacter::CanJumpInternal_Implementation() const
 	return Capabilities->CanJump && Super::CanJumpInternal_Implementation();
 }
 
-bool AEstBaseCharacter::CanCrouch()
+bool AEstBaseCharacter::CanCrouch() const
 {
 	if (Controller->IsMoveInputIgnored())
 	{

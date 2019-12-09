@@ -62,7 +62,7 @@ public:
 
 	virtual bool CanJumpInternal_Implementation() const override;
 
-	virtual bool CanCrouch() override;
+	virtual bool CanCrouch() const override;
 
 	UFUNCTION()
 	virtual bool CanSprint();

@@ -333,7 +333,10 @@ FEstComponentState UEstSaveStatics::SerializeComponent(UActorComponent* Componen
 UActorComponent* UEstSaveStatics::RestoreComponent(AActor* Parent, const FEstComponentState &ComponentState)
 {
 	UActorComponent* FoundComponent = nullptr;
-	for (UActorComponent* Component : Parent->GetComponentsByClass(ComponentState.ComponentClass))
+
+	TArray<UActorComponent*> ActorComponents;
+	Parent->GetComponents(ActorComponents);
+	for (UActorComponent* Component : ActorComponents)
 	{
 		if (Component->GetFName() == ComponentState.ComponentName)
 		{
