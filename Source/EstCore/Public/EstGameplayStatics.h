@@ -106,12 +106,6 @@ public:
 	static FString GenerateSaveFileName() { return FDateTime::Now().ToString(); };
 
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
-	static AActor* SpawnActor(UObject* WorldContextObject, UClass* ActorClass, FName ActorName, const FTransform &ActorTransform);
-
-	UFUNCTION(BlueprintCallable, Category = "Game")
-	static AActor* FindActorByNameAndClassInLevel(const ULevel* Level, FName ActorName, UClass* ActorClass);
-
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AActor* FindActorBySaveIdInWorld(UObject* WorldContextObject, FGuid SaveId);
 
 	template <typename TActor>

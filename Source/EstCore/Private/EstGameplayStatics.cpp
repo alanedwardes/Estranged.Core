@@ -524,39 +524,6 @@ void UEstGameplayStatics::SetTransientMasterVolume(UObject* WorldContextObject, 
 	}
 }
 
-AActor* UEstGameplayStatics::SpawnActor(UObject* WorldContextObject, UClass* ActorClass, FName ActorName, const FTransform &ActorTransform)
-{
-	EST_DEBUG(FString::Printf(TEXT("Spawning actor: %s"), *ActorName.ToString()));
-
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Name = ActorName;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	return WorldContextObject->GetWorld()->SpawnActor<AActor>(ActorClass, ActorTransform, SpawnParameters);
-}
-
-AActor* UEstGameplayStatics::FindActorByNameAndClassInLevel(const ULevel* Level, FName ActorName, UClass* ActorClass)
-{
-	for (AActor* Actor : Level->Actors)
-	{
-		if (!Actor)
-		{
-			continue;
-		}
-
-		if (Actor->GetClass() != ActorClass)
-		{
-			continue;
-		}
-
-		if (Actor->GetFName() == ActorName)
-		{
-			return Actor;
-		}
-	}
-
-	return nullptr;
-}
-
 AActor* UEstGameplayStatics::FindActorBySaveIdInWorld(UObject* WorldContextObject, FGuid SaveId)
 {
 	for (TActorIterator<AActor> Actor(WorldContextObject->GetWorld(), AActor::StaticClass()); Actor; ++Actor)
