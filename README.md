@@ -2,7 +2,7 @@
 Source code for the core gameplay module used by [Estranged: Act II](http://store.steampowered.com/app/582890).
 
 ## Compatibility
-* Unreal Engine 4.22.x
+* Unreal Engine 4.24.x
 
 ## Key Concepts
 * EstBaseCharacter - root of all characters, inherits from ACharacter
