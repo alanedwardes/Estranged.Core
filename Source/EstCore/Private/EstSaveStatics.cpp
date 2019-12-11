@@ -437,27 +437,19 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 	return nullptr;
 }
 
-struct FEstSaveGameArchive : public FObjectAndNameAsStringProxyArchive
-{
-	FEstSaveGameArchive(FArchive& InInnerArchive)
-		: FObjectAndNameAsStringProxyArchive(InInnerArchive, true)
-	{
-		ArIsSaveGame = true;
-		ArNoDelta = true;
-	}
-};
-
 void UEstSaveStatics::RestoreLowLevel(UObject* Object, TArray<uint8> Bytes)
 {
 	FMemoryReader MemoryReader(Bytes, true);
-	FEstSaveGameArchive Ar(MemoryReader);
+	FObjectAndNameAsStringProxyArchive Ar(MemoryReader, true);
 	Object->Serialize(Ar);
 }
 
 void UEstSaveStatics::SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes)
 {
 	FMemoryWriter MemoryWriter(InBytes, true);
-	FEstSaveGameArchive Ar(MemoryWriter);
+	FObjectAndNameAsStringProxyArchive Ar(MemoryWriter, true);
+	Ar.ArIsSaveGame = true;
+	Ar.ArNoDelta = true;
 	Object->Serialize(Ar);
 }
 
