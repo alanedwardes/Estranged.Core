@@ -295,9 +295,6 @@ void AEstPlayer::Tick(float DeltaSeconds)
 	{
 		AddMovementInput(FVector(0.f, 0.f, 1.f));
 	}
-
-	EST_DEBUG_SLOT(51, FString::Printf(TEXT("Health: %2.f, Stamina: %2.f, Flashlight: %2.f, Speed: %2.f, HeadInWater: %s, Oxygen: %2.f, FocalDistance: %2.f, SmoothZVelocity: %2.f"),
-		HealthComponent->GetResource(), Stamina->GetResource(), Battery->GetResource(), GetVelocity().Size(), HeadInWater ? TEXT("Yes") : TEXT("No"), Oxygen->GetResource(), FocalDistance, SmoothZVelocity));
 }
 
 void AEstPlayer::UpdatePostProcessingTick(float DeltaSeconds)
