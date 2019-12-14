@@ -53,6 +53,11 @@ void UEstCharacterMovementComponent::OnPostRestore_Implementation()
 
 float UEstCharacterMovementComponent::GetMaxSpeed() const
 {
+	if (bIsMovementPaused)
+	{
+		return 0.f;
+	}
+
 	if (IsSprinting())
 	{
 		return MaxSprintSpeed;

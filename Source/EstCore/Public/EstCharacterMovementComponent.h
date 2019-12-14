@@ -49,6 +49,9 @@ public:
 	UPROPERTY()
 	bool bIsSprinting;
 
+	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite)
+	bool bIsMovementPaused;
+
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	TArray<class USoundBase*> ClothesSounds;
 
