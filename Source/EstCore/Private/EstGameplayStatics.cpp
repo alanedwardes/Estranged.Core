@@ -983,3 +983,11 @@ void UEstGameplayStatics::SetPlatformMouseCursorState(bool bShowMouseCursor)
 		PlatformApplication->Cursor->Show(bShowMouseCursor);
 	}
 }
+
+void UEstGameplayStatics::SortResolutions(UPARAM(ref)TArray<FIntPoint>& Resolutions)
+{
+	Resolutions.Sort([](const FIntPoint& LHS, const FIntPoint& RHS)
+	{
+		return LHS.X < RHS.X;
+	});
+}

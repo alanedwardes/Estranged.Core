@@ -213,6 +213,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Debugging, CustomThunk, meta = (CustomStructureParam = "AnyStruct"))
 	static FString DumpStruct(UProperty* AnyStruct);
 
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static void SortResolutions(UPARAM(ref) TArray<FIntPoint> &Resolutions);
+
 	DECLARE_FUNCTION(execDumpStruct)
 	{
 		Stack.Step(Stack.Object, NULL);
