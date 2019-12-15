@@ -13,12 +13,12 @@
 #define CHANNEL_PLAYER_BLUR_FOCUS ECollisionChannel::ECC_GameTraceChannel7
 #define CHANNEL_PLAYER_INTERACT ECollisionChannel::ECC_GameTraceChannel8
 #define CHANNEL_PLAYER_WATER_CHECK ECollisionChannel::ECC_GameTraceChannel9
-#define CHANNEL_FOOTSTEPS ECollisionChannel::ECC_GameTraceChannel14
 
 #define PROFILE_TRIGGER "Trigger"
 #define PROFILE_PLAYER "Player"
 #define PROFILE_BULLET "Bullet"
 #define PROFILE_DEBRIS "Debris"
+#define PROFILE_FOOTSTEPS "Footsteps"
 
 #define SURFACE_TYPE_GLASS EPhysicalSurface::SurfaceType1
 #define SURFACE_TYPE_FOLIAGE EPhysicalSurface::SurfaceType2

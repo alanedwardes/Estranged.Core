@@ -29,6 +29,7 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Runtime/EngineSettings/Classes/GeneralProjectSettings.h"
 #include "Framework/Application/SlateApplication.h"
+#include "LandscapeHeightfieldCollisionComponent.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -44,6 +45,26 @@ struct FEstImpactEffect UEstGameplayStatics::FindImpactEffect(const UEstImpactMa
 	}
 
 	return FEstImpactEffect::None;
+}
+
+UPhysicalMaterial* UEstGameplayStatics::GetPhysicalMaterial(const FHitResult &HitResult)
+{
+	if (HitResult.PhysMaterial.IsValid())
+	{
+		return HitResult.PhysMaterial.Get();
+	}
+
+	// Hack for 4.24 - attempt to get landscape physical material
+	if (HitResult.Component.IsValid())
+	{
+		const ULandscapeHeightfieldCollisionComponent* LandscapeHeightfieldCollisionComponent = Cast<ULandscapeHeightfieldCollisionComponent>(HitResult.Component.Get());
+		if (LandscapeHeightfieldCollisionComponent != nullptr && LandscapeHeightfieldCollisionComponent->CookedPhysicalMaterials.Num() > 0)
+		{
+			return LandscapeHeightfieldCollisionComponent->CookedPhysicalMaterials[0];
+		}
+	}
+
+	return nullptr;
 }
 
 FName UEstGameplayStatics::FindClosestBoneName(USceneComponent* Component, FVector Location)
@@ -687,18 +708,19 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 		OnBulletHit.Execute(HitResults);
 
 		// Only continue if we got a physical material
-		if (!HitResult.PhysMaterial.IsValid())
+		const UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterial(HitResult);
+		if (PhysicalMaterial == nullptr)
 		{
 			return;
 		}
 
 		// Get the surface type from this physical material
-		const EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+		const EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(PhysicalMaterial);
 
 		// If we don't pass through, we may reflect
 		if (!PassThroughSurfaces.Contains(PhysicalSurface))
 		{
-			if (HitResult.PhysMaterial->Density < 1.0f)
+			if (PhysicalMaterial->Density < 1.0f)
 			{
 				// This material is not dense enough to ricochet
 				return;

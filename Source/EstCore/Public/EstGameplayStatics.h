@@ -36,6 +36,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static struct FEstImpactEffect FindImpactEffect(const class UEstImpactManifest* ImpactEffects, const class UPhysicalMaterial* PhysicalMaterial);
 
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static class UPhysicalMaterial* GetPhysicalMaterial(const FHitResult &HitResult);
+
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static FName FindClosestBoneName(USceneComponent * Component, FVector Location);
 
