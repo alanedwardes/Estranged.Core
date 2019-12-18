@@ -151,6 +151,12 @@ public:
 	bool bCanAim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
+	float HolsterLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
+	float UnholsterLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)
 	float PrimaryAttackLengthPlayer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Handling)

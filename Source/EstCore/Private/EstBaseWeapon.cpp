@@ -85,7 +85,11 @@ void AEstBaseWeapon::SetEngagedInActivity(float ActivityLength)
 
 void AEstBaseWeapon::PrimaryAttackStart()
 {
-	Unholster();
+	if (IsHolstered())
+	{
+		return;
+	}
+
 	bIsPrimaryFirePressed = true;
 }
 
@@ -96,7 +100,11 @@ void AEstBaseWeapon::PrimaryAttackEnd()
 
 void AEstBaseWeapon::SecondaryAttackStart()
 {
-	Unholster();
+	if (IsHolstered())
+	{
+		return;
+	}
+
 	bIsSecondaryFirePressed = true;
 }
 
@@ -241,24 +249,34 @@ bool AEstBaseWeapon::IsEquipped()
 
 void AEstBaseWeapon::Holster()
 {
-	OnHolster();
+	if (IsEngagedInActivity())
+	{
+		return;
+	}
 
 	if (SoundManifest.Holster)
 	{
 		UGameplayStatics::SpawnSoundAttached(SoundManifest.Holster, WeaponMesh);
 	}
 
+	SetEngagedInActivity(HolsterLength);
 	bIsHolstered = true;
+	OnHolster();
 }
 
 void AEstBaseWeapon::Unholster()
 {
-	OnUnholster();
+	if (IsEngagedInActivity())
+	{
+		return;
+	}
 
 	if (SoundManifest.Unholster)
 	{
 		UGameplayStatics::SpawnSoundAttached(SoundManifest.Unholster, WeaponMesh);
 	}
 
+	SetEngagedInActivity(UnholsterLength);
 	bIsHolstered = false;
+	OnUnholster();
 }
