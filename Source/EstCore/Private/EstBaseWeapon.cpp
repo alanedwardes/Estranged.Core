@@ -5,6 +5,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
 #include "EstBaseCharacter.h"
+#include "Components/SkeletalMeshComponent.h"
 
 AEstBaseWeapon::AEstBaseWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
@@ -18,11 +19,6 @@ AEstBaseWeapon::AEstBaseWeapon(const class FObjectInitializer& PCIP)
 	WeaponMesh->SetCollisionProfileName("Item");
 	WeaponMesh->bCastInsetShadow = true;
 	SetRootComponent(WeaponMesh);
-
-	if (GEngine != nullptr)
-	{
-		WeaponMesh->BodyInstance.bUseCCD = true;
-	}
 }
 
 void AEstBaseWeapon::OnPostRestore_Implementation()
@@ -64,11 +60,13 @@ void AEstBaseWeapon::UpdateWeaponPhysicsState()
 	if (IsEquipped())
 	{
 		WeaponMesh->SetSimulatePhysics(false);
+		WeaponMesh->SetUseCCD(false);
 		SetActorEnableCollision(false);
 	}
 	else
 	{
 		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetUseCCD(true);
 		SetActorEnableCollision(true);
 	}
 }
