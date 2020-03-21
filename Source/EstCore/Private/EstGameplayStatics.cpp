@@ -590,41 +590,38 @@ UEstGameInstance* UEstGameplayStatics::GetEstGameInstance(UObject* WorldContextO
 
 bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass, float MaxRadius)
 {
-	if (Character == nullptr)
+	if (Character == nullptr || ActorToHold == nullptr)
 	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Error, FText::FromString(TEXT("Picking up character is null"))));
-		return false;
-	}
-
-	if (ActorToHold == nullptr)
-	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Error, FText::FromString(TEXT("Can't pick up actor as it is null"))));
 		return false;
 	}
 
 	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
 	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as it has a no pickup component"))));
+		const FString NoPickupComponentString = FString::Printf(TEXT("Can't pick up actor %s as it has a \"no pickup\" component"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(NoPickupComponentString)));
 		return false;
 	}
 
 	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(ActorToHold->GetRootComponent());
 	if (PrimitiveToHold == nullptr)
 	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as no root primitive"))));
+		const FString NoRootPrimitiveString = FString::Printf(TEXT("Can't pick up actor %s as no root primitive"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Trace, FText::FromString(NoRootPrimitiveString)));
 		return false;
 	}
 
 	if (!PrimitiveToHold->IsSimulatingPhysics())
 	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as not simulating physics"))));
+		const FString NotSimulatingString = FString::Printf(TEXT("Can't pick up actor %s as it is not simulating physics"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Trace, FText::FromString(NotSimulatingString)));
 		return false;
 	}
 
 	// If we're standing on the object
 	if (PrimitiveToHold == Character->GetMovementBase())
 	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as it is being stood on"))));
+		const FString BeingStoodOnString = FString::Printf(TEXT("Can't pick up actor %s as it is being stood on"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(BeingStoodOnString)));
 		return false;
 	}
 
