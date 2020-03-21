@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Structures/EstMusic.h"
+#include "EstLoggerWidget.h"
 #include "EstGameInstance.generated.h"
 
 USTRUCT(BlueprintType)
@@ -59,7 +60,10 @@ public:
 
 	virtual void Shutdown() override;
 
+	virtual void OnStart() override;
+
 	virtual void PreLoadMap(const FString & InMapName);
+	virtual void PostLoadMapWithWorld(UWorld* World);
 
 	UFUNCTION(BlueprintCallable, Category = Music)
 	virtual void FadeMusic();
@@ -82,8 +86,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = UI)
 	virtual void SetMenuVisibility(FEstMenuVisibilityContext InVisibilityContext);
 
+	UFUNCTION(BlueprintCallable, Category = UI)
+	virtual void LogMessage(FEstLoggerMessage Message);
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> MenuWidgetType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
+	TSubclassOf<class UUserWidget> LoggerWidgetType;
 
 	TSharedPtr<SWidget> GetRawMenuWidget() { return MenuSlateWidget; }
 private:
@@ -100,6 +110,10 @@ private:
 	float GameInstanceTime;
 	float MusicFadeCompleteTime;
 	bool bWasFadingOut;
+
+	TSharedPtr<SWidget> LoggerSlateWidget;
+	class UEstLoggerWidget* LoggerUserWidget;
+	bool bIsLoggerVisible;
 
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;

@@ -7,6 +7,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "EstAudioComponent.h"
 #include "EstMenuWidget.h"
+#include "EstLoggerWidget.h"
 #include "EstGameplayStatics.h"
 #include "Runtime/Engine/Public/AudioDevice.h"
 
@@ -16,9 +17,13 @@ void UEstGameInstance::Init()
 	{
 		MenuUserWidget = CreateWidget<UEstMenuWidget>(this, MenuWidgetType);
 		MenuSlateWidget = MenuUserWidget->TakeWidget();
+
+		LoggerUserWidget = CreateWidget<UEstLoggerWidget>(this, LoggerWidgetType);
+		LoggerSlateWidget = LoggerUserWidget->TakeWidget();
 	}
 
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UEstGameInstance::PreLoadMap);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UEstGameInstance::PostLoadMapWithWorld);
 
 	FTickerDelegate TickDelegate = FTickerDelegate::CreateUObject(this, &UEstGameInstance::Tick);
 	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
@@ -28,8 +33,35 @@ void UEstGameInstance::Init()
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
 {
+	if (bIsLoggerVisible)
+	{
+		LoggerUserWidget->RemoveFromViewport();
+		bIsLoggerVisible = false;
+	}
+
 	FadeMusic();
 	SetMenuVisibility(FEstMenuVisibilityContext(false, false));
+}
+
+void UEstGameInstance::PostLoadMapWithWorld(UWorld* World)
+{
+}
+
+void UEstGameInstance::OnStart()
+{
+	if (!bIsLoggerVisible)
+	{
+		LoggerUserWidget->AddToViewport();
+		bIsLoggerVisible = true;
+	}
+}
+
+void UEstGameInstance::LogMessage(FEstLoggerMessage Message)
+{
+	if (LoggerUserWidget != nullptr)
+	{
+		LoggerUserWidget->OnLogMessage(Message);
+	}
 }
 
 void UEstGameInstance::FadeMusic()
@@ -78,9 +110,11 @@ void UEstGameInstance::PlayMusic(FEstMusic Music)
 void UEstGameInstance::Shutdown()
 {
 	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
 	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 
 	MenuSlateWidget = nullptr;
+	LoggerSlateWidget = nullptr;
 
 	Super::Shutdown();
 }
