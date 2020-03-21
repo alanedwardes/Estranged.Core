@@ -21,6 +21,17 @@ struct ESTCORE_API FEstLoggerMessage
 	GENERATED_BODY()
 
 public:
+	FEstLoggerMessage()
+	{
+	}
+
+	FEstLoggerMessage(UObject* InSource, EEstLoggerLevel InLevel, FText InText)
+	{
+		Source = InSource;
+		Level = InLevel;
+		Text = InText;
+	}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	TWeakObjectPtr<UObject> Source;
 

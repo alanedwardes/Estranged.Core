@@ -12,6 +12,7 @@
 #include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/PhysicsVolume.h"
 #include "Runtime/Engine/Public/PhysicsPublic.h"
+#include "EstGameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(TArray<FCollisionNotifyInfo>& PendingCollisionNotifies)
@@ -86,8 +87,6 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 		}
 
 		const float Intensity = FMath::Clamp(ImpactVelMag / 512.f, 0.1f, 1.f);
-
-		EST_DEBUG(FString::Printf(TEXT("Impact: Velocity %.2f, Intensity: %.2f"), ImpactVelMag, Intensity));
 
 		UPhysicalMaterial* MyMaterial = GetPhysicalMaterialFromCollision(MyInfo);
 		if (MyMaterial != nullptr && MyInfo.Component.IsValid() && MyInfo.Component->Mobility == EComponentMobility::Movable && !MyInfo.Actor->ActorHasTag(TAG_NOIMPACTS))

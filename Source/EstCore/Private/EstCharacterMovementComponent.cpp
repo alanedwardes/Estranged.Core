@@ -5,6 +5,7 @@
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "EstBaseCharacter.h"
 #include "EstImpactManifest.h"
+#include "EstGameInstance.h"
 #include "EstImpactEffect.h"
 
 UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObjectInitializer& PCIP)
@@ -116,7 +117,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 {
 	if (FootstepManifest == nullptr)
 	{
-		EST_WARNING(TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null"))));
 		return;
 	}
 
@@ -143,19 +144,17 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
 	{
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
-		UE_LOG(LogEstFootsteps, Log, TEXT("Playing for %s from hit on component %s"), *PhysicalMaterial->GetName(), *OutHit.Component->GetName());
 	}
 	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
 	{
 		if (PhysicalMaterial == nullptr)
 		{
-			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s but no physical material"), *OutHit.GetActor()->GetName());
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(FString::Printf(TEXT("Blocking hit on %s but no physical material"), *OutHit.GetActor()->GetName()))));
 		}
 		else
 		{
 			FString ActorName = OutHit.GetActor() == nullptr ? "null" : OutHit.GetActor()->GetName();
-
-			UE_LOG(LogEstFootsteps, Error, TEXT("Blocking hit on %s in actor %s but no impact effect"), *PhysicalMaterial->GetName(), *ActorName);
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(FString::Printf(TEXT("Blocking hit on %s in actor %s but no impact effect"), *PhysicalMaterial->GetName(), *ActorName))));
 		}
 	}
 
@@ -241,7 +240,7 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 
 	if (bEncroachedStanding && bEncroachedCrouching)
 	{
-		EST_DEBUG(TEXT("Player tried to step up but was encroached, ignoring."));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(TEXT("Player tried to step up but was encroached, ignoring."))));
 		return Super::PhysFalling(deltaTime, Iterations);
 	}
 
@@ -260,5 +259,5 @@ void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iteratio
 		Player->bForceCameraInterpolation = true;
 	}
 
-	EST_DEBUG(*FString::Printf(TEXT("Stepping up on to actor %s"), Result.Actor.IsValid() ? *Result.Actor->GetName() : TEXT("<none>")));
+	UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(*FString::Printf(TEXT("Stepping up on to actor %s"), Result.Actor.IsValid() ? *Result.Actor->GetName() : TEXT("<none>")))));
 }

@@ -101,6 +101,7 @@ private:
 
 	virtual float GetPlayPosition();
 	virtual void PlayMusicInternal(FEstMusic Music);
+	virtual void SetLoggerVisible(bool NewIsVisible);
 	virtual bool Tick(float DeltaTime);
 	bool LazilyCreateAudioComponent();
 

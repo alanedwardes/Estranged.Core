@@ -467,7 +467,6 @@ TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
         // Ensure it's one of ours (some platforms share crash dump caches)
         if (!MemoryDumpPath.Contains(ProjectSettings.ProjectName))
         {
-            EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it does not contain the project name %s"), *MemoryDumpPath, *ProjectSettings.ProjectName));
             continue;
         }
         
@@ -475,14 +474,12 @@ TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
         const int64 MemoryDumpSize = IFileManager::Get().FileSize(*MemoryDumpPath);
 		if (MemoryDumpSize < 1024)
 		{
-			EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it is too small"), *MemoryDumpPath));
 			continue;
 		}
 
 		// Ensure not bigger than we can upload
 		if (MemoryDumpSize > (1024 * 1024 * 9))
 		{
-			EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it is too big"), *MemoryDumpPath));
 			continue;
 		}
 
@@ -490,7 +487,6 @@ TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
 		const FDateTime ModifiedTime = IFileManager::Get().GetTimeStamp(*MemoryDumpPath);
 		if (ModifiedTime - FDateTime::Now() > FTimespan::FromDays(30))
 		{
-			EST_DEBUG(FString::Printf(TEXT("Skipping dump %s as it is too old"), *MemoryDumpPath));
 			continue;
 		}
 
@@ -596,60 +592,60 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 {
 	if (Character == nullptr)
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Picking up character is null"));
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Error, FText::FromString(TEXT("Picking up character is null"))));
 		return false;
 	}
 
 	if (ActorToHold == nullptr)
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it is null"));
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Error, FText::FromString(TEXT("Can't pick up actor as it is null"))));
 		return false;
 	}
 
 	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as it has a no pickup component"));
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as it has a no pickup component"))));
 		return false;
 	}
 
 	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(ActorToHold->GetRootComponent());
 	if (PrimitiveToHold == nullptr)
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as no root primitive"));
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as no root primitive"))));
 		return false;
 	}
 
 	if (!PrimitiveToHold->IsSimulatingPhysics())
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as not simulating physics"));
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as not simulating physics"))));
 		return false;
 	}
 
 	// If we're standing on the object
 	if (PrimitiveToHold == Character->GetMovementBase())
 	{
-		DrawDebugString(ActorToHold->GetWorld(), FVector::ZeroVector, TEXT("Being stood on"), ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as it is being stood on"))));
 		return false;
 	}
 
 	if (PrimitiveToHold->GetMass() > MaxMass)
 	{
 		const FString TooHeavyString = FString::Printf(TEXT("Too heavy (max: %.2fkg, actual: %.2fkg)"), MaxMass, PrimitiveToHold->GetMass());
-		DrawDebugString(ActorToHold->GetWorld(), FVector::ZeroVector, TooHeavyString, ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TooHeavyString)));
 		return false;
 	}
 
 	if (PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
 	{
 		const FString TooBigString = FString::Printf(TEXT("Too big (max: %.2f, actual: %.2f)"), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
-		DrawDebugString(ActorToHold->GetWorld(), FVector::ZeroVector, TooBigString, ActorToHold, FColor::White, DEBUG_PERSIST_TIME, true);
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TooBigString)));
 		return false;
 	}
 
 	UEstCarryableUserData* CarryableUserData = GetCarryableUserDataFromMesh(PrimitiveToHold);
 	if (CarryableUserData != nullptr && !CarryableUserData->bCanPlayerPickUp)
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Can't pick up actor as asset contains carryable user data stating it cannot be picked up"));
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as asset contains carryable user data stating it cannot be picked up"))));
 		return false;
 	}
 

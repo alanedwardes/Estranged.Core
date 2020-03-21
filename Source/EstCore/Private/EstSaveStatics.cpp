@@ -21,7 +21,6 @@ void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplayS
 {
 	if (Player->Camera == nullptr)
 	{
-		EST_WARNING(TEXT("Attempting to apply gameplay settings with null player camera"));
 		return;
 	}
 
@@ -62,7 +61,6 @@ void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* Gameplay
 {
 	if (HUDWidget == nullptr)
 	{
-		EST_WARNING(TEXT("Attempting to apply gameplay settings with null HUD"));
 		return;
 	}
 
@@ -79,21 +77,18 @@ void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerC
 {
 	if (GameplaySave == nullptr)
 	{
-		EST_WARNING(TEXT("Attempting to apply gameplay settings with null save"));
 		return;
 	}
 
 	AEstPlayerController* PlayerController = Cast<AEstPlayerController>(Controller);
 	if (PlayerController == nullptr)
 	{
-		EST_WARNING(TEXT("Attempting to apply gameplay settings with null player controller"));
 		return;
 	}
 
 	AEstPlayer* Player = Cast<AEstPlayer>(PlayerController->GetPawn());
 	if (Player == nullptr)
 	{
-		EST_WARNING(TEXT("Attempting to apply gameplay settings with null player or player camera"));
 		return;
 	}
 
@@ -154,7 +149,6 @@ bool UEstSaveStatics::PersistSave(UEstSave* SaveGame)
 {
 	if (SaveGame == nullptr)
 	{
-		EST_WARNING(TEXT("UEstSaveStatics::PersistSave() called with null save game object!"));
 		return false;
 	}
 
