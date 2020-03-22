@@ -87,7 +87,7 @@ void UEstGameInstance::OnStart()
 
 void UEstGameInstance::LogMessage(FEstLoggerMessage Message)
 {
-	if (LoggerUserWidget != nullptr)
+	if (LoggerUserWidget != nullptr && bIsLoggerEnabled)
 	{
 		LoggerUserWidget->OnLogMessage(Message);
 	}
