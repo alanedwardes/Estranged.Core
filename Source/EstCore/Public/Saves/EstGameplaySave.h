@@ -50,6 +50,12 @@ public:
 	virtual void SetEnableStatsForNerds(bool NewEnableStatsForNerds) { EnableStatsForNerds = NewEnableStatsForNerds; }
 
 	UFUNCTION(BlueprintCallable)
+	virtual bool GetEnableDebugLog() { return EnableDebugLog; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetEnableDebugLog(bool NewEnableDebugLog) { EnableDebugLog = NewEnableDebugLog; }
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool GetDisableHUD() { return DisableHUD; }
 
 	UFUNCTION(BlueprintCallable)
@@ -139,6 +145,9 @@ private:
 
 	UPROPERTY()
 	bool EnableStatsForNerds;
+
+	UPROPERTY()
+	bool EnableDebugLog;
 
 	UPROPERTY()
 	bool EnableCommentary;

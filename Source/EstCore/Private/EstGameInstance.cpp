@@ -38,30 +38,46 @@ void UEstGameInstance::PreLoadMap(const FString & InMapName)
 	SetMenuVisibility(FEstMenuVisibilityContext(false, false));
 }
 
+void UEstGameInstance::RefreshLoggerState()
+{
+	SetLoggerVisible(bIsLoggerEnabled);
+}
+
 void UEstGameInstance::PostLoadMapWithWorld(UWorld* World)
 {
-	SetLoggerVisible(true);
+	RefreshLoggerState();
+}
+
+void UEstGameInstance::SetLoggerEnabled(bool NewIsEnabled)
+{
+	if (NewIsEnabled)
+	{
+		bIsLoggerEnabled = true;
+		RefreshLoggerState();
+	}
+	else
+	{
+		bIsLoggerEnabled = false;
+		RefreshLoggerState();
+	}
 }
 
 void UEstGameInstance::SetLoggerVisible(bool NewIsVisible)
 {
-	if (NewIsVisible)
+	if (NewIsVisible == bIsLoggerVisible)
 	{
-		if (!bIsLoggerVisible)
-		{
-			LoggerUserWidget->AddToViewport();
-			bIsLoggerVisible = true;
-		}
+		return;
+	}
+
+	bIsLoggerVisible = NewIsVisible;
+	if (bIsLoggerVisible)
+	{
+		LoggerUserWidget->AddToViewport();
 	}
 	else
 	{
-		if (bIsLoggerVisible)
-		{
-			LoggerUserWidget->RemoveFromViewport();
-			bIsLoggerVisible = false;
-		}
+		LoggerUserWidget->RemoveFromViewport();
 	}
-
 }
 
 void UEstGameInstance::OnStart()

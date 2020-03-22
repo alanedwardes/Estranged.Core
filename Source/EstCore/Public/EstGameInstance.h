@@ -89,6 +89,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = UI)
 	virtual void LogMessage(FEstLoggerMessage Message);
 
+	UFUNCTION(BlueprintCallable, Category = UI)
+	virtual void RefreshLoggerState();
+
+	virtual void SetLoggerEnabled(bool NewIsEnabled);
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> MenuWidgetType;
 
@@ -115,6 +120,7 @@ private:
 	TSharedPtr<SWidget> LoggerSlateWidget;
 	class UEstLoggerWidget* LoggerUserWidget;
 	bool bIsLoggerVisible;
+	bool bIsLoggerEnabled;
 
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;

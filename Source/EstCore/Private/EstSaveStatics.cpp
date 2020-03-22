@@ -73,6 +73,16 @@ void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* Gameplay
 	HUDWidget->OnSettingsUpdated();
 }
 
+void ApplyGameInstanceSettings(UEstGameInstance* GameInstance, UEstGameplaySave* GameplaySave)
+{
+	if (GameInstance == nullptr)
+	{
+		return;
+	}
+
+	GameInstance->SetLoggerEnabled(GameplaySave->GetEnableDebugLog());
+}
+
 void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerController* Controller)
 {
 	if (GameplaySave == nullptr)
@@ -99,6 +109,8 @@ void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerC
 	ApplyPlayerControllerSettings(PlayerController, GameplaySave);
 
 	ApplyHudWidgetSettings(Player->HUDWidget, GameplaySave);
+
+	ApplyGameInstanceSettings(UEstGameplayStatics::GetEstGameInstance(Player), GameplaySave);
 }
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
