@@ -9,6 +9,7 @@
 #include "Misc/UObjectToken.h"
 #include "Interfaces/EstSaveRestore.h"
 #include "Misc/MapErrors.h"
+#include "Engine/CollisionProfile.h"
 
 #if WITH_EDITOR
 void AEstMapErrorChecker::CheckForErrors()
@@ -117,6 +118,15 @@ void AEstMapErrorChecker::CheckForErrors()
 			if (!SceneComponent->GetCollisionEnabled())
 			{
 				continue;
+			}
+
+			if (SceneComponent->GetCollisionProfileName() == UCollisionProfile::CustomCollisionProfileName)
+			{
+				MapCheck.Error()
+					->AddToken(FUObjectToken::Create(this))
+					->AddToken(FTextToken::Create(FText::FromString("Actor")))
+					->AddToken(FUObjectToken::Create(Actor))
+					->AddToken(FTextToken::Create(FText::FromString("is using custom collision profile")));
 			}
 
 			int32 NumMaterials = SceneComponent->GetNumMaterials();
