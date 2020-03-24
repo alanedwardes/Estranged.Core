@@ -627,14 +627,14 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 
 	if (PrimitiveToHold->GetMass() > MaxMass)
 	{
-		const FString TooHeavyString = FString::Printf(TEXT("Too heavy (max: %.2fkg, actual: %.2fkg)"), MaxMass, PrimitiveToHold->GetMass());
+		const FString TooHeavyString = FString::Printf(TEXT("Can't pick up actor %s as it is too heavy (max: %.2fkg, actual: %.2fkg)"), *ActorToHold->GetName(), MaxMass, PrimitiveToHold->GetMass());
 		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TooHeavyString)));
 		return false;
 	}
 
 	if (PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
 	{
-		const FString TooBigString = FString::Printf(TEXT("Too big (max: %.2f, actual: %.2f)"), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
+		const FString TooBigString = FString::Printf(TEXT("Can't pick up actor %s as it is too big (max: %.2f, actual: %.2f)"), *ActorToHold->GetName(), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
 		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TooBigString)));
 		return false;
 	}
@@ -642,7 +642,8 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 	UEstCarryableUserData* CarryableUserData = GetCarryableUserDataFromMesh(PrimitiveToHold);
 	if (CarryableUserData != nullptr && !CarryableUserData->bCanPlayerPickUp)
 	{
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TEXT("Can't pick up actor as asset contains carryable user data stating it cannot be picked up"))));
+		const FString NoPickupString = FString::Printf(TEXT("Can't pick up actor %s as asset contains carryable user data stating it cannot be picked up"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(NoPickupString)));
 		return false;
 	}
 

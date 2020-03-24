@@ -193,7 +193,7 @@ public:
 
 	/** Internal function to actually perform trace for interaction, returns true on hit */
 	UFUNCTION()
-	virtual bool DoInteractionTrace(float TraceSphereRadius);
+	virtual bool DoInteractionTrace(float TraceSphereRadius, FHitResult& Result);
 
 	/** Make the player pick up an object. */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")

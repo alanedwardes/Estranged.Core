@@ -716,10 +716,11 @@ void AEstPlayer::InteractPressedInput()
 		return;
 	}
 
+	FHitResult Result;
 	const float TraceRadii[] = {2.f, 16.f, 48.f};
 	for (float Radius : TraceRadii)
 	{
-		if (DoInteractionTrace(Radius))
+		if (DoInteractionTrace(Radius, Result))
 		{
 			return;
 		}
@@ -748,7 +749,7 @@ void AEstPlayer::InteractReleasedInput()
 	UsingObject.Reset();
 }
 
-bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
+bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius, FHitResult& Result)
 {
 	FVector CamLoc;
 	FRotator CamRot;
@@ -765,7 +766,6 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 	// Perform trace to retrieve hit info
 	FCollisionQueryParams TraceParams(FName(TEXT("PlayerInteractTrace")), true, this);
 	TraceParams.bTraceComplex = true;
-	TraceParams.bReturnPhysicalMaterial = true;
 
 	FHitResult OutHit;
 	GetWorld()->SweepSingleByChannel(OutHit, Start, End, CamRot.Quaternion(), CHANNEL_PLAYER_INTERACT, FCollisionShape::MakeSphere(TraceSphereRadius), TraceParams);
@@ -774,8 +774,17 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 	DrawDebugSphere(GetWorld(), OutHit.Location, TraceSphereRadius, 8, FColor::Red, false, 5.f);
 #endif
 
+	const FHitResult PreviousResult = Result;
+	Result = OutHit;
+
 	if (OutHit.GetActor() && OutHit.IsValidBlockingHit())
 	{
+		// If this is the same component, early out since nothing has changed
+		if (PreviousResult.GetComponent() == OutHit.GetComponent())
+		{
+			return false;
+		}
+
 		if (OutHit.GetActor()->GetClass()->ImplementsInterface(UEstInteractive::StaticClass()))
 		{
 			UsingObject = OutHit.GetActor();
@@ -797,6 +806,13 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 					return true;
 				}
 			}
+		}
+
+		// We're finished looking at the components, so
+		// if we saw the actor before nothing will have changed
+		if (PreviousResult.GetActor() == OutHit.GetActor())
+		{
+			return false;
 		}
 
 		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.Actor.Get(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
