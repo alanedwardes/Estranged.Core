@@ -16,6 +16,7 @@
 #include "EstGameInstance.h"
 #include "EstResourceComponent.h"
 #include "Saves/EstGameplaySave.h"
+#include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #define DOF_DISTANCE_MAX 10000.f
@@ -752,9 +753,14 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 	FVector CamLoc;
 	FRotator CamRot;
 	Controller->GetPlayerViewPoint(CamLoc, CamRot);
-	const FVector Start = CamLoc;
+
+	// Calculate the alpha amount that the player is looking down - 0 is not looking down, 1 is looking fully down
+	float LookingDownAmount = FMath::Abs(FMath::Clamp(CamRot.GetComponentForAxis(EAxis::Y), -90.f, 0.f)) / 90.f;
+
+	// Subtract 0 - 16 units from the trace start height depending on the looking down alpha
+	const FVector Start = CamLoc - FVector(0.f, 0.f, FMath::Lerp(0.f, 16.f, LookingDownAmount));
 	const FVector ShootDir = CamRot.Vector();
-	const FVector End = Start + ShootDir * PlayerInteractionDistance;
+	const FVector End = CamLoc + ShootDir * PlayerInteractionDistance;
 
 	// Perform trace to retrieve hit info
 	FCollisionQueryParams TraceParams(FName(TEXT("PlayerInteractTrace")), true, this);
@@ -763,6 +769,10 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius)
 
 	FHitResult OutHit;
 	GetWorld()->SweepSingleByChannel(OutHit, Start, End, CamRot.Quaternion(), CHANNEL_PLAYER_INTERACT, FCollisionShape::MakeSphere(TraceSphereRadius), TraceParams);
+
+#ifdef EST_DEBUG_TRACES
+	DrawDebugSphere(GetWorld(), OutHit.Location, TraceSphereRadius, 8, FColor::Red, false, 5.f);
+#endif
 
 	if (OutHit.GetActor() && OutHit.IsValidBlockingHit())
 	{
