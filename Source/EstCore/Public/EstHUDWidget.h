@@ -119,7 +119,7 @@ public:
 	float HintDuration;
 
 	UFUNCTION()
-	virtual void HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation);
+	virtual void HandleShowHint(TArray<FName> Bindings, FText Label, float ShowTime, FVector WorldLocation);
 
 	UFUNCTION()
 	virtual void HandleHideHint();

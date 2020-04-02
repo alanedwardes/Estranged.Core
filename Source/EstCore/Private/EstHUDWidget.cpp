@@ -85,12 +85,12 @@ void UEstHUDWidget::HandleSetSubtitleText(const FText &SubtitleText)
 	}
 }
 
-void UEstHUDWidget::HandleShowHint(TArray<FName> Bindings, FText Label, bool bShowUntilHidden, FVector WorldLocation)
+void UEstHUDWidget::HandleShowHint(TArray<FName> Bindings, FText Label, float ShowTime, FVector WorldLocation)
 {
 	HintBindings = Bindings;
 	HintLabel = Label;
 	HintWorldLocation = WorldLocation;
-	HintFinishTime = GetWorld()->TimeSeconds + (bShowUntilHidden ? BIG_NUMBER : HintDuration);
+	HintFinishTime = GetWorld()->TimeSeconds + (ShowTime > 0.f ? ShowTime : HintDuration);
 }
 
 void UEstHUDWidget::HandleHideHint()
