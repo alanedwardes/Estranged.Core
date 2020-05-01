@@ -4,6 +4,7 @@
 #include "EstImpactManifest.h"
 #include "EstPlayer.h"
 #include "EstPlayerController.h"
+#include "Slate/WidgetRenderer.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Core/Public/HAL/FileManager.h"
 #include "Runtime/Engine/Public/EngineUtils.h"
@@ -1006,4 +1007,26 @@ void UEstGameplayStatics::SortResolutions(UPARAM(ref)TArray<FIntPoint>& Resoluti
 	{
 		return LHS.X < RHS.X;
 	});
+}
+
+void UEstGameplayStatics::WidgetToTexture(UTextureRenderTarget2D* Texture, class UUserWidget* Widget, const FVector2D &DrawSize, float DeltaTime)
+{
+	if (!FSlateApplication::IsInitialized())
+	{
+		return;
+	}
+
+	if (Widget == nullptr)
+	{
+		return;
+	}
+
+	TSharedPtr<SWidget> SlateWidget(Widget->TakeWidget());
+	if (!SlateWidget.IsValid())
+	{
+		return;
+	}
+
+	FWidgetRenderer* WidgetRenderer = new FWidgetRenderer(true);
+	WidgetRenderer->DrawWidget(Texture, SlateWidget.ToSharedRef(), DrawSize, DeltaTime, false);
 }

@@ -219,6 +219,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static void SortResolutions(UPARAM(ref) TArray<FIntPoint> &Resolutions);
 
+	UFUNCTION(BlueprintCallable, Category = RenderTexture)
+	static void WidgetToTexture(UTextureRenderTarget2D* Texture, class UUserWidget* Widget, const FVector2D &DrawSize, float DeltaTime);
+
 	DECLARE_FUNCTION(execDumpStruct)
 	{
 		Stack.Step(Stack.Object, NULL);
