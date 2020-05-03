@@ -88,7 +88,7 @@ public:
 	static AActor* CreateTransientActor(UObject* WorldContextObject, class UClass* ActorClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Saving")
-	static TArray<FString> ListSaveGames(FString Directory);
+	static TArray<FString> ListSaveGames(FString Directory, FString Filter);
 
 	UFUNCTION(BlueprintCallable, Category = "Debugging")
 	static TArray<FString> GetValidMemoryDumpPaths();

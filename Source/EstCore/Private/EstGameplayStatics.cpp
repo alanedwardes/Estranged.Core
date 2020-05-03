@@ -425,7 +425,7 @@ bool UEstGameplayStatics::IsSlowerMachine()
 	return false;
 }
 
-TArray<FString> UEstGameplayStatics::ListSaveGames(FString Directory)
+TArray<FString> UEstGameplayStatics::ListSaveGames(FString Directory, FString Filter)
 {
 	FString SaveGamesFolder = FPaths::Combine(*FPaths::ProjectSavedDir(), TEXT("SaveGames"), Directory);
 
@@ -443,7 +443,12 @@ TArray<FString> UEstGameplayStatics::ListSaveGames(FString Directory)
 	TArray<FString> ValidSaveGames;
 	for (const FString SaveGamePath : AllSaveGamePaths)
 	{
-		ValidSaveGames.Add(FPaths::GetBaseFilename(SaveGamePath));
+		const FString BaseFileName = FPaths::GetBaseFilename(SaveGamePath);
+
+		if (Filter.IsEmpty() || BaseFileName.Contains(Filter))
+		{
+			ValidSaveGames.Add(BaseFileName);
+		}
 	}
 
 	return ValidSaveGames;
