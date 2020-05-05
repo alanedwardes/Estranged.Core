@@ -213,8 +213,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Platform)
 	static void SetPlatformMouseCursorState(bool bShowMouseCursor);
 
-	UFUNCTION(BlueprintCallable, Category = Debugging, CustomThunk, meta = (CustomStructureParam = "AnyStruct", AutoCreateRefTerm = "Value"))
-	static FString DumpStruct(const int32& AnyStruct);
+	UFUNCTION(BlueprintCallable, Category = Debugging, CustomThunk, meta = (CustomStructureParam = "AnyStruct"))
+	static FString DumpStruct(UProperty* AnyStruct);
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static void SortResolutions(UPARAM(ref) TArray<FIntPoint> &Resolutions);
@@ -225,7 +225,7 @@ public:
 	DECLARE_FUNCTION(execDumpStruct)
 	{
 		Stack.Step(Stack.Object, NULL);
-		FStructProperty* StructProperty = CastField<FStructProperty>(Stack.MostRecentProperty);
+		UStructProperty* StructProperty = ExactCast<UStructProperty>(Stack.MostRecentProperty);
 		const void* StructPtr = Stack.MostRecentPropertyAddress;
 		P_FINISH;
 

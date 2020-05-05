@@ -541,9 +541,9 @@ void UEstGameplayStatics::SetTransientMasterVolume(UObject* WorldContextObject, 
 	}
 
 	UWorld* World = WorldContextObject->GetWorld();
-	if (FAudioDeviceHandle GameInstanceAudioDevice = World->GetAudioDevice())
+	if (FAudioDevice* GameInstanceAudioDevice = World->GetAudioDevice())
 	{
-		GameInstanceAudioDevice.GetAudioDevice()->SetTransientMasterVolume(InTransientMasterVolume);
+		GameInstanceAudioDevice->SetTransientMasterVolume(InTransientMasterVolume);
 	}
 }
 

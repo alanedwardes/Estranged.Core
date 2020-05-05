@@ -198,15 +198,15 @@ bool UEstGameInstance::LazilyCreateAudioComponent()
 		return true;
 	}
 
-	FAudioDeviceHandle AudioDevice = GEngine->GetActiveAudioDevice();
-	if (!AudioDevice.IsValid())
+	FAudioDevice* AudioDevice = GEngine->GetActiveAudioDevice();
+	if (AudioDevice == nullptr)
 	{
 		return false;
 	}
 
 	AudioComponent = NewObject<UAudioComponent>();
 	AudioComponent->AddToRoot();
-	AudioComponent->AudioDeviceID = AudioDevice.GetDeviceID();
+	AudioComponent->AudioDeviceHandle = AudioDevice->DeviceHandle;
 	AudioComponent->SetVolumeMultiplier(1.0f);
 	AudioComponent->SetPitchMultiplier(1.0f);
 	AudioComponent->bAllowSpatialization = false;
