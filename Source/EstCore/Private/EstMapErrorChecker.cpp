@@ -33,7 +33,7 @@ void AEstMapErrorChecker::CheckForErrors()
 
 		if (Actor->Implements<UEstSaveRestore>())
 		{
-			UStructProperty* SaveIdProperty = Cast<UStructProperty>(Actor->GetClass()->FindPropertyByName(FName("SaveId")));
+			FStructProperty* SaveIdProperty = CastField<FStructProperty>(Actor->GetClass()->FindPropertyByName(FName("SaveId")));
 			if (SaveIdProperty == nullptr)
 			{
 				MapCheck.Error()
