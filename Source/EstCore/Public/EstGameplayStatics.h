@@ -9,6 +9,7 @@
 #include "Saves/EstSave.h"
 #include "EstCarryableUserData.h"
 #include "JsonObjectConverter.h"
+#include "EstConstants.h"
 #include "EstGameplayStatics.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, const TArray<FHitResult>&, HitResults);
@@ -216,12 +217,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Debugging, CustomThunk, meta = (CustomStructureParam = "AnyStruct"))
 	static FString DumpStruct(UProperty* AnyStruct);
 
-	UFUNCTION(BlueprintCallable, Category = "Game")
-	static void SortResolutions(UPARAM(ref) TArray<FIntPoint> &Resolutions);
-
-	UFUNCTION(BlueprintCallable, Category = RenderTexture)
-	static void WidgetToTexture(UTextureRenderTarget2D* Texture, class UUserWidget* Widget, const FVector2D &DrawSize, float DeltaTime);
-
 	DECLARE_FUNCTION(execDumpStruct)
 	{
 		Stack.Step(Stack.Object, NULL);
@@ -238,4 +233,16 @@ public:
 		FJsonObjectConverter::UStructToJsonObjectString(StructProperty->Struct, StructPtr, Out, 0, 0);
 		*(FString*)RESULT_PARAM = Out;
 	}
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static void SortResolutions(UPARAM(ref) TArray<FIntPoint> &Resolutions);
+
+	UFUNCTION(BlueprintCallable, Category = RenderTexture)
+	static void WidgetToTexture(UTextureRenderTarget2D* Texture, class UUserWidget* Widget, const FVector2D &DrawSize, float DeltaTime);
+
+	UFUNCTION(BlueprintPure, Category = Health)
+	static bool IsActorDead(AActor* Actor) { return Actor->ActorHasTag(TAG_DEAD); }
+
+	UFUNCTION(BlueprintPure, Category = Health)
+	static bool IsActorAlive(AActor* Actor) { return !IsActorDead(Actor); }
 };
