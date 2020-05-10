@@ -21,7 +21,7 @@ struct ESTCORE_API FEstLoggerMessage
 	GENERATED_BODY()
 
 public:
-	FEstLoggerMessage()
+	FEstLoggerMessage() : FEstLoggerMessage(nullptr, EEstLoggerLevel::Normal, FText())
 	{
 	}
 
