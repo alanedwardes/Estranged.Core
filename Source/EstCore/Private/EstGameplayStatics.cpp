@@ -1035,3 +1035,16 @@ void UEstGameplayStatics::WidgetToTexture(UTextureRenderTarget2D* Texture, class
 	FWidgetRenderer* WidgetRenderer = new FWidgetRenderer(true);
 	WidgetRenderer->DrawWidget(Texture, SlateWidget.ToSharedRef(), DrawSize, DeltaTime, false);
 }
+
+bool UEstGameplayStatics::IsActorDead(AActor *Actor)
+{
+	if (Actor == nullptr)
+	{
+		// If the actor has been deleted, dead/alive does not really apply
+		// but dead is more logical than alive. Caller is responsible
+		// for distinguishing between existence or non-existence.
+		return true;
+	}
+
+	return Actor->ActorHasTag(TAG_DEAD);
+}

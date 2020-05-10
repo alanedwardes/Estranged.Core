@@ -241,7 +241,7 @@ public:
 	static void WidgetToTexture(UTextureRenderTarget2D* Texture, class UUserWidget* Widget, const FVector2D &DrawSize, float DeltaTime);
 
 	UFUNCTION(BlueprintPure, Category = Health)
-	static bool IsActorDead(AActor* Actor) { return Actor->ActorHasTag(TAG_DEAD); }
+	static bool IsActorDead(AActor* Actor);
 
 	UFUNCTION(BlueprintPure, Category = Health)
 	static bool IsActorAlive(AActor* Actor) { return !IsActorDead(Actor); }
