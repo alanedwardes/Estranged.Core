@@ -331,15 +331,6 @@ void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, 
 	PlayerController->PlayerInput->AddActionMapping(FInputActionKeyMapping(ActionName, InputChord.Key));
 }
 
-FString UEstGameplayStatics::GetKeyDisplayName(FKey Key)
-{
-	FString DisplayName = Key.GetDisplayName().ToString();
-	DisplayName.ReplaceInline(TEXT("-Axis"), TEXT(""));
-	DisplayName.RemoveFromEnd(TEXT("X"));
-	DisplayName.RemoveFromEnd(TEXT("Y"));
-	return DisplayName;
-}
-
 void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FName AxisName, FKey InputKey, float Scale)
 {
 	check(PlayerController != nullptr);

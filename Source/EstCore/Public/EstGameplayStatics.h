@@ -72,9 +72,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
 	static void AddActionMapping(APlayerController* PlayerController, FName ActionName, FInputChord InputKey);
 
-	UFUNCTION(BlueprintCallable, Category = Game)
-	static FString GetKeyDisplayName(FKey Key);
-
 	/** Get the Estranged player controller for a specified player index. */
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static class AEstPlayerController* GetEstPlayerController(UObject* WorldContextObject, int32 PlayerIndex);

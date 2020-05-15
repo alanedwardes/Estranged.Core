@@ -98,34 +98,6 @@ void UEstHUDWidget::HandleHideHint()
 	HintFinishTime = GetWorld()->TimeSeconds;
 }
 
-const FString UEstHUDWidget::GetHintKeyLabels() const
-{
-	TSet<FString> KeyLabelsTemp;
-	for (const FName Binding : HintBindings)
-	{
-		const FKey AxisKey = UEstGameplayStatics::FindBestKeyForAxis(Controller.Get(), Binding, Controller->bIsUsingGamepad);
-		const FKey ActionKey = UEstGameplayStatics::FindBestKeyForAction(Controller.Get(), Binding, Controller->bIsUsingGamepad);
-
-		if (AxisKey != EKeys::Invalid)
-		{
-			KeyLabelsTemp.Add(UEstGameplayStatics::GetKeyDisplayName(AxisKey));
-		}
-
-		if (ActionKey != EKeys::Invalid)
-		{
-			KeyLabelsTemp.Add(UEstGameplayStatics::GetKeyDisplayName(ActionKey));
-		}
-	}
-
-	FString KeyLabelTemp = FString::Join(KeyLabelsTemp.Array(), TEXT(" + "));
-	KeyLabelTemp.ToUpperInline();
-	KeyLabelTemp.ReplaceInline(TEXT("GAMEPAD"), TEXT(""));
-	KeyLabelTemp.ReplaceInline(TEXT("BUTTON"), TEXT(""));
-	KeyLabelTemp.TrimStartAndEndInline();
-
-	return KeyLabelTemp;
-}
-
 const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
 	TSet<FKey> Keys;

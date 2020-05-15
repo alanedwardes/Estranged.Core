@@ -137,9 +137,6 @@ public:
 	float HintFinishTime;
 
 	UFUNCTION(BlueprintCallable)
-	const FString GetHintKeyLabels() const;
-
-	UFUNCTION(BlueprintCallable)
 	const TSet<FKey> GetHintKeys() const;
 	// End hints
 private:
