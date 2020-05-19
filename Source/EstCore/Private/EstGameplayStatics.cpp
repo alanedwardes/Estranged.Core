@@ -1024,6 +1024,9 @@ void UEstGameplayStatics::WidgetToTexture(UTextureRenderTarget2D* Texture, class
 	}
 
 	FWidgetRenderer* WidgetRenderer = new FWidgetRenderer(true);
+	// First render once to force the layout to happen
+	WidgetRenderer->DrawWidget(Texture, SlateWidget.ToSharedRef(), DrawSize, DeltaTime, false);
+	// Then take the result
 	WidgetRenderer->DrawWidget(Texture, SlateWidget.ToSharedRef(), DrawSize, DeltaTime, false);
 }
 
