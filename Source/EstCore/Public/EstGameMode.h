@@ -10,5 +10,10 @@ UCLASS()
 class ESTCORE_API AEstGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
+	virtual void HandleMatchHasStarted() override;
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = State)
+	void OnPreBeginPlay();
 };
