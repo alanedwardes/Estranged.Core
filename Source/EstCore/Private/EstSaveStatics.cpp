@@ -243,7 +243,12 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 	{
 		const ULevelStreaming* StreamingLevel = UGameplayStatics::GetStreamingLevel(WorldContextObject, StreamingLevelState.LevelName);
 		const ULevel* FoundLevel = StreamingLevel->GetLoadedLevel();
-		RestoreLevel(FoundLevel, StreamingLevelState, RestoredObjects);
+		
+		// FoundLevel could be null if the level was being unloaded at save time
+		if (FoundLevel != nullptr)
+		{
+			RestoreLevel(FoundLevel, StreamingLevelState, RestoredObjects);
+		}
 	}
 
 	for (UObject* RestoredObject : RestoredObjects)
