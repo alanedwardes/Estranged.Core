@@ -82,6 +82,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game")
 	static bool IsSlowerMachine();
 
+	UFUNCTION(BlueprintPure, Category = "Game")
+	static bool IsDesktopPlatform() { return PLATFORM_WINDOWS || PLATFORM_LINUX || PLATFORM_MAC; }
+
 	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static AActor* CreateTransientActor(UObject* WorldContextObject, class UClass* ActorClass);
 

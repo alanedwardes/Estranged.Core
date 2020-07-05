@@ -18,12 +18,8 @@ public:
 	{
 		FieldOfView = 90.f;
 		Gamma = 1.0;
-		DisableMotionBlur = true; // Default motion blur off
-#if PLATFORM_WINDOWS || PLATFORM_LINUX || PLATFORM_MAC
-		DisableTemporalAntiAliasing = true; // Default to TXAA off on desktop
-#else
-		DisableTemporalAntiAliasing = false; // Default to TXAA on everywhere else
-#endif
+		DisableMotionBlur = UEstGameplayStatics::IsDesktopPlatform(); // Default motion blur off on desktop
+		DisableTemporalAntiAliasing = UEstGameplayStatics::IsDesktopPlatform(); // Default to TXAA off on desktop
 		SubtitleFontSizeMultiplier = 1.f;
 	}
 
