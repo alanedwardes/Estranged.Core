@@ -19,7 +19,11 @@ public:
 		FieldOfView = 90.f;
 		Gamma = 1.0;
 		DisableMotionBlur = true; // Default motion blur off
-		DisableTemporalAntiAliasing = true; // Default to TXAA off
+#if PLATFORM_WINDOWS || PLATFORM_LINUX || PLATFORM_MAC
+		DisableTemporalAntiAliasing = true; // Default to TXAA off on desktop
+#else
+		DisableTemporalAntiAliasing = false; // Default to TXAA on everywhere else
+#endif
 		SubtitleFontSizeMultiplier = 1.f;
 	}
 
@@ -74,16 +78,7 @@ public:
 	virtual void SetDisableDepthOfField(bool NewDisableDepthOfField) { DisableDepthOfField = NewDisableDepthOfField; }
 
 	UFUNCTION(BlueprintCallable)
-	virtual bool GetDisableTemporalAntiAliasing()
-	{ 
-#if PLATFORM_LINUX
-		// On Linux, only permit disabling TXAA if we're not using the forward renderer
-		static IConsoleVariable* CVarForwardShading = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ForwardShading"));
-		return CVarForwardShading->GetInt() == 0 ? DisableTemporalAntiAliasing : false;
-#else
-		return DisableTemporalAntiAliasing;
-#endif
-	}
+	virtual bool GetDisableTemporalAntiAliasing() { return DisableTemporalAntiAliasing; }
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SetDisableTemporalAntiAliasing(bool NewDisableTemporalAntiAliasing) { DisableTemporalAntiAliasing = NewDisableTemporalAntiAliasing; };
