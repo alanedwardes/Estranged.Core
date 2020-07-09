@@ -5,6 +5,7 @@
 #include "Runtime/CoreUObject/Public/UObject/Object.h"
 #include "Interfaces/EstInteractive.h"
 #include "Interfaces/EstSaveRestore.h"
+#include "EstWeaponForceFeedbackManifest.h"
 #include "EstWeaponAnimationManifest.h"
 #include "EstWeaponSoundManifest.h"
 #include "EstBaseWeapon.generated.h"
@@ -140,6 +141,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	struct FEstWeaponAnimationManifest WeaponAnimManifest;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
+	struct FEstWeaponForceFeedbackManifest ForceFeedbackManifest;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	FTransform NormalViewModelOffset;

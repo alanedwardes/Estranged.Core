@@ -149,6 +149,11 @@ void AEstFirearmWeapon::Reload()
 		UGameplayStatics::SpawnSoundAttached(SoundManifest.Reload, WeaponMesh);
 	}
 
+	if (ForceFeedbackManifest.Reload && OwnerCharacter->IsPlayerControlled())
+	{
+		UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.SecondaryAttack, WeaponMesh);
+	}
+
 	PrimaryAmmunition->Reload();
 }
 
