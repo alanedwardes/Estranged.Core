@@ -245,11 +245,20 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 			UGameplayStatics::PlaySound2D(this, *Sound);
 		}
 
-		const TSubclassOf<UCameraShake>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
-		const APlayerController* PlayerController = Cast<APlayerController>(Controller);
-		if (Shake != nullptr && PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr)
+		APlayerController* PlayerController = Cast<APlayerController>(Controller);
+		if (PlayerController != nullptr)
 		{
-			PlayerController->PlayerCameraManager->PlayCameraShake(*Shake);
+			const TSubclassOf<UCameraShake>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
+			if (Shake != nullptr && PlayerController->PlayerCameraManager != nullptr)
+			{
+				PlayerController->PlayerCameraManager->PlayCameraShake(*Shake);
+			}
+
+			UForceFeedbackEffect** Feedback = DamageForceFeedback.Find(DamageEvent.DamageTypeClass);
+			if (Feedback != nullptr)
+			{
+				PlayerController->ClientPlayForceFeedback(*Feedback);
+			}
 		}
 	}
 	

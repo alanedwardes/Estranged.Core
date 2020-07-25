@@ -145,6 +145,11 @@ void AEstBaseWeapon::PrimaryAttack()
 		UGameplayStatics::SpawnSoundAttached(SoundManifest.PrimaryAttack, WeaponMesh);
 	}
 
+	if (ForceFeedbackManifest.PrimaryAttack && OwnerCharacter->IsPlayerControlled())
+	{
+		UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.PrimaryAttack, WeaponMesh);
+	}
+
 	SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? PrimaryAttackLengthPlayer : PrimaryAttackLengthAI);
 
 	OnPrimaryAttack.Broadcast();
@@ -165,6 +170,11 @@ void AEstBaseWeapon::SecondaryAttack()
 	if (SoundManifest.SecondaryAttack)
 	{
 		UGameplayStatics::SpawnSoundAttached(SoundManifest.SecondaryAttack, WeaponMesh);
+	}
+
+	if (ForceFeedbackManifest.SecondaryAttack && OwnerCharacter->IsPlayerControlled())
+	{
+		UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.SecondaryAttack, WeaponMesh);
 	}
 
 	SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? SecondaryAttackLengthPlayer : SecondaryAttackLengthAI);
