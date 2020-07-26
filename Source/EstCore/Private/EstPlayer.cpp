@@ -236,15 +236,24 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	if (!bWasDeadBefore && !HealthComponent->GetIsFrozen())
 	{
-		UGameplayStatics::PlaySound2D(this, *DamageSounds.Find(DamageEvent.DamageTypeClass));
-
-		APlayerController* PlayerController = Cast<APlayerController>(Controller);
-		if (PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr)
+		USoundBase** Sound = DamageSounds.Find(DamageEvent.DamageTypeClass);
+		if (Sound != nullptr)
 		{
-			PlayerController->PlayerCameraManager->PlayCameraShake(*DamageShakes.Find(DamageEvent.DamageTypeClass));
+			UGameplayStatics::PlaySound2D(this, *Sound);
 		}
 
-		UEstGameplayStatics::ClientPlayForceFeedback(PlayerController, *DamageForceFeedback.Find(DamageEvent.DamageTypeClass));
+		APlayerController* PlayerController = Cast<APlayerController>(Controller);
+		const TSubclassOf<UCameraShake>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
+		if (PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr && Shake != nullptr)
+		{
+			PlayerController->PlayerCameraManager->PlayCameraShake(*Shake);
+		}
+
+		UForceFeedbackEffect** ForceFeedback = DamageForceFeedback.Find(DamageEvent.DamageTypeClass);
+		if (ForceFeedback != nullptr)
+		{
+			UEstGameplayStatics::ClientPlayForceFeedback(PlayerController, *ForceFeedback);
+		}
 	}
 	
 	return Result;
