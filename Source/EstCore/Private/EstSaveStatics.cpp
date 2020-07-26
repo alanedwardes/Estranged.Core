@@ -1,5 +1,6 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstGameplayStatics.h"
 #include "EstSaveStatics.h"
 #include "EstCore.h"
 #include "EstPlayerController.h"
@@ -101,6 +102,8 @@ void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerC
 	{
 		return;
 	}
+
+	CVarEstEnableForceFeedback->Set(!GameplaySave->GetDisableForceFeedback());
 
 	ApplyPostProcessingSettings(Player, GameplaySave);
 

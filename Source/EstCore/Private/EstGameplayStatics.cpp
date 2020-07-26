@@ -1042,3 +1042,43 @@ bool UEstGameplayStatics::IsActorDead(AActor *Actor)
 
 	return Actor->ActorHasTag(TAG_DEAD);
 }
+
+UForceFeedbackComponent* UEstGameplayStatics::SpawnForceFeedbackAttached(UForceFeedbackEffect* ForceFeedbackEffect, USceneComponent* AttachToComponent)
+{
+	if (!CVarEstEnableForceFeedback.GetValueOnAnyThread())
+	{
+		return nullptr;
+	}
+
+	if (ForceFeedbackEffect == nullptr)
+	{
+		return nullptr;
+	}
+
+	if (AttachToComponent == nullptr)
+	{
+		return nullptr;
+	}
+	
+	return UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackEffect, AttachToComponent);
+}
+
+void UEstGameplayStatics::ClientPlayForceFeedback(APlayerController* PlayerController, UForceFeedbackEffect* ForceFeedbackEffect, FName Tag, bool bLooping, bool bIgnoreTimeDilation, bool bPlayWhilePaused)
+{
+	if (!CVarEstEnableForceFeedback.GetValueOnAnyThread())
+	{
+		return;
+	}
+
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	if (ForceFeedbackEffect == nullptr)
+	{
+		return;
+	}
+
+	PlayerController->K2_ClientPlayForceFeedback(ForceFeedbackEffect, Tag, bLooping, bIgnoreTimeDilation, bPlayWhilePaused);
+}

@@ -193,10 +193,7 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	// Passes if we were just killed, does not pass if damaged posthumous.
 	if (!bWasDeadBefore && HealthComponent->IsDepleted())
 	{
-		if (DeathSound != nullptr)
-		{
-			UGameplayStatics::PlaySound2D(this, DeathSound);
-		}
+		UGameplayStatics::PlaySound2D(this, DeathSound);
 	}
 
 	if (HealthComponent->IsDepleted())
@@ -239,27 +236,15 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	if (!bWasDeadBefore && !HealthComponent->GetIsFrozen())
 	{
-		USoundBase** Sound = DamageSounds.Find(DamageEvent.DamageTypeClass);
-		if (Sound != nullptr)
-		{
-			UGameplayStatics::PlaySound2D(this, *Sound);
-		}
+		UGameplayStatics::PlaySound2D(this, *DamageSounds.Find(DamageEvent.DamageTypeClass));
 
 		APlayerController* PlayerController = Cast<APlayerController>(Controller);
-		if (PlayerController != nullptr)
+		if (PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr)
 		{
-			const TSubclassOf<UCameraShake>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
-			if (Shake != nullptr && PlayerController->PlayerCameraManager != nullptr)
-			{
-				PlayerController->PlayerCameraManager->PlayCameraShake(*Shake);
-			}
-
-			UForceFeedbackEffect** Feedback = DamageForceFeedback.Find(DamageEvent.DamageTypeClass);
-			if (Feedback != nullptr)
-			{
-				PlayerController->ClientPlayForceFeedback(*Feedback);
-			}
+			PlayerController->PlayerCameraManager->PlayCameraShake(*DamageShakes.Find(DamageEvent.DamageTypeClass));
 		}
+
+		UEstGameplayStatics::ClientPlayForceFeedback(PlayerController, *DamageForceFeedback.Find(DamageEvent.DamageTypeClass));
 	}
 	
 	return Result;

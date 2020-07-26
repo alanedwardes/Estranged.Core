@@ -151,7 +151,7 @@ void AEstFirearmWeapon::Reload()
 
 	if (ForceFeedbackManifest.Reload && OwnerCharacter->IsPlayerControlled())
 	{
-		UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.SecondaryAttack, WeaponMesh);
+		UEstGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.SecondaryAttack, WeaponMesh);
 	}
 
 	PrimaryAmmunition->Reload();

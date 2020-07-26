@@ -147,7 +147,7 @@ void AEstBaseWeapon::PrimaryAttack()
 
 	if (ForceFeedbackManifest.PrimaryAttack && OwnerCharacter->IsPlayerControlled())
 	{
-		UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.PrimaryAttack, WeaponMesh);
+		UEstGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.PrimaryAttack, WeaponMesh);
 	}
 
 	SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? PrimaryAttackLengthPlayer : PrimaryAttackLengthAI);
@@ -174,7 +174,7 @@ void AEstBaseWeapon::SecondaryAttack()
 
 	if (ForceFeedbackManifest.SecondaryAttack && OwnerCharacter->IsPlayerControlled())
 	{
-		UGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.SecondaryAttack, WeaponMesh);
+		UEstGameplayStatics::SpawnForceFeedbackAttached(ForceFeedbackManifest.SecondaryAttack, WeaponMesh);
 	}
 
 	SetEngagedInActivity(OwnerCharacter->IsPlayerControlled() ? SecondaryAttackLengthPlayer : SecondaryAttackLengthAI);

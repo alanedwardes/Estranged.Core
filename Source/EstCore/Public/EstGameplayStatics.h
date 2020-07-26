@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HAL/IConsoleManager.h"
 #include "Engine/Classes/Engine/EngineTypes.h"
 #include "Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
 #include "Runtime/InputCore/Classes/InputCoreTypes.h"
@@ -11,6 +12,8 @@
 #include "JsonObjectConverter.h"
 #include "EstConstants.h"
 #include "EstGameplayStatics.generated.h"
+
+static TAutoConsoleVariable<bool> CVarEstEnableForceFeedback(TEXT("est.EnableForceFeedback"), true, TEXT("Defines whether force feedback is enabled for connected gamepads."), ECVF_Default);
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, const TArray<FHitResult>&, HitResults);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FPingUrlResultDelegate, bool, bSuccess);
@@ -245,4 +248,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Health)
 	static bool IsActorAlive(AActor* Actor) { return !IsActorDead(Actor); }
+
+	UFUNCTION(BlueprintCallable, Category = "ForceFeedback")
+	static class UForceFeedbackComponent* SpawnForceFeedbackAttached(class UForceFeedbackEffect* ForceFeedbackEffect, USceneComponent* AttachToComponent);
+
+	UFUNCTION(BlueprintCallable, Category = "ForceFeedback")
+	static void ClientPlayForceFeedback(class APlayerController* PlayerController, class UForceFeedbackEffect* ForceFeedbackEffect, FName Tag = NAME_None, bool bLooping = false, bool bIgnoreTimeDilation = false, bool bPlayWhilePaused = false);
 };

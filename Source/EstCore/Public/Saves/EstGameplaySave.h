@@ -92,6 +92,12 @@ public:
 	virtual void SetDisableVignette(bool NewDisableVignette) { DisableVignette = NewDisableVignette; };
 
 	UFUNCTION(BlueprintCallable)
+	virtual bool GetDisableForceFeedback() { return DisableForceFeedback; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetDisableForceFeedback(bool NewDisableForceFeedback) { DisableForceFeedback = NewDisableForceFeedback; };
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool GetDisableAmbientOcclusion() { return DisableAmbientOcclusion; }
 
 	UFUNCTION(BlueprintCallable)
@@ -154,6 +160,9 @@ private:
 
 	UPROPERTY()
 	bool DisableVignette;
+
+	UPROPERTY()
+	bool DisableForceFeedback;
 
 	UPROPERTY()
 	bool DisableAmbientOcclusion;
