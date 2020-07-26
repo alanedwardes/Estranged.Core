@@ -1,10 +1,10 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "EstStaticWidgetRenderer.h"
 #include "Components/BillboardComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "SceneManagement.h"
 #include "Kismet/GameplayStatics.h"
-#include "EstStaticWidgetRenderer.h"
 #include "Slate/WidgetRenderer.h"
 #include "Engine/CanvasRenderTarget2D.h"
 #include "Components/PrimitiveComponent.h"
