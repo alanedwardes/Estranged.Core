@@ -35,8 +35,15 @@ void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplayS
 	Player->Camera->PostProcessSettings.bOverride_ColorGain = true;
 	Player->Camera->PostProcessSettings.ColorGain = FVector4(GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma());
 
-	Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = true;
-	Player->Camera->PostProcessSettings.AmbientOcclusionIntensity = GameplaySave->GetDisableAmbientOcclusion() ? 0.f : .5f;
+	if (GameplaySave->GetDisableAmbientOcclusion())
+	{
+		Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = true;
+		Player->Camera->PostProcessSettings.AmbientOcclusionIntensity = GameplaySave->GetDisableAmbientOcclusion() ? 0.f : .5f;
+	}
+	else
+	{
+		Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = false;
+	}
 
 	Player->UpdatePostProcessingTick(0.f);
 }
