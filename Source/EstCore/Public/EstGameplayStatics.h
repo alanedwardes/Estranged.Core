@@ -103,7 +103,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = Math)
 	static bool IsLocationInsideActor(FVector Location, AActor* Actor);
 
-	UFUNCTION(BlueprintCallable, Category = "Input")
+	UFUNCTION(BlueprintPure, Category = "Input")
 	static bool IsUsingGamepad(const APawn* Pawn);
 
 	UFUNCTION(BlueprintCallable, Category = "Sound", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
