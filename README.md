@@ -1,5 +1,5 @@
 # Estranged.Core
-Source code for the core gameplay module used by [Estranged: Act II](http://store.steampowered.com/app/582890).
+Source code for the core gameplay module used by [Estranged: The Departure](http://store.steampowered.com/app/582890).
 
 ## Compatibility
 * Unreal Engine 4.24.x
