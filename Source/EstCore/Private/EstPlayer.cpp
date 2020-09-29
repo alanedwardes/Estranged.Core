@@ -671,7 +671,7 @@ bool AEstPlayer::ShouldShowLoadGameMenu()
 		return false;
 	}
 
-	return GetWorld()->TimeSince(HealthComponent->InitialDepletionTime) > 5.f;
+	return GetWorld()->TimeSince(HealthComponent->InitialDepletionTime) > 2.5f;
 }
 
 void AEstPlayer::SetZooming(bool Zooming)
@@ -708,6 +708,12 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 
 void AEstPlayer::InteractPressedInput()
 {
+	if (ShouldShowLoadGameMenu())
+	{
+		ShowLoadGameMenu();
+		return;
+	}
+
 	if (HealthComponent->IsDepleted())
 	{
 		return;
@@ -971,6 +977,12 @@ void AEstPlayer::LookUpInput(float Value)
 
 void AEstPlayer::CrouchPressedInput()
 {
+	if (ShouldShowLoadGameMenu())
+	{
+		ShowLoadGameMenu();
+		return;
+	}
+
 	if (UEstGameplayStatics::IsUsingGamepad(this) && bIsCrouched)
 	{
 		UnCrouch();
@@ -993,6 +1005,12 @@ void AEstPlayer::CrouchReleasedInput()
 
 void AEstPlayer::JumpPressedInput()
 {
+	if (ShouldShowLoadGameMenu())
+	{
+		ShowLoadGameMenu();
+		return;
+	}
+
 	SwimmingUp = true;
 	Jump();
 }
