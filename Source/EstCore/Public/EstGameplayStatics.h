@@ -254,4 +254,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ForceFeedback")
 	static void ClientPlayForceFeedback(class APlayerController* PlayerController, class UForceFeedbackEffect* ForceFeedbackEffect, FName Tag = NAME_None, bool bLooping = false, bool bIgnoreTimeDilation = false, bool bPlayWhilePaused = false);
+
+	UFUNCTION(BlueprintPure, Category = Input)
+	static bool IsAxisKey(FKey Key);
 };

@@ -31,6 +31,7 @@
 #include "Runtime/EngineSettings/Classes/GeneralProjectSettings.h"
 #include "Framework/Application/SlateApplication.h"
 #include "LandscapeHeightfieldCollisionComponent.h"
+#include "InputCoreTypes.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -1081,4 +1082,22 @@ void UEstGameplayStatics::ClientPlayForceFeedback(APlayerController* PlayerContr
 	}
 
 	PlayerController->K2_ClientPlayForceFeedback(ForceFeedbackEffect, Tag, bLooping, bIgnoreTimeDilation, bPlayWhilePaused);
+}
+
+bool UEstGameplayStatics::IsAxisKey(FKey Key)
+{
+	static TSet<FKey> AxisKeys
+	{
+		EKeys::Gamepad_LeftStick_Up,
+		EKeys::Gamepad_LeftStick_Down,
+		EKeys::Gamepad_LeftStick_Right,
+		EKeys::Gamepad_LeftStick_Left,
+
+		EKeys::Gamepad_RightStick_Up,
+		EKeys::Gamepad_RightStick_Down,
+		EKeys::Gamepad_RightStick_Right,
+		EKeys::Gamepad_RightStick_Left
+	};
+
+	return AxisKeys.Contains(Key);
 }
