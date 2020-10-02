@@ -460,7 +460,7 @@ TArray<FString> UEstGameplayStatics::GetValidMemoryDumpPaths()
     IFileManager::Get().FindFilesRecursive(AllMemoryDumpPaths, *CrashFolder, TEXT("*.dmp"), true, false);
     
 	TArray<FString> ValidMemoryDumpPaths;
-	for (const FString MemoryDumpPath : AllMemoryDumpPaths)
+	for (const FString &MemoryDumpPath : AllMemoryDumpPaths)
 	{
         // Ensure it's one of ours (some platforms share crash dump caches)
         if (!MemoryDumpPath.Contains(ProjectSettings.ProjectName))
