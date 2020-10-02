@@ -53,11 +53,11 @@ void UEstSkinnedMeshCacheComponent::RestoreSkinnedMeshStates()
 {
 	TArray<USkinnedMeshComponent*> SkinnedMeshComponents = GetSkinnedMeshComponents();
 
-	for (const FEstSkinnedMeshComponentState State : SkinnedMeshStates)
+	for (const FEstSkinnedMeshComponentState &State : SkinnedMeshStates)
 	{
 		USkinnedMeshComponent* SkinnedMeshComponent = GetSkinnedMeshComponentByName(State.ComponentName);
 
-		for (const FEstSkinnedMeshBoneState BoneState : State.BoneStates)
+		for (const FEstSkinnedMeshBoneState &BoneState : State.BoneStates)
 		{
 			FBodyInstance* BodyInstance = SkinnedMeshComponent->GetBodyInstance(BoneState.BoneName);
 			BodyInstance->SetBodyTransform(BoneState.BoneTransform, ETeleportType::ResetPhysics);

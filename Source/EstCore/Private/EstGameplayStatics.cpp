@@ -202,7 +202,7 @@ void UEstGameplayStatics::ListActionMappings(const APlayerController* PlayerCont
 	check(PlayerController != nullptr);
 	check(PlayerController->PlayerInput != nullptr);
 
-	for (const FInputActionKeyMapping Mapping : PlayerController->PlayerInput->ActionMappings)
+	for (const FInputActionKeyMapping &Mapping : PlayerController->PlayerInput->ActionMappings)
 	{
 		if (bForGamepad != Mapping.Key.IsGamepadKey())
 		{
@@ -230,7 +230,7 @@ void UEstGameplayStatics::ListAxisMappings(const APlayerController* PlayerContro
 	check(PlayerController != nullptr);
 	check(PlayerController->PlayerInput != nullptr);
 
-	for (const FInputAxisKeyMapping Mapping : PlayerController->PlayerInput->AxisMappings)
+	for (const FInputAxisKeyMapping &Mapping : PlayerController->PlayerInput->AxisMappings)
 	{
 		if (bForGamepad != Mapping.Key.IsGamepadKey())
 		{
@@ -258,7 +258,7 @@ FKey UEstGameplayStatics::FindBestKeyForAction(APlayerController* PlayerControll
 	check(PlayerController->PlayerInput != nullptr);
 
 	const TArray<FInputActionKeyMapping> Mappings = PlayerController->PlayerInput->GetKeysForAction(ActionName);
-	for (const FInputActionKeyMapping Mapping : Mappings)
+	for (const FInputActionKeyMapping &Mapping : Mappings)
 	{
 		if (bForGamepad && Mapping.Key.IsGamepadKey())
 		{
@@ -280,7 +280,7 @@ FKey UEstGameplayStatics::FindBestKeyForAxis(APlayerController* PlayerController
 	check(PlayerController->PlayerInput != nullptr);
 
 	const TArray<FInputAxisKeyMapping> Mappings = PlayerController->PlayerInput->GetKeysForAxis(AxisName);
-	for (const FInputAxisKeyMapping Mapping : Mappings)
+	for (const FInputAxisKeyMapping &Mapping : Mappings)
 	{
 		if (bForGamepad && Mapping.Key.IsGamepadKey())
 		{
@@ -302,7 +302,7 @@ void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, 
 	check(PlayerController->PlayerInput != nullptr);
 
 	TArray<FInputActionKeyMapping> MappingsToRemove;
-	for (const FInputActionKeyMapping Existing : PlayerController->PlayerInput->ActionMappings)
+	for (const FInputActionKeyMapping &Existing : PlayerController->PlayerInput->ActionMappings)
 	{
 		if (Existing.ActionName != ActionName)
 		{
@@ -322,7 +322,7 @@ void UEstGameplayStatics::AddActionMapping(APlayerController* PlayerController, 
 		MappingsToRemove.Add(Existing);
 	}
 
-	for (const FInputActionKeyMapping Remove : MappingsToRemove)
+	for (const FInputActionKeyMapping &Remove : MappingsToRemove)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Removing mapping for action %s and key %s"), *Remove.ActionName.ToString(), *Remove.Key.ToString());
 		PlayerController->PlayerInput->RemoveActionMapping(Remove);
@@ -338,7 +338,7 @@ void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FN
 	check(PlayerController->PlayerInput != nullptr);
 
 	TArray<FInputAxisKeyMapping> MappingsToRemove;
-	for (const FInputAxisKeyMapping Existing : PlayerController->PlayerInput->AxisMappings)
+	for (const FInputAxisKeyMapping &Existing : PlayerController->PlayerInput->AxisMappings)
 	{
 		if (Existing.AxisName != AxisName)
 		{
@@ -358,7 +358,7 @@ void UEstGameplayStatics::AddAxisMapping(APlayerController* PlayerController, FN
 		MappingsToRemove.Add(Existing);
 	}
 
-	for (const FInputAxisKeyMapping Remove : MappingsToRemove)
+	for (const FInputAxisKeyMapping &Remove : MappingsToRemove)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Removing mapping for action %s and axis %s"), *Remove.AxisName.ToString(), *Remove.Key.ToString());
 		PlayerController->PlayerInput->RemoveAxisMapping(Remove);
@@ -433,7 +433,7 @@ TArray<FString> UEstGameplayStatics::ListSaveGames(FString Directory, FString Fi
 	});
 
 	TArray<FString> ValidSaveGames;
-	for (const FString SaveGamePath : AllSaveGamePaths)
+	for (const FString &SaveGamePath : AllSaveGamePaths)
 	{
 		const FString BaseFileName = FPaths::GetBaseFilename(SaveGamePath);
 

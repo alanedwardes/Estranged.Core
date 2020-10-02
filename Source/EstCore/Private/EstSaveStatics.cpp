@@ -270,7 +270,7 @@ void UEstSaveStatics::RestoreWorld(UObject* WorldContextObject, FEstWorldState W
 void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelState, TArray<UObject*> &RestoredObjects)
 {
 	// Restore all actors
-	for (const FEstActorState ActorState : LevelState.ActorStates)
+	for (const FEstActorState &ActorState : LevelState.ActorStates)
 	{
 		AActor* FoundActor = UEstGameplayStatics::FindActorBySaveIdInWorld(Level->GetWorld(), ActorState.SaveId);
 		if (FoundActor == nullptr)
@@ -292,7 +292,7 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 	}
 
 	// Restore all level sequences
-	for (const FEstSequenceState SequenceState : LevelState.SequenceStates)
+	for (const FEstSequenceState &SequenceState : LevelState.SequenceStates)
 	{
 		RestoreSequence(Level->GetWorld(), SequenceState);
 	}

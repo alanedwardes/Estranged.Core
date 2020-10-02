@@ -101,7 +101,7 @@ void UEstHUDWidget::HandleHideHint()
 const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
 	TSet<FKey> Keys;
-	for (const FName Binding : HintBindings)
+	for (const FName &Binding : HintBindings)
 	{
 		const FKey AxisKey = UEstGameplayStatics::FindBestKeyForAxis(Controller.Get(), Binding, Controller->bIsUsingGamepad);
 		const FKey ActionKey = UEstGameplayStatics::FindBestKeyForAction(Controller.Get(), Binding, Controller->bIsUsingGamepad);
