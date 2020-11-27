@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Modules/ModuleInterface.h"
-#include "EstGameplayStatics.h"
+#include "Gameplay/EstGameplayStatics.h"
 #include "EstConstants.h"
 #include "Containers/Ticker.h"
 
