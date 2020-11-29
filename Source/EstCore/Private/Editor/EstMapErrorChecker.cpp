@@ -1,7 +1,7 @@
 // Estranged is a trade mark of Alan Edwardes.
 
-#include "Engine.h"
 #include "Editor/EstMapErrorChecker.h"
+#include "Engine.h"
 #include "EstCore.h"
 #include "Logging/TokenizedMessage.h"
 #include "Logging/MessageLog.h"
