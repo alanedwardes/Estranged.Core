@@ -116,12 +116,7 @@ public:
 
 	virtual bool DoJump(bool bReplayingMoves) override;
 
-	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
-
 	FORCEINLINE bool CanEverSprint() const { return bCanSprint; }
-
-	UPROPERTY()
-	bool bCanJumpUp;
 
 	UPROPERTY(SaveGame)
 	float SAVE_MaxWalkSpeed;

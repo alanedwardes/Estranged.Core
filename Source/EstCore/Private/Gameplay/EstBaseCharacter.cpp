@@ -8,7 +8,6 @@
 #include "Gameplay/EstCharacterMovementComponent.h"
 #include "Volumes/EstCapabilityVolume.h"
 #include "Gameplay/EstHealthComponent.h"
-#include "Gameplay/EstFirearmWeapon.h"
 
 AEstBaseCharacter::AEstBaseCharacter(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UEstCharacterMovementComponent>(CharacterMovementComponentName))
@@ -39,14 +38,6 @@ void AEstBaseCharacter::EquipWeapon_Implementation(AEstBaseWeapon* Weapon)
 	if (GetMesh())
 	{
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Weapon->SocketName);
-	}
-
-	Weapon->OnPrimaryAttack.AddDynamic(this, &AEstBaseCharacter::PlayPrimaryFire);
-	Weapon->OnSecondaryAttack.AddDynamic(this, &AEstBaseCharacter::PlaySecondaryFire);
-	AEstFirearmWeapon* Firearm = Cast<AEstFirearmWeapon>(Weapon);
-	if (Firearm != nullptr)
-	{
-		Firearm->OnReload.AddDynamic(this, &AEstBaseCharacter::PlayReload);
 	}
 }
 
@@ -79,14 +70,6 @@ void AEstBaseCharacter::UnequipWeapon_Implementation()
 	if (!HasWeapon())
 	{
 		return;
-	}
-
-	EquippedWeapon->OnPrimaryAttack.RemoveAll(this);
-	EquippedWeapon->OnSecondaryAttack.RemoveAll(this);
-	AEstFirearmWeapon* Firearm = Cast<AEstFirearmWeapon>(EquippedWeapon.Get());
-	if (Firearm != nullptr)
-	{
-		Firearm->OnReload.RemoveAll(this);
 	}
 
 	OnChangeWeapon.Broadcast(nullptr);

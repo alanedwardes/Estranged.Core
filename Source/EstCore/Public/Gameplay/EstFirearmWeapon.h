@@ -41,6 +41,10 @@ public:
 
 	virtual bool OnUsed_Implementation(AEstBaseCharacter* User, class USceneComponent* UsedComponent);
 
+	virtual void Unequip() override;
+
+	virtual void Equip(class AEstBaseCharacter* NewOwnerCharacter) override;
+
 	/** Skeletal mesh for the current weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Effects)
 	class USpotLightComponent* MuzzleFlash;

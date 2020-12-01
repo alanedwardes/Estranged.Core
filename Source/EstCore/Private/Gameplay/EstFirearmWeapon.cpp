@@ -172,6 +172,19 @@ bool AEstFirearmWeapon::IsReloading()
 	return WeaponMesh->GetAnimInstance()->Montage_IsPlaying(WeaponAnimManifest.Reload);
 }
 
+void AEstFirearmWeapon::Unequip()
+{
+	Super::Unequip();
+
+	OnReload.Clear();
+}
+
+void AEstFirearmWeapon::Equip(class AEstBaseCharacter* NewOwnerCharacter)
+{
+	Super::Equip(NewOwnerCharacter);
+	OnReload.AddDynamic(NewOwnerCharacter, &AEstBaseCharacter::PlayReload);
+}
+
 void AEstFirearmWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

@@ -205,6 +205,9 @@ void AEstBaseWeapon::Equip(AEstBaseCharacter* NewOwnerCharacter)
 	OnEquip();
 	Unholster();
 
+	OnPrimaryAttack.AddDynamic(NewOwnerCharacter, &AEstBaseCharacter::PlayPrimaryFire);
+	OnSecondaryAttack.AddDynamic(NewOwnerCharacter, &AEstBaseCharacter::PlaySecondaryFire);
+
 	OnEquipped.Broadcast();
 }
 
@@ -237,6 +240,9 @@ void AEstBaseWeapon::Unequip()
 	{
 		WeaponMesh->AddImpulse(EyeRot.Vector() * 1000.f);
 	}
+
+	OnPrimaryAttack.Clear();
+	OnSecondaryAttack.Clear();
 
 	OnUnequip();
 }

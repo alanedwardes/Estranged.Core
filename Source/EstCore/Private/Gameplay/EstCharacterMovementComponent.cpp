@@ -192,72 +192,8 @@ bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves)
 	{
 		Velocity = FVector(Velocity.X * JumpVelocityMultiplier, Velocity.Y * JumpVelocityMultiplier, Velocity.Z);
 		DoFootstep(FootstepIntensityJump);
-		//bCanJumpUp = true;
 		return true;
 	}
 
 	return false;
-}
-
-void UEstCharacterMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
-{
-	if (!bCanJumpUp)
-	{
-		return Super::PhysFalling(deltaTime, Iterations);
-	}
-
-	if (Velocity.Z <= 0.f)
-	{
-		return Super::PhysFalling(deltaTime, Iterations);
-	}
-
-	FCollisionQueryParams CapsuleParams(SCENE_QUERY_STAT(PhysFalling), false, CharacterOwner);
-	FCollisionResponseParams ResponseParam;
-	InitCollisionParams(CapsuleParams, ResponseParam);
-	const FCollisionShape CapsuleShape = GetPawnCapsuleCollisionShape(SHRINK_None);
-	const FCollisionShape CapsuleShapeCrouching = GetPawnCapsuleCollisionShape(SHRINK_HeightCustom, CrouchedHalfHeight);
-	const ECollisionChannel CollisionChannel = UpdatedComponent->GetCollisionObjectType();
-
-	const FVector End = UpdatedComponent->GetComponentLocation() + FVector(0.f, 0.f, MinJumpStepUpHeight);
-	const FVector Start = UpdatedComponent->GetComponentLocation() + FVector(0.f, 0.f, MaxJumpStepUpHeight) + (UpdatedComponent->GetForwardVector() * MaxJumpStepUpDistance);
-
-	FHitResult Result(1.f);
-	GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, CollisionChannel, CapsuleShape, CapsuleParams, ResponseParam);
-	if (!IsWalkable(Result))
-	{
-		return Super::PhysFalling(deltaTime, Iterations);
-	}
-
-	FVector FinalLocation = Result.Location + FVector(0.f, 0.f, JumpStepUpBoost);
-
-	const bool bEncroachedStanding = GetWorld()->OverlapBlockingTestByChannel(FinalLocation, FQuat::Identity, CollisionChannel, CapsuleShape, CapsuleParams, ResponseParam);
-	bool bEncroachedCrouching = false;
-
-	if (bEncroachedStanding)
-	{
-		bEncroachedCrouching = GetWorld()->OverlapBlockingTestByChannel(FinalLocation, FQuat::Identity, CollisionChannel, CapsuleShapeCrouching, CapsuleParams, ResponseParam);
-	}
-
-	if (bEncroachedStanding && bEncroachedCrouching)
-	{
-		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(TEXT("Player tried to step up but was encroached, ignoring."))));
-		return Super::PhysFalling(deltaTime, Iterations);
-	}
-
-	bCanJumpUp = false;
-
-	if (bEncroachedStanding)
-	{
-		Crouch();
-	}
-
-	MoveUpdatedComponent(FinalLocation - UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentQuat(), false, nullptr, ETeleportType::TeleportPhysics);
-
-	AEstPlayer* Player = Cast<AEstPlayer>(CharacterOwner);
-	if (Player != nullptr)
-	{
-		Player->bForceCameraInterpolation = true;
-	}
-
-	UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(*FString::Printf(TEXT("Stepping up on to actor %s"), Result.Actor.IsValid() ? *Result.Actor->GetName() : TEXT("<none>")))));
 }
