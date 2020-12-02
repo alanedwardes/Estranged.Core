@@ -22,14 +22,6 @@ bool AEstPlayerController::InputAxis(FKey Key, float Delta, float DeltaTime, int
 	return Super::InputAxis(Key, Delta, DeltaTime, NumSamples, bGamepad);
 }
 
-void AEstPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	UEstGameplaySave* GameplaySave = UEstSaveStatics::LoadGameplaySave();
-	UEstSaveStatics::ApplyGameplaySave(GameplaySave, this);
-}
-
 void AEstPlayerController::BeginDestroy()
 {
 	Super::BeginDestroy();

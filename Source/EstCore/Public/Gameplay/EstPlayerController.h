@@ -16,8 +16,6 @@ public:
 
 	virtual bool InputAxis(FKey Key, float Delta, float DeltaTime, int32 NumSamples, bool bGamepad) override;
 
-	virtual void BeginPlay() override;
-
 	virtual void BeginDestroy() override;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input)

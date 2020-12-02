@@ -18,111 +18,6 @@
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "Runtime/Engine/Public/EngineUtils.h"
 
-void ApplyPostProcessingSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
-{
-	if (Player->Camera == nullptr)
-	{
-		return;
-	}
-
-	Player->Camera->FieldOfView = GameplaySave->GetFieldOfView();
-
-	Player->Camera->PostProcessSettings.bOverride_MotionBlurAmount = true;
-	Player->Camera->PostProcessSettings.MotionBlurAmount = GameplaySave->GetDisableMotionBlur() ? 0.f : 1.f;
-	Player->Camera->PostProcessSettings.bOverride_MotionBlurMax = true;
-	Player->Camera->PostProcessSettings.MotionBlurMax = GameplaySave->GetDisableMotionBlur() ? 0.f : 1.f;
-
-	Player->Camera->PostProcessSettings.bOverride_ColorGain = true;
-	Player->Camera->PostProcessSettings.ColorGain = FVector4(GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma(), GameplaySave->GetGamma());
-
-	if (GameplaySave->GetDisableAmbientOcclusion())
-	{
-		Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = true;
-		Player->Camera->PostProcessSettings.AmbientOcclusionIntensity = GameplaySave->GetDisableAmbientOcclusion() ? 0.f : .5f;
-	}
-	else
-	{
-		Player->Camera->PostProcessSettings.bOverride_AmbientOcclusionIntensity = false;
-	}
-
-	Player->UpdatePostProcessingTick(0.f);
-}
-
-void ApplyPlayerSettings(AEstPlayer* Player, UEstGameplaySave* GameplaySave)
-{
-	Player->RestingFieldOfView = GameplaySave->GetFieldOfView();
-	Player->bDisableDepthOfField = GameplaySave->GetDisableDepthOfField();
-	Player->bDisableVignette = GameplaySave->GetDisableVignette();
-}
-
-void ApplyPlayerControllerSettings(AEstPlayerController* PlayerController, UEstGameplaySave* GameplaySave)
-{
-	static IConsoleVariable* CVarForwardShading = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ForwardShading"));
-	const EAntiAliasingMethod AlternateAntiAliasingMethod = CVarForwardShading->GetInt() == 0 ? EAntiAliasingMethod::AAM_FXAA : EAntiAliasingMethod::AAM_MSAA;
-
-	const EAntiAliasingMethod AntiAliasingType = GameplaySave->GetDisableTemporalAntiAliasing() ? AlternateAntiAliasingMethod : EAntiAliasingMethod::AAM_TemporalAA;
-	PlayerController->ConsoleCommand(FString::Printf(TEXT("r.DefaultFeature.AntiAliasing %i"), (int)AntiAliasingType));
-	PlayerController->UpdateCameraManager(0.f);
-}
-
-void ApplyHudWidgetSettings(UEstHUDWidget* HUDWidget, UEstGameplaySave* GameplaySave)
-{
-	if (HUDWidget == nullptr)
-	{
-		return;
-	}
-
-	HUDWidget->SetVisibility(GameplaySave->GetDisableHUD() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
-	HUDWidget->bDisableSubtitles = GameplaySave->GetDisableSubtitles();
-	HUDWidget->bEnableClosedCaptions = GameplaySave->GetEnableClosedCaptions();
-	HUDWidget->bEnableStatsForNerds = GameplaySave->GetEnableStatsForNerds();
-	HUDWidget->bUseSimpleSubtitleFont = GameplaySave->GetUseSimpleSubtitleFont();
-	HUDWidget->SubtitleFontSizeMultiplier = GameplaySave->GetSubtitleFontSizeMultiplier();
-	HUDWidget->OnSettingsUpdated();
-}
-
-void ApplyGameInstanceSettings(UEstGameInstance* GameInstance, UEstGameplaySave* GameplaySave)
-{
-	if (GameInstance == nullptr)
-	{
-		return;
-	}
-
-	GameInstance->SetLoggerEnabled(GameplaySave->GetEnableDebugLog());
-}
-
-void UEstSaveStatics::ApplyGameplaySave(UEstGameplaySave* GameplaySave, APlayerController* Controller)
-{
-	if (GameplaySave == nullptr)
-	{
-		return;
-	}
-
-	AEstPlayerController* PlayerController = Cast<AEstPlayerController>(Controller);
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	AEstPlayer* Player = Cast<AEstPlayer>(PlayerController->GetPawn());
-	if (Player == nullptr)
-	{
-		return;
-	}
-
-	CVarEstEnableForceFeedback->Set(!GameplaySave->GetDisableForceFeedback());
-
-	ApplyPostProcessingSettings(Player, GameplaySave);
-
-	ApplyPlayerSettings(Player, GameplaySave);
-
-	ApplyPlayerControllerSettings(PlayerController, GameplaySave);
-
-	ApplyHudWidgetSettings(Player->HUDWidget, GameplaySave);
-
-	ApplyGameInstanceSettings(UEstGameplayStatics::GetEstGameInstance(Player), GameplaySave);
-}
-
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {
 	if (!Actor)
@@ -166,16 +61,6 @@ bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 
 	return true;
 }
-
-bool UEstSaveStatics::PersistSave(UEstSave* SaveGame)
-{
-	if (SaveGame == nullptr)
-	{
-		return false;
-	}
-
-	return UGameplayStatics::SaveGameToSlot(SaveGame, SaveGame->GetSlotName(), 0);
-};
 
 FEstWorldState UEstSaveStatics::SerializeWorld(UObject* WorldContextObject)
 {
