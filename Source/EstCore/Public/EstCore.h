@@ -19,5 +19,3 @@ private:
 };
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEstGeneral, Log, All);
-
-#define EST_IN_VIEWPORT (GEngine && GEngine->GameViewport && GEngine->GameViewport->bIsPlayInEditorViewport)

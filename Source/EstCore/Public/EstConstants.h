@@ -4,11 +4,6 @@
 #define TAG_NOIMPACTS "NOIMPACTS"
 #define TAG_NOSAVERESTORE "NOSAVERESTORE"
 
-#define DEBUG_PERSIST_TIME 5.f
-#define DEBUG_COLOR FColor::Green
-#define WARNING_PERSIST_TIME 30.f
-#define WARNING_COLOR FColor::Yellow
-
 #define CHANNEL_PLAYER_IN_FRONT ECollisionChannel::ECC_GameTraceChannel6
 #define CHANNEL_PLAYER_BLUR_FOCUS ECollisionChannel::ECC_GameTraceChannel7
 #define CHANNEL_PLAYER_INTERACT ECollisionChannel::ECC_GameTraceChannel8
