@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UOverlay* MenuModalContainer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundBase* NavigationSound;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UEstMenuModal* CurrentMenuModal;
 

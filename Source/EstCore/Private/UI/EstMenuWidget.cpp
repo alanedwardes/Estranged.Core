@@ -83,6 +83,7 @@ void UEstMenuWidget::RemoveMenu()
 {
 	if (CurrentMenuSection != nullptr)
 	{
+		UGameplayStatics::PlaySound2D(this, NavigationSound);
 		CurrentMenuSection->OnNavigate.RemoveAll(this);
 		CurrentMenuSection->OnAction.RemoveAll(this);
 		CurrentMenuSection->OnModal.RemoveAll(this);
@@ -144,6 +145,7 @@ void UEstMenuWidget::RemoveModal()
 {
 	if (CurrentMenuModal != nullptr)
 	{
+		UGameplayStatics::PlaySound2D(this, NavigationSound);
 		CurrentMenuModal->OnExit.RemoveAll(this);
 		MenuModalContainer->RemoveChild(CurrentMenuModal);
 		CurrentMenuModal = nullptr;
