@@ -27,6 +27,9 @@ public:
 	/** Ensure that the player is unique to the save/load system */
 	virtual void OnConstruction(const FTransform &Transform) override { SaveId = FGuid(100, 100, 100, 100); };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	TSoftClassPtr<class UEstHUDWidget> HUDWidgetClass;
+
 	/** Camera smooth speed used for things like crouching, jumping, and general movement. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float CameraSmoothSpeed;
