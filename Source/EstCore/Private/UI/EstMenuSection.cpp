@@ -12,7 +12,7 @@
 ESlateVisibility UEstMenuSection::VisibleOnDesktop() const
 {
 #if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX
-	return ESlateVisibility::Visible;
+	return ESlateVisibility::SelfHitTestInvisible;
 #else
 	return ESlateVisibility::Collapsed;
 #endif
