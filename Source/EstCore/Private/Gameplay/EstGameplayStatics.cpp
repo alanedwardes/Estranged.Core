@@ -31,6 +31,7 @@
 #include "Runtime/EngineSettings/Classes/GeneralProjectSettings.h"
 #include "Framework/Application/SlateApplication.h"
 #include "LandscapeHeightfieldCollisionComponent.h"
+#include "EstConsoleVariables.h"
 #include "InputCoreTypes.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
@@ -1046,7 +1047,7 @@ bool UEstGameplayStatics::IsActorDead(AActor *Actor)
 
 UForceFeedbackComponent* UEstGameplayStatics::SpawnForceFeedbackAttached(UForceFeedbackEffect* ForceFeedbackEffect, USceneComponent* AttachToComponent)
 {
-	if (!CVarEstEnableForceFeedback.GetValueOnAnyThread())
+	if (!FEstConsoleVariables::EnableForceFeedback.GetValueOnAnyThread())
 	{
 		return nullptr;
 	}
@@ -1066,7 +1067,7 @@ UForceFeedbackComponent* UEstGameplayStatics::SpawnForceFeedbackAttached(UForceF
 
 void UEstGameplayStatics::ClientPlayForceFeedback(APlayerController* PlayerController, UForceFeedbackEffect* ForceFeedbackEffect, FName Tag, bool bLooping, bool bIgnoreTimeDilation, bool bPlayWhilePaused)
 {
-	if (!CVarEstEnableForceFeedback.GetValueOnAnyThread())
+	if (!FEstConsoleVariables::EnableForceFeedback.GetValueOnAnyThread())
 	{
 		return;
 	}

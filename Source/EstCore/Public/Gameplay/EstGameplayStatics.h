@@ -12,8 +12,6 @@
 #include "EstConstants.h"
 #include "EstGameplayStatics.generated.h"
 
-static TAutoConsoleVariable<bool> CVarEstEnableForceFeedback(TEXT("est.EnableForceFeedback"), true, TEXT("Defines whether force feedback is enabled for connected gamepads."), ECVF_Default);
-
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, const TArray<FHitResult>&, HitResults);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FPingUrlResultDelegate, bool, bSuccess);
 
