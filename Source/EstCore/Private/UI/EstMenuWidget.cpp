@@ -116,8 +116,8 @@ void UEstMenuWidget::AsyncModal(TSoftClassPtr<UEstMenuModal> MenuModal, FName Co
 			UEstMenuModal* Widget = NewObject<UEstMenuModal>(StrongThis, MenuModal.Get(), NAME_None, RF_Transactional);
 			Widget->SetPlayerContext(FLocalPlayerContext(StrongThis->GetOwningLocalPlayer(), StrongThis->GetWorld()));
 			Widget->Context = Context;
-			Widget->Initialize();
-			StrongThis->Modal(Widget, Context);
+Widget->Initialize();
+StrongThis->Modal(Widget, Context);
 		}
 	},
 	FStreamableManager::AsyncLoadHighPriority);
@@ -156,6 +156,46 @@ void UEstMenuWidget::ExitModal()
 {
 	RemoveModal();
 	FocusMenu();
+}
+
+void UEstMenuWidget::AsyncExtra(TSoftClassPtr<UUserWidget> ExtraSection)
+{
+	TWeakObjectPtr<UEstMenuWidget> WeakThis(this);
+
+	FSoftObjectPath StreamingObjectPath = ExtraSection.ToSoftObjectPath();
+	TSharedPtr<FStreamableHandle> StreamingHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(StreamingObjectPath, [WeakThis, ExtraSection]() {
+		if (UEstMenuWidget* StrongThis = WeakThis.Get())
+		{
+			if (!ExtraSection.IsValid())
+			{
+				return;
+			}
+
+			StrongThis->Extra(CreateWidget<UUserWidget>(StrongThis, ExtraSection.Get()));
+		}
+	},
+		FStreamableManager::AsyncLoadHighPriority);
+}
+
+void UEstMenuWidget::Extra(UUserWidget* ExtraSection)
+{
+	if (MenuExtraContainer == nullptr)
+	{
+		return;
+	}
+
+	CurrentExtraSection = ExtraSection;
+
+	MenuExtraContainer->AddChild(CurrentExtraSection);
+}
+
+void UEstMenuWidget::RemoveExtra()
+{
+	if (CurrentExtraSection != nullptr)
+	{
+		MenuExtraContainer->RemoveChild(CurrentExtraSection);
+		CurrentExtraSection = nullptr;
+	}
 }
 
 FReply UEstMenuWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)

@@ -51,6 +51,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ExitModal();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void AsyncExtra(TSoftClassPtr<UUserWidget> ExtraSection);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Extra(UUserWidget* ExtraSection);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void RemoveExtra();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPanelWidget* MenuSectionContainer;
 
@@ -65,6 +74,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UEstMenuModal* CurrentMenuModal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPanelWidget* MenuExtraContainer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UUserWidget* CurrentExtraSection;
 
 protected:
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
