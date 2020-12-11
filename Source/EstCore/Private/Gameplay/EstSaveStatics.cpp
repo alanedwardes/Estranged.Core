@@ -326,7 +326,9 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 			// this can cause frames to get dropped (and events on frame 0 skipped)
 			if (!bIsAtStart)
 			{
-				LevelSequenceActor->SequencePlayer->PlayToFrame(FFrameTime(SequenceState.FrameNumber));
+				FMovieSceneSequencePlaybackParams PlaybackParams;
+				PlaybackParams.Frame = FFrameTime(SequenceState.FrameNumber);
+				LevelSequenceActor->SequencePlayer->SetPlaybackPosition(PlaybackParams);
 			}
 
 			// Start playing if at end of sequence too, this

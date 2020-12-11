@@ -99,7 +99,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Fighting)
 	virtual void PrimaryAttackEnd();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Fighting)
-	class TSubclassOf<class UCameraShake> PrimaryAttackShake;
+	class TSubclassOf<class UCameraShakeBase> PrimaryAttackShake;
 
 	/** Internal func to call for secondary attack */
 	UFUNCTION()

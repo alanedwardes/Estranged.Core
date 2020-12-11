@@ -255,10 +255,10 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 		}
 
 		APlayerController* PlayerController = Cast<APlayerController>(Controller);
-		const TSubclassOf<UCameraShake>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
+		const TSubclassOf<UCameraShakeBase>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
 		if (PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr && Shake != nullptr)
 		{
-			PlayerController->PlayerCameraManager->PlayCameraShake(*Shake);
+			PlayerController->PlayerCameraManager->StartCameraShake(*Shake);
 		}
 
 		UForceFeedbackEffect** ForceFeedback = DamageForceFeedback.Find(DamageEvent.DamageTypeClass);
@@ -1112,7 +1112,7 @@ void AEstPlayer::PlayPrimaryFire()
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
 			if (PlayerController)
 			{
-				PlayerController->ClientPlayCameraShake(EquippedWeapon->PrimaryAttackShake, bIsAiming ? 0.25f : 1.f);
+				PlayerController->ClientStartCameraShake(EquippedWeapon->PrimaryAttackShake, bIsAiming ? 0.25f : 1.f);
 			}
 		}
 	}

@@ -214,26 +214,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Platform)
 	static void SetPlatformMouseCursorState(bool bShowMouseCursor);
 
-	UFUNCTION(BlueprintCallable, Category = Debugging, CustomThunk, meta = (CustomStructureParam = "AnyStruct"))
-	static FString DumpStruct(UProperty* AnyStruct);
-
-	DECLARE_FUNCTION(execDumpStruct)
-	{
-		Stack.Step(Stack.Object, NULL);
-		UStructProperty* StructProperty = ExactCast<UStructProperty>(Stack.MostRecentProperty);
-		const void* StructPtr = Stack.MostRecentPropertyAddress;
-		P_FINISH;
-
-		if (StructPtr == nullptr)
-		{
-			return;
-		}
-
-		FString Out;
-		FJsonObjectConverter::UStructToJsonObjectString(StructProperty->Struct, StructPtr, Out, 0, 0);
-		*(FString*)RESULT_PARAM = Out;
-	}
-
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static void SortResolutions(UPARAM(ref) TArray<FIntPoint> &Resolutions);
 

@@ -14,6 +14,7 @@ namespace UnrealBuildTool.Rules
                     "EngineSettings",
                     "InputCore",
                     "CoreUObject",
+                    "PhysicsCore",
                     "MovieScene",
                     "LevelSequence",
                     "Engine",
