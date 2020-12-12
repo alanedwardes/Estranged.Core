@@ -14,6 +14,8 @@ class ESTCORE_API AEstGameMode : public AGameMode
 	virtual void HandleMatchHasStarted() override;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = State)
+	UFUNCTION(BlueprintNativeEvent, Category = State)
 	void OnPreBeginPlay();
+
+	void RestartPlayer(AController* NewPlayer) override;
 };
