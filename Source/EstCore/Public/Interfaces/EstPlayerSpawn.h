@@ -14,8 +14,8 @@ class ESTCORE_API IEstPlayerSpawn
 	GENERATED_IINTERFACE_BODY()
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnPlayerSpawn(AController* NewPlayer, ACharacter* NewCharacter);
+	void OnPlayerSpawn(AController* NewPlayer, APawn* NewPawn);
 	
 	UFUNCTION(BlueprintNativeEvent)
-	void OnPlayerSpawnInside(AController* NewPlayer, ACharacter* NewCharacter);
+	void OnPlayerSpawnInside(AController* NewPlayer, APawn* NewPawn);
 };

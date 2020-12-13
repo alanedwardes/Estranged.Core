@@ -18,4 +18,9 @@ public:
 	void OnPreBeginPlay();
 
 	void RestartPlayer(AController* NewPlayer) override;
+
+	APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
+
+private:
+	TMap<class APawn*, class AEstPlayerStart*> StartedPawns;
 };

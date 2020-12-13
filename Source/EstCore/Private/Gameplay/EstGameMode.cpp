@@ -1,6 +1,7 @@
 // Estranged is a trade mark of Alan Edwardes.
 
 #include "Gameplay/EstGameMode.h"
+#include "Gameplay/EstPlayerStart.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameSession.h"
 #include "GameFramework/WorldSettings.h"
@@ -58,11 +59,15 @@ void AEstGameMode::RestartPlayer(AController* NewPlayer)
 {
 	Super::RestartPlayer(NewPlayer);
 
-	ACharacter* NewCharacter = NewPlayer->GetCharacter();
+	APawn* NewPawn = NewPlayer->GetPawn();
+	if (NewPawn == nullptr)
+	{
+		return;
+	}
 
 	FVector PlayerOrigin;
 	FVector PlayerExtent;
-	NewCharacter->GetActorBounds(true, PlayerOrigin, PlayerExtent);
+	NewPawn->GetActorBounds(true, PlayerOrigin, PlayerExtent);
 	FBox PlayerBox = FBox::BuildAABB(PlayerOrigin, PlayerExtent);
 
 	if (UWorld* World = GetWorld())
@@ -72,7 +77,7 @@ void AEstGameMode::RestartPlayer(AController* NewPlayer)
 			AActor* Actor = *It;
 			if (Actor->GetClass()->ImplementsInterface(UEstPlayerSpawn::StaticClass()))
 			{
-				IEstPlayerSpawn::Execute_OnPlayerSpawn(Actor, NewPlayer, NewCharacter);
+				IEstPlayerSpawn::Execute_OnPlayerSpawn(Actor, NewPlayer, NewPawn);
 
 				FVector ActorOrigin;
 				FVector ActorExtent;
@@ -81,9 +86,27 @@ void AEstGameMode::RestartPlayer(AController* NewPlayer)
 
 				if (ActorBox.Intersect(PlayerBox) || PlayerBox.IsInside(ActorBox))
 				{
-					IEstPlayerSpawn::Execute_OnPlayerSpawnInside(Actor, NewPlayer, NewCharacter);
+					IEstPlayerSpawn::Execute_OnPlayerSpawnInside(Actor, NewPlayer, NewPawn);
 				}
 			}
 		}
 	}
+
+	AEstPlayerStart* Start;
+	if (StartedPawns.RemoveAndCopyValue(NewPawn, Start) && Start)
+	{
+		Start->OnPlayerStart.Broadcast(Start, NewPlayer, NewPawn);
+	}
+}
+
+APawn* AEstGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
+{
+	APawn* Pawn = Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
+
+	if (AEstPlayerStart* Start = Cast<AEstPlayerStart>(StartSpot))
+	{
+		StartedPawns.Add(Pawn, Start);
+	}
+
+	return Pawn;
 }
