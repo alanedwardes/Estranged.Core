@@ -1,0 +1,53 @@
+// Estranged is a trade mark of Alan Edwardes.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Gameplay/EstDoor.h"
+#include "EstRotatingDoor.generated.h"
+
+UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EEstRotatingDoorDirection : uint8
+{
+	None,
+	Forwards,
+	Backwards
+};
+ENUM_CLASS_FLAGS(EEstRotatingDoorDirection)
+
+UCLASS(BlueprintType, meta = (Bitflags))
+class ESTCORE_API AEstRotatingDoor : public AEstDoor
+{
+	GENERATED_BODY()
+
+public:
+	AEstRotatingDoor(const class FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class USceneComponent* Scene;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class USceneComponent* DoorContainer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* DoorMesh;
+
+#if WITH_EDITOR
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UArrowComponent* Arrow;
+#endif
+
+	void Tick(float DeltaTime) override;
+
+	bool TrySetDoorState(class AEstBaseCharacter* User, EEstDoorState NewDoorState) override;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Bitmask, BitmaskEnum = EEstRotatingDoorDirection))
+	uint8 PossibleOpenDirections;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	EEstRotatingDoorDirection CurrentOpenDirection;
+
+#if WITH_EDITOR
+	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+};
