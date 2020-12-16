@@ -13,8 +13,8 @@ enum EEstDoorState
 {
 	Closed,
 	Opened,
-	Opening UMETA(Hidden),
-	Closing UMETA(Hidden)
+	Opening,
+	Closing
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStateChangeSignature, AEstDoor*, Door);
@@ -35,37 +35,57 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintPure)
+	virtual void UpdateDoor();
+
+	UFUNCTION(BlueprintPure, Category = Door)
 	virtual EEstDoorState GetDoorState() { return DoorState; };
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = Door)
 	virtual bool TrySetDoorState(class AEstBaseCharacter* User, EEstDoorState NewDoorState);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = Door)
 	virtual void Open(class AEstBaseCharacter* User) { TrySetDoorState(User, EEstDoorState::Opening); };
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = Door)
 	virtual void Close(class AEstBaseCharacter* User) { TrySetDoorState(User, EEstDoorState::Closing); };
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = Door)
 	virtual void Lock() { bDoorIsLocked = true; };
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = Door)
 	virtual void Unlock() { bDoorIsLocked = false; };
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = Door)
 	virtual bool IsLocked() { return bDoorIsLocked; };
 
-	UPROPERTY(BlueprintAssignable)
+	UFUNCTION(BlueprintImplementableEvent, Category = Door)
+	void Opening();
+
+	UPROPERTY(BlueprintAssignable, Category = Door)
 	FStateChangeSignature OnOpening;
 
-	UPROPERTY(BlueprintAssignable)
+	UFUNCTION(BlueprintImplementableEvent, Category = Door)
+	void OpenFailed();
+
+	UPROPERTY(BlueprintAssignable, Category = Door)
+	FStateChangeSignature OnOpenFailed;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Door)
+	void Opened();
+
+	UPROPERTY(BlueprintAssignable, Category = Door)
 	FStateChangeSignature OnOpened;
 
-	UPROPERTY(BlueprintAssignable)
+	UFUNCTION(BlueprintImplementableEvent, Category = Door)
+	void Closing();
+
+	UPROPERTY(BlueprintAssignable, Category = Door)
 	FStateChangeSignature OnClosing;
 
-	UPROPERTY(BlueprintAssignable)
+	UFUNCTION(BlueprintImplementableEvent, Category = Door)
+	void Closed();
+
+	UPROPERTY(BlueprintAssignable, Category = Door)
 	FStateChangeSignature OnClosed;
 
 // Begin IEstInteractive
@@ -87,13 +107,16 @@ public:
 	FGuid SaveId;
 // End SaveId
 
-	UPROPERTY(SaveGame, BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(SaveGame, BlueprintReadOnly, EditAnywhere, Category = Door)
 	TEnumAsByte<EEstDoorState> DoorState;
 
-	UPROPERTY(SaveGame, BlueprintReadOnly, EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	UPROPERTY(SaveGame, BlueprintReadOnly, EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"), Category = Door)
 	float DoorOpenAmount;
 
-	UPROPERTY(SaveGame, BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = "0.0", UIMin = "0.0", UIMax = "10.0"), Category = Door)
+	float DoorSpeed;
+
+	UPROPERTY(SaveGame, BlueprintReadOnly, EditAnywhere, Category = Door)
 	bool bDoorIsLocked;
 
 #if WITH_EDITOR

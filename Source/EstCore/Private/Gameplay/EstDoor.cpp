@@ -5,6 +5,10 @@
 AEstDoor::AEstDoor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	SetActorTickEnabled(false);
+
+	DoorSpeed = 1.f;
 }
 
 void AEstDoor::BeginPlay()
@@ -18,25 +22,33 @@ void AEstDoor::Tick(float DeltaTime)
 
 	if (DoorState == EEstDoorState::Opening)
 	{
-		DoorOpenAmount += DeltaTime;
+		DoorOpenAmount += DeltaTime * DoorSpeed;
 
 		if (DoorOpenAmount > 1.f)
 		{
 			DoorOpenAmount = 1.f;
 			SetDoorState(EEstDoorState::Opened);
 		}
+
+		UpdateDoor();
 	}
 
 	if (DoorState == EEstDoorState::Closing)
 	{
-		DoorOpenAmount -= DeltaTime;
+		DoorOpenAmount -= DeltaTime * DoorSpeed;
 
 		if (DoorOpenAmount < 0.f)
 		{
 			DoorOpenAmount = 0.f;
 			SetDoorState(EEstDoorState::Closed);
 		}
+
+		UpdateDoor();
 	}
+}
+
+void AEstDoor::UpdateDoor()
+{
 }
 
 void AEstDoor::SetDoorState(EEstDoorState NewDoorState)
@@ -45,21 +57,25 @@ void AEstDoor::SetDoorState(EEstDoorState NewDoorState)
 
 	if (NewDoorState == EEstDoorState::Opening)
 	{
+		Opening();
 		OnOpening.Broadcast(this);
 	}
 
 	if (NewDoorState == EEstDoorState::Opened)
 	{
+		Opened();
 		OnOpened.Broadcast(this);
 	}
 
 	if (NewDoorState == EEstDoorState::Closing)
 	{
+		Closing();
 		OnClosing.Broadcast(this);
 	}
 
 	if (NewDoorState == EEstDoorState::Closed)
 	{
+		Closed();
 		OnClosed.Broadcast(this);
 	}
 }
@@ -68,6 +84,11 @@ bool AEstDoor::TrySetDoorState(class AEstBaseCharacter* User, EEstDoorState NewD
 {
 	if (IsLocked())
 	{
+		if (NewDoorState == EEstDoorState::Opening)
+		{
+			OpenFailed();
+			OnOpenFailed.Broadcast(this);
+		}
 		return false;
 	}
 
@@ -77,6 +98,8 @@ bool AEstDoor::TrySetDoorState(class AEstBaseCharacter* User, EEstDoorState NewD
 		SetDoorState(NewDoorState);
 		return true;
 	}
+
+	SetActorTickEnabled(true);
 
 	return false;
 }
@@ -95,17 +118,19 @@ void AEstDoor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEven
 	{
 		DoorOpenAmount = 0.f;
 	}
+
+	UpdateDoor();
 }
 #endif
 
 bool AEstDoor::OnUsed_Implementation(class AEstBaseCharacter* User, class USceneComponent* UsedComponent)
 {
-	if (GetDoorState() == EEstDoorState::Closed)
+	if (GetDoorState() == EEstDoorState::Closed || GetDoorState() == EEstDoorState::Opening)
 	{
 		return TrySetDoorState(User, EEstDoorState::Opening);
 	}
 
-	if (GetDoorState() == EEstDoorState::Opened)
+	if (GetDoorState() == EEstDoorState::Opened || GetDoorState() == EEstDoorState::Closing)
 	{
 		return TrySetDoorState(User, EEstDoorState::Closing);
 	}

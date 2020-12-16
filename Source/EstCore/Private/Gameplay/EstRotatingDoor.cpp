@@ -19,16 +19,27 @@ AEstRotatingDoor::AEstRotatingDoor(const FObjectInitializer& ObjectInitializer)
 	DoorMesh = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("DoorMesh"));
 	DoorMesh->SetupAttachment(DoorContainer);
 
+	DoorMaxAngle = 90.f;
+	CurrentOpenDirection = EEstRotatingDoorDirection::Forwards;
+
 	// By default, both directions are possible
 	EnumAddFlags(PossibleOpenDirections, (uint8)EEstRotatingDoorDirection::Forwards);
 	EnumAddFlags(PossibleOpenDirections, (uint8)EEstRotatingDoorDirection::Backwards);
 }
 
-void AEstRotatingDoor::Tick(float DeltaTime)
+void AEstRotatingDoor::UpdateDoor()
 {
-	Super::Tick(DeltaTime);
+	EEstRotatingDoorDirection Direction = CurrentOpenDirection;
 
-	float Rotation = FMath::Lerp(0.f, CurrentOpenDirection == EEstRotatingDoorDirection::Forwards ? -90.f : 90.f, DoorOpenAmount);
+	// Check if the direction is allowed
+	if (!EnumHasAnyFlags((EEstRotatingDoorDirection)PossibleOpenDirections, Direction))
+	{
+		// If not, use the opposite direction
+		Direction = Direction == EEstRotatingDoorDirection::Forwards ? EEstRotatingDoorDirection::Backwards : EEstRotatingDoorDirection::Forwards;
+	}
+
+	float TargetZ = Direction == EEstRotatingDoorDirection::Forwards ? -DoorMaxAngle : DoorMaxAngle;
+	float Rotation = UKismetMathLibrary::Ease(0.f, TargetZ, DoorOpenAmount, DoorEasingFunction);
 	DoorContainer->SetRelativeRotation(FQuat::MakeFromEuler(FVector(0.f, 0.f, Rotation)));
 }
 
@@ -38,17 +49,7 @@ bool AEstRotatingDoor::TrySetDoorState(class AEstBaseCharacter* User, EEstDoorSt
 	{
 		FVector DoorForward = GetActorForwardVector();
 		FVector UserForward = User->GetActorForwardVector();
-
-		EEstRotatingDoorDirection DesiredDirection = FVector::DotProduct(DoorForward, UserForward) < 0.f ? EEstRotatingDoorDirection::Backwards : EEstRotatingDoorDirection::Forwards;
-
-		// Check if the direction is allowed
-		if (!EnumHasAnyFlags((EEstRotatingDoorDirection)PossibleOpenDirections, DesiredDirection))
-		{
-			// If not, use the opposite direction
-			DesiredDirection = DesiredDirection == EEstRotatingDoorDirection::Forwards ? EEstRotatingDoorDirection::Backwards : EEstRotatingDoorDirection::Forwards;
-		}
-
-		CurrentOpenDirection = DesiredDirection;
+		CurrentOpenDirection = FVector::DotProduct(DoorForward, UserForward) < 0.f ? EEstRotatingDoorDirection::Backwards : EEstRotatingDoorDirection::Forwards;
 	}
 
 	return Super::TrySetDoorState(User, NewDoorState);

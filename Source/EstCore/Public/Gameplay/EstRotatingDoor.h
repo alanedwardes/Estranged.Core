@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Gameplay/EstDoor.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "EstRotatingDoor.generated.h"
 
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
@@ -37,14 +38,20 @@ public:
 	class UArrowComponent* Arrow;
 #endif
 
-	void Tick(float DeltaTime) override;
+	void UpdateDoor() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door)
+	float DoorMaxAngle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door)
+	TEnumAsByte<EEasingFunc::Type> DoorEasingFunction;
 
 	bool TrySetDoorState(class AEstBaseCharacter* User, EEstDoorState NewDoorState) override;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Bitmask, BitmaskEnum = EEstRotatingDoorDirection))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Bitmask, BitmaskEnum = EEstRotatingDoorDirection), Category = Door)
 	uint8 PossibleOpenDirections;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Door)
 	EEstRotatingDoorDirection CurrentOpenDirection;
 
 #if WITH_EDITOR
