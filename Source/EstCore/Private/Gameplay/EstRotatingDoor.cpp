@@ -1,17 +1,15 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "Gameplay/EstRotatingDoor.h"
 #include "Gameplay/EstBaseCharacter.h"
 #include "Components/StaticMeshComponent.h"
-#include "Gameplay/EstRotatingDoor.h"
 
 AEstRotatingDoor::AEstRotatingDoor(const FObjectInitializer& ObjectInitializer)
 {
 	Scene = ObjectInitializer.CreateDefaultSubobject<USceneComponent>(this, TEXT("Scene"));
 
-#if WITH_EDITOR
 	Arrow = ObjectInitializer.CreateDefaultSubobject<UArrowComponent>(this, TEXT("Arrow"));
 	Arrow->SetupAttachment(Scene);
-#endif
 
 	DoorContainer = ObjectInitializer.CreateDefaultSubobject<USceneComponent>(this, TEXT("DoorContainer"));
 	DoorContainer->SetupAttachment(Scene);

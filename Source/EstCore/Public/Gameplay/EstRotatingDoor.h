@@ -33,10 +33,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* DoorMesh;
 
-#if WITH_EDITOR
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UArrowComponent* Arrow;
-#endif
 
 	void UpdateDoor() override;
 
