@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/PanelWidget.h"
 #include "Components/OverlaySlot.h"
-#include "Gameplay/EstGameinstance.h"
+#include "Gameplay/EstGameInstance.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Gameplay/EstPlayerController.h"
 #include "Framework/Application/SlateApplication.h"
