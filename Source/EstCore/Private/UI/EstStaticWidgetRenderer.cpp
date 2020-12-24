@@ -86,4 +86,7 @@ void AEstStaticWidgetRenderer::RenderWidget()
 	WidgetRenderer->DrawWidget(RenderTarget, SlateWidget.ToSharedRef(), WidgetSize, 0.f, false);
 	// Then take the result
 	WidgetRenderer->DrawWidget(RenderTarget, SlateWidget.ToSharedRef(), WidgetSize, 0.f, false);
+
+	RenderTarget->UpdateResourceImmediate(false);
+
 }
