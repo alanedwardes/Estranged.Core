@@ -220,6 +220,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = RenderTexture)
 	static void WidgetToTexture(UTextureRenderTarget2D* Texture, class UUserWidget* Widget, const FVector2D &DrawSize, float DeltaTime);
 
+	UFUNCTION(BlueprintCallable, Category = RenderTexture)
+	static void UpdateResourceImmediate(class UTextureRenderTarget2D* RenderTarget, bool bClearRenderTarget);
+
 	UFUNCTION(BlueprintPure, Category = Health)
 	static bool IsActorDead(AActor* Actor);
 

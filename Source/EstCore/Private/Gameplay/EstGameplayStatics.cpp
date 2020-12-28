@@ -33,6 +33,7 @@
 #include "LandscapeHeightfieldCollisionComponent.h"
 #include "EstConsoleVariables.h"
 #include "InputCoreTypes.h"
+#include "Engine/TextureRenderTarget2D.h"
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
@@ -1031,6 +1032,14 @@ void UEstGameplayStatics::WidgetToTexture(UTextureRenderTarget2D* Texture, class
 	WidgetRenderer->DrawWidget(Texture, SlateWidget.ToSharedRef(), DrawSize, DeltaTime, false);
 	// Then take the result
 	WidgetRenderer->DrawWidget(Texture, SlateWidget.ToSharedRef(), DrawSize, DeltaTime, false);
+}
+
+void UEstGameplayStatics::UpdateResourceImmediate(UTextureRenderTarget2D * RenderTarget, bool bClearRenderTarget)
+{
+	if (RenderTarget != nullptr)
+	{
+		RenderTarget->UpdateResourceImmediate(bClearRenderTarget);
+	}
 }
 
 bool UEstGameplayStatics::IsActorDead(AActor *Actor)
