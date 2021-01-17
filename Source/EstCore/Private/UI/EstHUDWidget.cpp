@@ -22,6 +22,8 @@ void UEstHUDWidget::NativeConstruct()
 		Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
 	}
 
+	SubtitleFontSizeMultiplier = 1.0f;
+
 	FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().AddUObject(this, &UEstHUDWidget::HandleSetSubtitleText);
 
 	Super::NativeConstruct();
