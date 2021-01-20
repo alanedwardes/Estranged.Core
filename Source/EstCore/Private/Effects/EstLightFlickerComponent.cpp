@@ -14,16 +14,21 @@ void UEstLightFlickerComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (Curve != nullptr && Light != nullptr)
+	if (Curve == nullptr || Light == nullptr)
 	{
-		float MinTime;
-		float MaxTime;
-		Curve->GetTimeRange(MinTime, MaxTime);
-
-		float CurveLength = MaxTime - MinTime;
-		float CurvePosition = MinTime + FMath::Fmod(GetWorld()->TimeSeconds, CurveLength);
-		Light->SetIntensity(LightIntensity * Curve->GetFloatValue(CurvePosition));
+		return;
 	}
+
+	float MinTime;
+	float MaxTime;
+	Curve->GetTimeRange(MinTime, MaxTime);
+
+	const float CurveLength = MaxTime - MinTime;
+	const float CurvePosition = MinTime + FMath::Fmod(GetWorld()->TimeSeconds, CurveLength);
+	const float CurveValue = Curve->GetFloatValue(CurvePosition);
+
+	Light->SetIntensity(LightIntensity * CurveValue);
+	OnFlicker.Broadcast(CurveValue);
 }
 
 void UEstLightFlickerComponent::InitializeComponent()
