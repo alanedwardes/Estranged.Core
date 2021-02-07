@@ -517,6 +517,11 @@ bool UEstGameplayStatics::IsLocationInsideActor(FVector Location, AActor* Actor)
 
 bool UEstGameplayStatics::IsUsingGamepad(const APawn* Pawn)
 {
+	if (Pawn == nullptr)
+	{
+		return false;
+	}
+
 	const AEstPlayerController* Controller = Cast<AEstPlayerController>(Pawn->Controller);
 	if (Controller == nullptr)
 	{
