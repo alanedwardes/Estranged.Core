@@ -56,6 +56,8 @@ void UEstMenuWidget::AsyncNavigate(TSoftClassPtr<UEstMenuSection> MenuSection, F
 		}
 	},
 	FStreamableManager::AsyncLoadHighPriority);
+
+	RemoveMenu();
 }
 
 void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
@@ -65,7 +67,7 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 		return;
 	}
 
-	RemoveMenu();
+	SetMenuLoadingSpinnerVisibile(false);
 
 	CurrentMenuSection = MenuSection;
 	CurrentMenuSection->OnNavigate.AddDynamic(this, &UEstMenuWidget::AsyncNavigate);
@@ -79,6 +81,14 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 	}
 }
 
+void UEstMenuWidget::SetMenuLoadingSpinnerVisibile(bool bIsVisible)
+{
+	if (MenuLoadingSpinner != nullptr)
+	{
+		MenuLoadingSpinner->SetVisibility(bIsVisible ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+	}
+}
+
 void UEstMenuWidget::RemoveMenu()
 {
 	if (CurrentMenuSection != nullptr)
@@ -89,6 +99,8 @@ void UEstMenuWidget::RemoveMenu()
 		CurrentMenuSection->OnModal.RemoveAll(this);
 		MenuSectionContainer->RemoveChild(CurrentMenuSection);
 		CurrentMenuSection = nullptr;
+
+		SetMenuLoadingSpinnerVisibile(true);
 	}
 }
 
