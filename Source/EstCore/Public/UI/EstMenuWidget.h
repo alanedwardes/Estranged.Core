@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void LoadLevel(FName LevelName);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void MenuLoadingStateChanged(bool bIsLoading);
+
 	UFUNCTION(BlueprintCallable)
 	virtual void Action(FEstMenuAction Action);
 
@@ -60,17 +63,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void RemoveExtra();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void SetMenuLoadingSpinnerVisibile(bool bIsVisible);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPanelWidget* MenuSectionContainer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UEstMenuSection* CurrentMenuSection;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UWidget* MenuLoadingSpinner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UOverlay* MenuModalContainer;

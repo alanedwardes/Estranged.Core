@@ -19,6 +19,10 @@ void UEstMenuWidget::LoadLevel_Implementation(FName LevelName)
 {
 }
 
+void UEstMenuWidget::MenuLoadingStateChanged_Implementation(bool bIsLoading)
+{
+}
+
 void UEstMenuWidget::Action(FEstMenuAction Action)
 {
 	switch (Action.Action)
@@ -67,7 +71,7 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 		return;
 	}
 
-	SetMenuLoadingSpinnerVisibile(false);
+	MenuLoadingStateChanged(false);
 
 	CurrentMenuSection = MenuSection;
 	CurrentMenuSection->OnNavigate.AddDynamic(this, &UEstMenuWidget::AsyncNavigate);
@@ -78,14 +82,6 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 	if (CurrentMenuModal == nullptr)
 	{
 		FocusMenu();
-	}
-}
-
-void UEstMenuWidget::SetMenuLoadingSpinnerVisibile(bool bIsVisible)
-{
-	if (MenuLoadingSpinner != nullptr)
-	{
-		MenuLoadingSpinner->SetVisibility(bIsVisible ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
 	}
 }
 
@@ -100,7 +96,7 @@ void UEstMenuWidget::RemoveMenu()
 		MenuSectionContainer->RemoveChild(CurrentMenuSection);
 		CurrentMenuSection = nullptr;
 
-		SetMenuLoadingSpinnerVisibile(true);
+		MenuLoadingStateChanged(true);
 	}
 }
 
