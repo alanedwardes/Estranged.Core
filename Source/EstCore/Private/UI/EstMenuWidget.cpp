@@ -15,6 +15,10 @@ void UEstMenuWidget::ShowMenu_Implementation(FName RedirectToMenu)
 {
 }
 
+void UEstMenuWidget::HideMenu_Implementation()
+{
+}
+
 void UEstMenuWidget::LoadLevel_Implementation(FName LevelName)
 {
 }

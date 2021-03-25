@@ -22,6 +22,9 @@ public:
 	void ShowMenu(FName RedirectToMenu);
 
 	UFUNCTION(BlueprintNativeEvent)
+	void HideMenu();
+
+	UFUNCTION(BlueprintNativeEvent)
 	void LoadLevel(FName LevelName);
 
 	UFUNCTION(BlueprintNativeEvent)

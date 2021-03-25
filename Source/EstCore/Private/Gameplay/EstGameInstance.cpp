@@ -167,6 +167,7 @@ void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityC
 	}
 	else if (!VisibilityContext.bIsMenuVisibleForever)
 	{
+		MenuUserWidget->HideMenu();
 		MenuUserWidget->RemoveFromViewport();
 	}
 }
