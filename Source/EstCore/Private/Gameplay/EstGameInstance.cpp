@@ -200,7 +200,7 @@ bool UEstGameInstance::LazilyCreateAudioComponent()
 	}
 
 	FAudioDeviceHandle AudioDeviceHandle = GEngine->GetActiveAudioDevice();
-	if (AudioDeviceHandle.IsValid())
+	if (!AudioDeviceHandle.IsValid())
 	{
 		return false;
 	}
