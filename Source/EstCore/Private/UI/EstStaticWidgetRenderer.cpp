@@ -18,6 +18,9 @@ AEstStaticWidgetRenderer::AEstStaticWidgetRenderer(const class FObjectInitialize
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	MaterialTextureParameterName = TEXT("Texture");
+	CanvasRenderTarget2DClass = UCanvasRenderTarget2D::StaticClass();
+
 	// See https://github.com/EpicGames/UnrealEngine/blob/f8f4b403eb682ffc055613c7caf9d2ba5df7f319/Engine/Source/Runtime/Engine/Private/Components/ReflectionCaptureComponent.cpp#L123
 #if WITH_EDITORONLY_DATA 
 	SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
@@ -80,6 +83,16 @@ void AEstStaticWidgetRenderer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AEstStaticWidgetRenderer::RenderWidget()
 {
+	if (WidgetInstance == nullptr)
+	{
+		return;
+	}
+
+	if (RenderTarget == nullptr)
+	{
+		return;
+	}
+
 	TSharedPtr<SWidget> SlateWidget(WidgetInstance->TakeWidget());
 
 	// First render once to force the layout to happen
