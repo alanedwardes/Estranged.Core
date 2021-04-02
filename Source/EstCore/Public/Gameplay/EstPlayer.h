@@ -5,6 +5,7 @@
 #include "EstPlayer.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowHintDelegate, TArray<FName>, Bindings, FText, Label, float, ShowTime, FVector, WorldLocation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLandedDelegate, FHitResult, HitResult, float, SmoothZVelocity);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideHintDelegate);
 
 /** The base class for all players in Estranged. */
@@ -172,6 +173,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void Landed(const FHitResult& Hit);
+
+	UPROPERTY(BlueprintAssignable, Category = "Movement")
+	FOnLandedDelegate OnLandedDelegate;
 
 	virtual void EquipWeapon_Implementation(AEstBaseWeapon* Weapon) override;
 

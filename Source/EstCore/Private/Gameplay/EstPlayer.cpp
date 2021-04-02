@@ -703,6 +703,8 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
+	OnLandedDelegate.Broadcast(Hit, SmoothZVelocity);
+
 	if (SmoothZVelocity > VelocityDamageThreshold)
 	{
 		const float Exceeded = SmoothZVelocity - VelocityDamageThreshold;
