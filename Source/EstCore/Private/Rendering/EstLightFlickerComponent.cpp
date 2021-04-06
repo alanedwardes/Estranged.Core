@@ -1,6 +1,6 @@
 // Estranged is a trade mark of Alan Edwardes.
 
-#include "Effects/EstLightFlickerComponent.h"
+#include "Rendering/EstLightFlickerComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Components/LightComponent.h"
 
