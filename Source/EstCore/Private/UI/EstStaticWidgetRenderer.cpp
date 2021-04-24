@@ -10,6 +10,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/DecalComponent.h"
 
 // Sets default values
 AEstStaticWidgetRenderer::AEstStaticWidgetRenderer(const class FObjectInitializer& PCIP)
@@ -68,6 +69,12 @@ void AEstStaticWidgetRenderer::BeginPlay()
 		if (Primitive != nullptr)
 		{	
 			Primitive->SetMaterial(MaterialSlot, DynamicMaterial);
+		}
+
+		UDecalComponent* Decal = Cast<UDecalComponent>(Actor->GetRootComponent());
+		if (Decal != nullptr)
+		{
+			Decal->SetMaterial(MaterialSlot, DynamicMaterial);
 		}
 	}
 
