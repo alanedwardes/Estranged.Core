@@ -19,6 +19,7 @@ namespace UnrealBuildTool.Rules
                     "Engine",
                     "UMG",
                     "Slate",
+					"PhysicsCore",
                     "SlateCore",
                     "AIModule",
                     "PhysX",

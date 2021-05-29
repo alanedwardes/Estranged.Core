@@ -156,7 +156,7 @@ public:
 	TMap<TSubclassOf<class UDamageType>, class USoundBase*> DamageSounds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	TMap<TSubclassOf<class UDamageType>, TSubclassOf<class UCameraShake>> DamageShakes;
+	TMap<TSubclassOf<class UDamageType>, TSubclassOf<class UCameraShakeBase>> DamageShakes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TMap<TSubclassOf<class UDamageType>, class UForceFeedbackEffect*> DamageForceFeedback;

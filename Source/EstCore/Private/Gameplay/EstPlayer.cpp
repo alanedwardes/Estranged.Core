@@ -255,10 +255,10 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 		}
 
 		APlayerController* PlayerController = Cast<APlayerController>(Controller);
-		const TSubclassOf<UCameraShake>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
+		const TSubclassOf<UCameraShakeBase>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
 		if (PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr && Shake != nullptr)
 		{
-			PlayerController->PlayerCameraManager->PlayCameraShake(*Shake);
+			PlayerController->ClientPlayCameraShake(*Shake, 1.f);
 		}
 
 		UForceFeedbackEffect** ForceFeedback = DamageForceFeedback.Find(DamageEvent.DamageTypeClass);
@@ -710,7 +710,7 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 		if (Damage > VelocityDamageMinimum)
 		{
 			UE_LOG(LogClass, Log, TEXT("Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage"), VelocityDamageThreshold, Exceeded, Damage);
-			UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.Actor.Get(), FallDamageType);
+			UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.GetActor(), FallDamageType);
 			EstCharacterMovement->DoFootstep(5.f);
 		}
 	}
@@ -834,10 +834,10 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius, FHitResult& Result)
 			return false;
 		}
 
-		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.Actor.Get(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
+		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.GetActor(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
 		if (bCanHumanPickUp && IsViewTarget())
 		{
-			PickUpActor(OutHit.Actor.Get());
+			PickUpActor(OutHit.GetActor());
 			return true;
 		}
 	}

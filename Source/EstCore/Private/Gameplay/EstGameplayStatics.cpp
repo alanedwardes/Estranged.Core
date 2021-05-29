@@ -539,7 +539,7 @@ void UEstGameplayStatics::SetTransientMasterVolume(UObject* WorldContextObject, 
 	}
 
 	UWorld* World = WorldContextObject->GetWorld();
-	if (FAudioDevice* GameInstanceAudioDevice = World->GetAudioDevice())
+	if (FAudioDeviceHandle GameInstanceAudioDevice = World->GetAudioDevice())
 	{
 		GameInstanceAudioDevice->SetTransientMasterVolume(InTransientMasterVolume);
 	}
@@ -932,7 +932,7 @@ bool UEstGameplayStatics::IsLooping(UAudioComponent* AudioComponent)
 
 void UEstGameplayStatics::PingUrl(FString Url, const FPingUrlResultDelegate &Callback)
 {
-	TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+	TSharedRef<IHttpRequest,ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb("GET");
 	HttpRequest->SetURL(Url);
 	HttpRequest->OnProcessRequestComplete().BindStatic([](FHttpRequestPtr RefHttpRequest, FHttpResponsePtr RefHttpResponse, bool bSucceeded, FPingUrlResultDelegate RefCallback)

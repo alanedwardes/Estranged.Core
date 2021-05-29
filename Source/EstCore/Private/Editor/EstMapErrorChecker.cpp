@@ -81,7 +81,7 @@ void AEstMapErrorChecker::CheckForErrors()
 				continue;
 			}
 
-			const UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(Component);
+			/*const UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(Component);
 			if (MeshComponent != nullptr)
 			{
 				const UStaticMesh* StaticMesh = MeshComponent->GetStaticMesh();
@@ -114,7 +114,7 @@ void AEstMapErrorChecker::CheckForErrors()
 
 					SeenMeshes.Add(StaticMesh);
 				}
-			}
+			}*/
 
 			if (!SceneComponent->GetCollisionEnabled())
 			{
