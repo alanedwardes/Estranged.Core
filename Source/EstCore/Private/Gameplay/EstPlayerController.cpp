@@ -8,6 +8,9 @@ AEstPlayerController::AEstPlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	PlayerCameraManagerClass = AEstPlayerCameraManager::StaticClass();
+
+	// Default false for non-desktop platforms (pick a sensible default pre-key events)
+	bIsUsingGamepad = !UEstGameplayStatics::IsDesktopPlatform();
 }
 
 bool AEstPlayerController::InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad)
