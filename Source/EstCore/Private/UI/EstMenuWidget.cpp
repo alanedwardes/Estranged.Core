@@ -23,6 +23,10 @@ void UEstMenuWidget::LoadLevel_Implementation(FName LevelName)
 {
 }
 
+void UEstMenuWidget::LoadLevelByReference_Implementation(const TSoftObjectPtr<UWorld>& Level)
+{
+}
+
 void UEstMenuWidget::MenuLoadingStateChanged_Implementation(bool bIsLoading)
 {
 }
@@ -38,7 +42,7 @@ void UEstMenuWidget::Action(FEstMenuAction Action)
 		FGenericPlatformMisc::RequestExit(false);
 		break;
 	case EEstMenuAction::TransitionToLevel:
-		LoadLevel(Action.Context);
+		LoadLevelByReference(Action.Level);
 		break;
 	}
 }

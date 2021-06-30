@@ -22,7 +22,7 @@ struct FEstMenuAction
 	TEnumAsByte<EEstMenuAction> Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Context;
+	TSoftObjectPtr<UWorld> Level;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnModal, TSoftClassPtr<UEstMenuModal>, Modal, FName, Context);

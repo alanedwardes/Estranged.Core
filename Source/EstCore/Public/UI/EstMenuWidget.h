@@ -28,6 +28,9 @@ public:
 	void LoadLevel(FName LevelName);
 
 	UFUNCTION(BlueprintNativeEvent)
+	void LoadLevelByReference(const TSoftObjectPtr<UWorld> &Level);
+
+	UFUNCTION(BlueprintNativeEvent)
 	void MenuLoadingStateChanged(bool bIsLoading);
 
 	UFUNCTION(BlueprintCallable)

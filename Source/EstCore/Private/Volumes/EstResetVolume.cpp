@@ -1,9 +1,9 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "Volumes/EstResetVolume.h"
 #include "GameFramework/Pawn.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "Volumes/EstResetVolume.h"
 
 AEstResetVolume::AEstResetVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
