@@ -1117,3 +1117,11 @@ bool UEstGameplayStatics::IsAxisKey(FKey Key)
 
 	return AxisKeys.Contains(Key);
 }
+
+void UEstGameplayStatics::UpdateCameraManager(APlayerController* Controller, float DeltaSeconds)
+{
+	if (Controller != nullptr)
+	{
+		Controller->UpdateCameraManager(DeltaSeconds);
+	}
+}

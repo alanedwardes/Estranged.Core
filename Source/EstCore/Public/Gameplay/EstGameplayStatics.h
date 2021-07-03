@@ -237,4 +237,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Input)
 	static bool IsAxisKey(FKey Key);
+
+	UFUNCTION(BlueprintCallable, Category = Input)
+	static void UpdateCameraManager(class APlayerController* Controller, float DeltaSeconds);
 };
