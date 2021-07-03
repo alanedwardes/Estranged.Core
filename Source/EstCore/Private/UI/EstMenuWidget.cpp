@@ -79,8 +79,6 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 		return;
 	}
 
-	MenuLoadingStateChanged(false);
-
 	CurrentMenuSection = MenuSection;
 	CurrentMenuSection->OnNavigate.AddDynamic(this, &UEstMenuWidget::AsyncNavigate);
 	CurrentMenuSection->OnAction.AddDynamic(this, &UEstMenuWidget::Action);
@@ -91,6 +89,8 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 	{
 		FocusMenu();
 	}
+
+	MenuLoadingStateChanged(false);
 }
 
 void UEstMenuWidget::RemoveMenu()
