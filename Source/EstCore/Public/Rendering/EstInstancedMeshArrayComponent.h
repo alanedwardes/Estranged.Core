@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/InstancedStaticMeshComponent.h"
-#include "EstInstancedMeshArray.generated.h"
+#include "EstInstancedMeshArrayComponent.generated.h"
 
-UCLASS(Experimental, ClassGroup = Rendering, meta = (BlueprintSpawnableComponent), Blueprintable)
-class ESTCORE_API UEstInstancedMeshArray : public UInstancedStaticMeshComponent
+UCLASS(ClassGroup = Rendering, meta = (BlueprintSpawnableComponent), Blueprintable)
+class ESTCORE_API UEstInstancedMeshArrayComponent : public UInstancedStaticMeshComponent
 {
 	GENERATED_BODY()
 	
