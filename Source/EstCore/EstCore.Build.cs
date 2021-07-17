@@ -15,6 +15,7 @@ namespace UnrealBuildTool.Rules
                     "InputCore",
                     "CoreUObject",
                     "PhysicsCore",
+                    "AnimGraphRuntime",
                     "MovieScene",
                     "LevelSequence",
                     "Engine",
