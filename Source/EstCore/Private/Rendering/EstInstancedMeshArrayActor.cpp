@@ -1,8 +1,8 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "Rendering/EstInstancedMeshArrayActor.h"
 #include "Engine/CollisionProfile.h"
 #include "Rendering/EstInstancedMeshArrayComponent.h"
-#include "Rendering/EstInstancedMeshArrayActor.h"
 
 AEstInstancedMeshArrayActor::AEstInstancedMeshArrayActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
