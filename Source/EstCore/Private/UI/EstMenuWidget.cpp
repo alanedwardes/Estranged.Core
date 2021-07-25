@@ -49,6 +49,8 @@ void UEstMenuWidget::Action(FEstMenuAction Action)
 
 void UEstMenuWidget::AsyncNavigate(TSoftClassPtr<UEstMenuSection> MenuSection, FName Context)
 {
+	RemoveMenu();
+
 	TWeakObjectPtr<UEstMenuWidget> WeakThis(this);
 
 	FSoftObjectPath StreamingObjectPath = MenuSection.ToSoftObjectPath();
@@ -68,8 +70,6 @@ void UEstMenuWidget::AsyncNavigate(TSoftClassPtr<UEstMenuSection> MenuSection, F
 		}
 	},
 	FStreamableManager::AsyncLoadHighPriority);
-
-	RemoveMenu();
 }
 
 void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
