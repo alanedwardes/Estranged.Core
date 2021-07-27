@@ -656,7 +656,7 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 	return true;
 }
 
-void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation, const float MaxDistance)
+TArray<FHitResult> UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation, const float MaxDistance)
 {
 	FCollisionQueryParams QueryParams;
 	QueryParams.bTraceComplex = true;
@@ -699,7 +699,7 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 		if (!bIsblockingHit)
 		{
 			// Only continue if blocking hit
-			return;
+			return HitResults;
 		}
 
 		HitResults.Add(HitResult);
@@ -711,7 +711,7 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 		const UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterial(HitResult);
 		if (PhysicalMaterial == nullptr)
 		{
-			return;
+			return HitResults;
 		}
 
 		// Get the surface type from this physical material
@@ -723,14 +723,14 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 			if (PhysicalMaterial->Density < 1.0f)
 			{
 				// This material is not dense enough to ricochet
-				return;
+				return HitResults;
 			}
 
 			const float Dot = FMath::Abs(FVector::DotProduct((HitResult.Location - HitResult.TraceStart).GetSafeNormal(), HitResult.Normal));
 			if (Dot > 0.5f)
 			{
 				// The angle isn't narrow enough to ricochet
-				return;
+				return HitResults;
 			}
 
 			TraceDirection = FMath::GetReflectionVector(TraceDirection, HitResult.ImpactNormal);
@@ -742,6 +742,8 @@ void UEstGameplayStatics::TraceBullet(const USceneComponent* SourceComponent, co
 		QueryParams.AddIgnoredActor(HitResult.GetActor());
 
 	} while (NumIterations++ < 4 && TraceDistance < MaxDistance); // Go through at most 4 surfaces
+
+	return HitResults;
 }
 
 AEstPlayer* UEstGameplayStatics::GetEstPlayerPawn(const UObject* WorldContextObject, int32 PlayerIndex)
