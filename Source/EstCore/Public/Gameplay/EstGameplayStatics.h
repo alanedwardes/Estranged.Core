@@ -127,8 +127,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static bool CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass = 100.f, float MaxRadius = 100.f);
 
-	UFUNCTION(BlueprintCallable, Category = "Game")
+	UFUNCTION(meta = (DeprecatedFunction, DeprecationMessage = "Please use TraceBullet2"), BlueprintCallable, Category = "Game")
 	static TArray<FHitResult> TraceBullet(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const FOnBulletHitDelegate &OnBulletHit, FRotator &AdjustedRotation, const float MaxDistance = 100000.f);
+
+	/** An improved version of TraceBullet with a simpler signature */
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	static TArray<FHitResult> TraceBullet2(const USceneComponent* SourceComponent, const FVector ExitLocation, const FRotator ExitRotation, const float MaxSpread, const float MaxDistance = 100000.f)
+	{
+		FRotator AdjustedRotation;
+		return TraceBullet(SourceComponent, ExitLocation, ExitRotation, MaxSpread, FOnBulletHitDelegate(), AdjustedRotation, MaxDistance);
+	}
 
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (WorldContext = "WorldContextObject", UnsafeDuringActorConstruction = "true"))
 	static class AEstPlayer* GetEstPlayerPawn(const UObject* WorldContextObject, int32 PlayerIndex);

@@ -705,7 +705,10 @@ TArray<FHitResult> UEstGameplayStatics::TraceBullet(const USceneComponent* Sourc
 		HitResults.Add(HitResult);
 		
 		// Execute delegate with hits
-		OnBulletHit.Execute(HitResults);
+		if (OnBulletHit.IsBound())
+		{
+			OnBulletHit.Execute(HitResults);
+		}
 
 		// Only continue if we got a physical material
 		const UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterial(HitResult);
