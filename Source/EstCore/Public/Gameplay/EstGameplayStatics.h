@@ -248,4 +248,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Input)
 	static void UpdateCameraManager(class APlayerController* Controller, float DeltaSeconds);
+	
+	/** Calculate the X/Y co-ordinate at the specified angle of a circle with the specified radius. */
+	UFUNCTION(BlueprintPure, Category = Math)
+	static FVector2D GetCirclePointAtAngle(const float AngleRadians, const float Radius)
+	{
+		const float X = FMath::Cos(AngleRadians) * Radius;
+		const float Y = FMath::Sin(AngleRadians) * Radius;
+		return FVector2D(X, Y);
+	};
 };
