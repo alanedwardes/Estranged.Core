@@ -1,8 +1,9 @@
 // Estranged is a trade mark of Alan Edwardes.
 
+#include "Volumes/EstPushVolume.h"
+#include "Components/BrushComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/Pawn.h"
-#include "Volumes/EstPushVolume.h"
 
 AEstPushVolume::AEstPushVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
