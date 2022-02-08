@@ -8,6 +8,7 @@ namespace UnrealBuildTool.Rules
 
             PublicDependencyModuleNames.AddRange(
                 new string[] {
+                    "OnlineSubsystem",
                     "Core",
                     "Landscape",
                     "JsonUtilities",

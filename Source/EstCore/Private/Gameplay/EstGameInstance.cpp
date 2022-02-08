@@ -10,6 +10,15 @@
 #include "UI/EstLoggerWidget.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Runtime/Engine/Public/AudioDevice.h"
+#include "Online.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Framework/Application/SlateUser.h"
+
+UEstGameInstance::UEstGameInstance(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	SetPrimaryPlayer();
+}
 
 void UEstGameInstance::Init()
 {
@@ -22,6 +31,12 @@ void UEstGameInstance::Init()
 		LoggerSlateWidget = LoggerUserWidget->TakeWidget();
 	}
 
+	FSlateApplication::Get().OnUserRegistered().AddUObject(this, &UEstGameInstance::OnUserRegistered);
+
+	FCoreDelegates::OnControllerPairingChange.AddUObject(this, &UEstGameInstance::OnControllerPairingChange);
+	FCoreDelegates::OnControllerConnectionChange.AddUObject(this, &UEstGameInstance::OnControllerConnectionChange);
+	FCoreDelegates::OnUserLoginChangedEvent.AddUObject(this, &UEstGameInstance::OnUserLoginChangedEvent);
+
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UEstGameInstance::PreLoadMap);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UEstGameInstance::PostLoadMapWithWorld);
 
@@ -29,6 +44,117 @@ void UEstGameInstance::Init()
 	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
 
 	Super::Init();
+}
+
+void UEstGameInstance::Shutdown()
+{
+	FSlateApplication::Get().OnUserRegistered().RemoveAll(this);
+
+	FCoreDelegates::OnControllerPairingChange.RemoveAll(this);
+	FCoreDelegates::OnControllerConnectionChange.RemoveAll(this);
+	FCoreDelegates::OnUserLoginChangedEvent.RemoveAll(this);
+
+	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
+	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
+
+	MenuSlateWidget = nullptr;
+	LoggerSlateWidget = nullptr;
+
+	Super::Shutdown();
+}
+
+bool UEstGameInstance::IsPrimaryPlayer(FPlatformUserId UserPlatformId, int32 ControllerIndex)
+{
+	return CurrentUserPlatformId == UserPlatformId && CurrentControllerIndex == ControllerIndex;
+}
+
+void UEstGameInstance::SetPrimaryPlayer(FPlatformUserId UserPlatformId, int32 ControllerIndex)
+{
+	CurrentUserPlatformId = UserPlatformId;
+	CurrentControllerIndex = ControllerIndex;
+}
+
+bool UEstGameInstance::IsUserLoggedIn()
+{
+	return !IsPrimaryPlayer(PLATFORMUSERID_NONE, INDEX_NONE);
+}
+
+void UEstGameInstance::PrintPrimaryPlayer()
+{
+	UKismetSystemLibrary::PrintText(this, FText::Format(FText::FromString("UEstGameInstance::PrintPrimaryPlayer UserPlatformId={0} ControllerIndex={1}"), CurrentUserPlatformId, CurrentControllerIndex));
+}
+
+void UEstGameInstance::OnUserLoginChangedEvent(bool IsLogin, int32 UserId, int32 UserIndex)
+{
+	PrintPrimaryPlayer();
+	UKismetSystemLibrary::PrintText(this, FText::Format(FText::FromString("FCoreDelegates::OnUserLoginChangedEvent IsLogin={0} UserId={1} UserIndex={2}"), FText::FromString(IsLogin ? TEXT("True") : TEXT("False")), UserId, UserIndex));
+}
+
+void UEstGameInstance::OnControllerConnectionChange(bool IsConnection, FPlatformUserId UserPlatformId, int32 ControllerIndex)
+{
+	PrintPrimaryPlayer();
+	UKismetSystemLibrary::PrintText(this, FText::Format(FText::FromString("FCoreDelegates::OnControllerConnectionChange IsConnection={0} UserPlatformId={1} ControllerIndex={2}"), FText::FromString(IsConnection ? TEXT("True") : TEXT("False")), UserPlatformId, ControllerIndex));
+
+	if (IsPrimaryPlayer(UserPlatformId, ControllerIndex))
+	{
+		OnCurrentUserConnectionChange(IsConnection);
+	}
+}
+
+void UEstGameInstance::OnControllerPairingChange(int32 ControllerIndex, FPlatformUserId NewUserPlatformId, FPlatformUserId OldUserPlatformId)
+{
+	PrintPrimaryPlayer();
+	UKismetSystemLibrary::PrintText(this, FText::Format(FText::FromString("FCoreDelegates::OnControllerPairingChanged ControllerIndex={0} NewUserPlatformId={1} OldUserPlatformId={2}"), ControllerIndex, NewUserPlatformId, OldUserPlatformId));
+
+	// Set the indexes if none are set yet
+	if (!IsUserLoggedIn())
+	{
+		SetPrimaryPlayer(NewUserPlatformId, ControllerIndex);
+		return;
+	}
+
+	if (IsPrimaryPlayer(OldUserPlatformId, ControllerIndex))
+	{
+		IOnlineIdentityPtr IdentityInterface = Online::GetIdentityInterface();
+		auto LoginStatus = IdentityInterface->GetLoginStatus(ControllerIndex);
+
+		UKismetSystemLibrary::PrintText(this, FText::Format(FText::FromString("FCoreDelegates::OnControllerPairingChanged Status={0}"), LoginStatus));
+
+		// The primary player signed out, force to the menu screen
+		if (NewUserPlatformId == PLATFORMUSERID_NONE)
+		{
+			OnCurrentUserLoggedOut();
+			return;
+		}
+	}
+}
+
+void UEstGameInstance::OnUserRegistered(int32 UserIndex)
+{
+	PrintPrimaryPlayer();
+	UKismetSystemLibrary::PrintText(this, FText::FromString("FSlateApplication::OnUserRegistered"));
+
+	// Force the new user to focus on whatever existing users are focused on
+	TSharedPtr<SWidget> FirstFocusedWidget;
+	FSlateApplication::Get().ForEachUser([&FirstFocusedWidget](FSlateUser& User)
+	{
+		TSharedPtr<SWidget> FocusedWidget = User.GetFocusedWidget();
+		if (FocusedWidget.IsValid())
+		{
+			FirstFocusedWidget = FocusedWidget;
+		}
+	});
+
+	if (FirstFocusedWidget.IsValid())
+	{
+		TSharedPtr<FSlateUser> User = FSlateApplication::Get().GetUser(UserIndex);
+		if (!User->GetFocusedWidget().IsValid())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("******************************************* Setting user %i focus"), User->GetUserIndex());
+			FSlateApplication::Get().SetUserFocus(UserIndex, FirstFocusedWidget.ToSharedRef());
+		}
+	}
 }
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
@@ -60,6 +186,16 @@ void UEstGameInstance::SetLoggerEnabled(bool NewIsEnabled)
 		bIsLoggerEnabled = false;
 		RefreshLoggerState();
 	}
+}
+
+void UEstGameInstance::SetCurrentUserFromUserIndex(int32 LocalUserIndex)
+{
+	IOnlineIdentityPtr IdentityInterface = Online::GetIdentityInterface();
+	TSharedPtr<const FUniqueNetId> UniquePlayerId = IdentityInterface->GetUniquePlayerId(LocalUserIndex);
+	FPlatformUserId PlatformUserId = IdentityInterface->GetPlatformUserIdFromUniqueNetId(*UniquePlayerId);
+
+	UKismetSystemLibrary::PrintText(this, FText::Format(FText::FromString("UEstGameInstance::SetCurrentUserFromUserIndex LocalUserIndex={0} UniquePlayerId={1} PlatformUserId={2}"), LocalUserIndex, FText::FromString(UniquePlayerId->ToDebugString()), PlatformUserId));
+	SetPrimaryPlayer(PlatformUserId, LocalUserIndex);
 }
 
 void UEstGameInstance::SetLoggerVisible(bool NewIsVisible)
@@ -134,18 +270,6 @@ void UEstGameInstance::PlayMusic(FEstMusic Music)
 			NextMusic = Music;
 		}
 	}
-}
-
-void UEstGameInstance::Shutdown()
-{
-	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this);
-	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
-	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
-
-	MenuSlateWidget = nullptr;
-	LoggerSlateWidget = nullptr;
-
-	Super::Shutdown();
 }
 
 void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityContext)

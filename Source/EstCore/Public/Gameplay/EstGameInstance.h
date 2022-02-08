@@ -53,7 +53,7 @@ struct FEstMenuVisibilityContext
 UCLASS()
 class ESTCORE_API UEstGameInstance : public UGameInstance
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 	
 public:
 	virtual void Init() override;
@@ -94,6 +94,21 @@ public:
 
 	virtual void SetLoggerEnabled(bool NewIsEnabled);
 
+	UFUNCTION(BlueprintPure, Category = Login)
+	virtual int32 GetCurrentUserIndex() { return CurrentControllerIndex; };
+
+	UFUNCTION(BlueprintCallable, Category = Login)
+	virtual void SetCurrentUserFromUserIndex(int32 LocalUserIndex);
+
+	UFUNCTION(BlueprintPure, Category = Login)
+	virtual bool IsUserLoggedIn();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Login)
+	void OnCurrentUserLoggedOut();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Login)
+	void OnCurrentUserConnectionChange(bool IsConnection);
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> MenuWidgetType;
 
@@ -125,4 +140,14 @@ private:
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;
 	FEstMenuVisibilityContext VisibilityContext;
+
+	FPlatformUserId CurrentUserPlatformId;
+	int32 CurrentControllerIndex;
+	void OnUserRegistered(int32 UserIndex);
+	void SetPrimaryPlayer(FPlatformUserId UserPlatformId = PLATFORMUSERID_NONE, int32 ControllerIndex = INDEX_NONE);
+	void PrintPrimaryPlayer();
+	void OnUserLoginChangedEvent(bool IsLogin, int32 UserId, int32 UserIndex);
+	bool IsPrimaryPlayer(FPlatformUserId UserPlatformId, int32 ControllerIndex);
+	void OnControllerConnectionChange(bool IsConnection, FPlatformUserId UserPlatformId, int32 ControllerIndex);
+	void OnControllerPairingChange(int32 ControllerIndex, FPlatformUserId NewUserPlatformId, FPlatformUserId OldUserPlatformId);
 };

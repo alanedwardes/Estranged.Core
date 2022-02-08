@@ -1,11 +1,17 @@
 {
-	"FileVersion": 3,
-	"CreatedBy": "Alan Edwardes",
-	"CreatedByURL": "https://alanedwardes.com/",
-	"Modules": [
-		{
-			"Name": "EstCore",
-			"Type": "Runtime"
-		}
-	]
+    "FileVersion": 3,
+    "CreatedBy": "Alan Edwardes",
+    "CreatedByURL": "https://alanedwardes.com/",
+    "Modules": [
+        {
+            "Name": "EstCore",
+            "Type": "Runtime"
+        }
+    ],
+    "Plugins": [
+        {
+            "Name": "OnlineSubsystem",
+            "Enabled": true
+        }
+    ]
 }
