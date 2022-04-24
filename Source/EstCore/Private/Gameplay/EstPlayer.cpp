@@ -329,13 +329,13 @@ void AEstPlayer::UpdatePostProcessingTick(float DeltaSeconds)
 
 	if (HeadInWater && IsViewTarget())
 	{
-		Camera->PostProcessSettings.bOverride_ScreenPercentage = true;
-		Camera->PostProcessSettings.ScreenPercentage = 50.f;
+		Camera->PostProcessSettings.bOverride_ScreenPercentage_DEPRECATED = true;
+		Camera->PostProcessSettings.ScreenPercentage_DEPRECATED = 50.f;
 	}
 	else
 	{
-		Camera->PostProcessSettings.bOverride_ScreenPercentage = false;
-		Camera->PostProcessSettings.ScreenPercentage = 100.f;
+		Camera->PostProcessSettings.bOverride_ScreenPercentage_DEPRECATED = false;
+		Camera->PostProcessSettings.ScreenPercentage_DEPRECATED = 100.f;
 	}
 }
 
@@ -712,7 +712,7 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 		if (Damage > VelocityDamageMinimum)
 		{
 			UE_LOG(LogClass, Log, TEXT("Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage"), VelocityDamageThreshold, Exceeded, Damage);
-			UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.Actor.Get(), FallDamageType);
+			UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.GetActor(), FallDamageType);
 			EstCharacterMovement->DoFootstep(5.f);
 		}
 	}
@@ -836,10 +836,10 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius, FHitResult& Result)
 			return false;
 		}
 
-		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.Actor.Get(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
+		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.GetActor(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
 		if (bCanHumanPickUp && IsViewTarget())
 		{
-			PickUpActor(OutHit.Actor.Get());
+			PickUpActor(OutHit.GetActor());
 			return true;
 		}
 	}

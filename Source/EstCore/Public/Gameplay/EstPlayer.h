@@ -239,7 +239,7 @@ public:
 
 	/** Held actor local bounding box (cached on pickup) */
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
-	struct FBox HeldActorBounds;
+	FBox HeldActorBounds;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	FTransform HeldPrimitiveTransform;

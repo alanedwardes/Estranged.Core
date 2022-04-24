@@ -87,7 +87,7 @@ void AEstMapErrorChecker::CheckForErrors()
 				const UStaticMesh* StaticMesh = MeshComponent->GetStaticMesh();
 				if (StaticMesh && !SeenMeshes.Contains(StaticMesh) && !StaticMesh->GetPathName().StartsWith("/Engine/"))
 				{
-					const int32 Lod1Tris = StaticMesh->RenderData->LODResources[0].GetNumTriangles();
+					const int32 Lod1Tris = StaticMesh->GetRenderData()->LODResources[0].GetNumTriangles();
 
 					if (StaticMesh->GetNumLODs() == 1 && Lod1Tris > 2048)
 					{
@@ -100,7 +100,7 @@ void AEstMapErrorChecker::CheckForErrors()
 							->AddToken(FTextToken::Create(FText::FormatOrdered(FTextFormat::FromString("which has over {0} tris, but no LOD models"), Lod1Tris)));
 					}
 
-					const int32 LastLodTris = StaticMesh->RenderData->LODResources[StaticMesh->GetNumLODs() - 1].GetNumTriangles();
+					const int32 LastLodTris = StaticMesh->GetRenderData()->LODResources[StaticMesh->GetNumLODs() - 1].GetNumTriangles();
 					if (StaticMesh->GetNumLODs() > 1 && LastLodTris > 2048)
 					{
 						MapCheck.Warning()
