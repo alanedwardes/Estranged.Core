@@ -121,7 +121,7 @@ bool AEstBaseCharacter::CanJumpInternal_Implementation() const
 		return false;
 	}
 
-	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPawnPhysicsVolume());
+	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPhysicsVolume());
 	if (Capabilities == nullptr)
 	{
 		return Super::CanJumpInternal_Implementation();
@@ -137,7 +137,7 @@ bool AEstBaseCharacter::CanCrouch() const
 		return false;
 	}
 
-	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPawnPhysicsVolume());
+	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPhysicsVolume());
 	if (Capabilities == nullptr)
 	{
 		return Super::CanCrouch();
@@ -148,7 +148,7 @@ bool AEstBaseCharacter::CanCrouch() const
 
 bool AEstBaseCharacter::CanSprint()
 {
-	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPawnPhysicsVolume());
+	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPhysicsVolume());
 	if (Capabilities == nullptr)
 	{
 		return EstCharacterMovement->CanEverSprint();

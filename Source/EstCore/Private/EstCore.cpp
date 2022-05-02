@@ -11,7 +11,7 @@ float FEstCoreModule::LongAverageFrameRate = 25.f;
 void FEstCoreModule::StartupModule()
 {
 	TickDelegate = FTickerDelegate::CreateRaw(this, &FEstCoreModule::Tick);
-	TickDelegateHandle = FTicker::GetCoreTicker().AddTicker(TickDelegate);
+	TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
 }
 
 bool FEstCoreModule::Tick(float DeltaTime)
@@ -22,7 +22,7 @@ bool FEstCoreModule::Tick(float DeltaTime)
 
 void FEstCoreModule::ShutdownModule()
 {
-	FTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
+	FTSTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 }
 
 DEFINE_LOG_CATEGORY(LogEstGeneral);

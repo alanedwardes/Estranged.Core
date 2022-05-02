@@ -15,7 +15,7 @@ private:
 	virtual bool Tick(float DeltaTime);
 	static float LongAverageFrameRate;
 	FTickerDelegate TickDelegate;
-	FDelegateHandle TickDelegateHandle;
+	FTSTicker::FDelegateHandle TickDelegateHandle;
 };
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEstGeneral, Log, All);

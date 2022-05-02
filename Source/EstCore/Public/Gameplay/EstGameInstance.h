@@ -110,7 +110,7 @@ private:
 	virtual bool Tick(float DeltaTime);
 	bool LazilyCreateAudioComponent();
 
-	FDelegateHandle TickDelegateHandle;
+	FTSTicker::FDelegateHandle TickDelegateHandle;
 	TOptional<FEstMusic> NextMusic;
 	float MusicStartTime;
 	float GameInstanceTime;
