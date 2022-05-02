@@ -10,16 +10,10 @@ AEstPlayerController::AEstPlayerController(const class FObjectInitializer& PCIP)
 	PlayerCameraManagerClass = AEstPlayerCameraManager::StaticClass();
 }
 
-bool AEstPlayerController::InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad)
+bool AEstPlayerController::InputKey(const FInputKeyParams& Params)
 {
-	bIsUsingGamepad = bGamepad;
-	return Super::InputKey(Key, EventType, AmountDepressed, bGamepad);
-}
-
-bool AEstPlayerController::InputAxis(FKey Key, float Delta, float DeltaTime, int32 NumSamples, bool bGamepad)
-{
-	bIsUsingGamepad = bGamepad;
-	return Super::InputAxis(Key, Delta, DeltaTime, NumSamples, bGamepad);
+	bIsUsingGamepad = Params.IsGamepad();
+	return Super::InputKey(Params);
 }
 
 void AEstPlayerController::BeginDestroy()

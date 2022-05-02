@@ -91,17 +91,12 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 {
 	for (AActor* Actor : TSet<AActor*>(Level->Actors))
 	{
-		if (Actor == nullptr)
+		if (!IsValid(Actor))
 		{
 			continue;
 		}
 
 		if (Actor->ActorHasTag(TAG_NOSAVERESTORE))
-		{
-			continue;
-		}
-
-		if (Actor->IsPendingKill())
 		{
 			continue;
 		}
@@ -302,12 +297,7 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 {
 	for (TActorIterator<ALevelSequenceActor> LevelSequenceActor(World); LevelSequenceActor; ++LevelSequenceActor)
 	{
-		if (*LevelSequenceActor == nullptr)
-		{
-			continue;
-		}
-
-		if (LevelSequenceActor->IsPendingKill())
+		if (!IsValid(*LevelSequenceActor))
 		{
 			continue;
 		}

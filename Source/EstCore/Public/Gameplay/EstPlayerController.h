@@ -12,9 +12,7 @@ class ESTCORE_API AEstPlayerController : public APlayerController
 public:
 	AEstPlayerController(const class FObjectInitializer& PCIP);
 
-	virtual bool InputKey(FKey Key, EInputEvent EventType, float AmountDepressed, bool bGamepad) override;
-
-	virtual bool InputAxis(FKey Key, float Delta, float DeltaTime, int32 NumSamples, bool bGamepad) override;
+	virtual bool InputKey(const FInputKeyParams& Params) override;
 
 	virtual void BeginDestroy() override;
 

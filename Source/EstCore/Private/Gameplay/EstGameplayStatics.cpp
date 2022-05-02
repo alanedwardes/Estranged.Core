@@ -779,10 +779,9 @@ void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldConte
 	// We do nothing if no is classes provided, rather than giving ALL actors!
 	if (ActorClasses.Num() > 0 && World)
 	{
-		for (TActorIterator<AActor> It(World, AActor::StaticClass()); It; ++It)
+		for (TActorIterator<AActor> Actor(World, AActor::StaticClass()); Actor; ++Actor)
 		{
-			AActor* Actor = *It;
-			if (Actor->IsPendingKill())
+			if (!IsValid(*Actor))
 			{
 				continue;
 			}
@@ -794,7 +793,7 @@ void UEstGameplayStatics::FindAllLivingActorsOfClasses(const UObject* WorldConte
 
 			if (ActorClasses.Contains(Actor->GetClass()) && !Actor->ActorHasTag(TAG_DEAD))
 			{
-				OutActors.Add(Actor);
+				OutActors.Add(*Actor);
 			}
 		}
 	}
