@@ -47,6 +47,6 @@ void AEstPushVolume::Tick(float DeltaTime)
 			continue;
 		}
 
-		MovementComponent->Velocity += Pawn->GetActorRotation().RotateVector(Push) * DeltaTime;
+		MovementComponent->Velocity += Push * DeltaTime;
 	}
 }
