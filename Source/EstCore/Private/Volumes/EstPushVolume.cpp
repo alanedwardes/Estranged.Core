@@ -10,6 +10,7 @@ AEstPushVolume::AEstPushVolume(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+	Intensity = 1.f;
 
 	GetBrushComponent()->SetCollisionProfileName(PROFILE_TRIGGER);
 }
@@ -47,6 +48,6 @@ void AEstPushVolume::Tick(float DeltaTime)
 			continue;
 		}
 
-		MovementComponent->Velocity += Push * DeltaTime;
+		MovementComponent->Velocity += (Push * Intensity) * DeltaTime;
 	}
 }

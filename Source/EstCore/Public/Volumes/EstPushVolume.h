@@ -21,8 +21,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp)
 	FVector Push;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp)
+	float Intensity;
 
 private:
 	UPROPERTY()
