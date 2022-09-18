@@ -892,6 +892,8 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 		IEstCarryable::Execute_OnPutDown(HeldActor.Get(), this);
 	}
 
+	OnDropHeldActor(HeldActor.Get());
+
 	HeldPrimitive.Reset();
 	HeldActor.Reset();
 }

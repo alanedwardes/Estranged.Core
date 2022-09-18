@@ -214,6 +214,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void DropHeldActor(FVector LinearVelocity = FVector::ZeroVector, FVector AngularVelocity = FVector::ZeroVector);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction")
+	void OnDropHeldActor(AActor* InHeldActor);
+
 	/** Is holding object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
 	virtual bool IsHoldingActor() { return HeldActor.IsValid() && HeldPrimitive.IsValid(); }
