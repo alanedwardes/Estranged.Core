@@ -35,6 +35,8 @@
 #include "InputCoreTypes.h"
 #include "Engine/TextureRenderTarget2D.h"
 
+DEFINE_LOG_CATEGORY(LogEstGameplayStatics);
+
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
 {
 	// The code below takes the pitch and yaw of the input FRotator, and adjusts them by a random number ranging from -MaxSpread to +MaxSpread. Roll is untouched.
@@ -603,56 +605,50 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 
 	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
 	{
-		const FString NoPickupComponentString = FString::Printf(TEXT("Can't pick up actor %s as it has a \"no pickup\" component"), *ActorToHold->GetName());
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(NoPickupComponentString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it has a \"no pickup\" component"), *ActorToHold->GetName());
 		return false;
 	}
 
 	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(ActorToHold->GetRootComponent());
 	if (PrimitiveToHold == nullptr)
 	{
-		const FString NoRootPrimitiveString = FString::Printf(TEXT("Can't pick up actor %s as no root primitive"), *ActorToHold->GetName());
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Trace, FText::FromString(NoRootPrimitiveString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as no root primitive"), *ActorToHold->GetName());
 		return false;
 	}
 
 	if (!PrimitiveToHold->IsSimulatingPhysics())
 	{
-		const FString NotSimulatingString = FString::Printf(TEXT("Can't pick up actor %s as it is not simulating physics"), *ActorToHold->GetName());
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Trace, FText::FromString(NotSimulatingString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is not simulating physics"), *ActorToHold->GetName());
 		return false;
 	}
 
 	// If we're standing on the object
 	if (PrimitiveToHold == Character->GetMovementBase())
 	{
-		const FString BeingStoodOnString = FString::Printf(TEXT("Can't pick up actor %s as it is being stood on"), *ActorToHold->GetName());
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(BeingStoodOnString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is being stood on"), *ActorToHold->GetName());
 		return false;
 	}
 
 	if (PrimitiveToHold->GetMass() > MaxMass)
 	{
-		const FString TooHeavyString = FString::Printf(TEXT("Can't pick up actor %s as it is too heavy (max: %.2fkg, actual: %.2fkg)"), *ActorToHold->GetName(), MaxMass, PrimitiveToHold->GetMass());
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TooHeavyString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is too heavy (max: %.2fkg, actual: %.2fkg)"), *ActorToHold->GetName(), MaxMass, PrimitiveToHold->GetMass());
 		return false;
 	}
 
 	if (PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
 	{
-		const FString TooBigString = FString::Printf(TEXT("Can't pick up actor %s as it is too big (max: %.2f, actual: %.2f)"), *ActorToHold->GetName(), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(TooBigString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is too big (max: %.2f, actual: %.2f)"), *ActorToHold->GetName(), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
 		return false;
 	}
 
 	UEstCarryableUserData* CarryableUserData = GetCarryableUserDataFromMesh(PrimitiveToHold);
 	if (CarryableUserData != nullptr && !CarryableUserData->bCanPlayerPickUp)
 	{
-		const FString NoPickupString = FString::Printf(TEXT("Can't pick up actor %s as asset contains carryable user data stating it cannot be picked up"), *ActorToHold->GetName());
-		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning, FText::FromString(NoPickupString)));
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as asset contains carryable user data stating it cannot be picked up"), *ActorToHold->GetName());
 		return false;
 	}
 
+	UE_LOG(LogEstGameplayStatics, Display, TEXT("Picking up actor %s"), *ActorToHold->GetName());
 	return true;
 }
 

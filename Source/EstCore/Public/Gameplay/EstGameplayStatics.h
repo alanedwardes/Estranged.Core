@@ -12,6 +12,7 @@
 #include "EstConstants.h"
 #include "EstGameplayStatics.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogEstGameplayStatics, Log, All);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnBulletHitDelegate, const TArray<FHitResult>&, HitResults);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FPingUrlResultDelegate, bool, bSuccess);
 

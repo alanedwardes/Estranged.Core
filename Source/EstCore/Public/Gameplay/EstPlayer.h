@@ -4,6 +4,7 @@
 #include "EstBaseCharacter.h"
 #include "EstPlayer.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogEstPlayer, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowHintDelegate, TArray<FName>, Bindings, FText, Label, float, ShowTime, FVector, WorldLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLandedDelegate, FHitResult, HitResult, float, SmoothZVelocity);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideHintDelegate);
