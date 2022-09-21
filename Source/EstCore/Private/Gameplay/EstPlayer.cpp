@@ -862,6 +862,7 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 
 	HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
 	HeldPrimitive->SetEnableGravity(false);
+	HeldPrimitive->SetAllUseCCD(true);
 
 	UEstCarryableUserData* CarryableUserData = UEstGameplayStatics::GetCarryableUserDataFromMesh(HeldPrimitive.Get());
 	HeldPrimitiveTransform = CarryableUserData == nullptr ? FTransform::Identity : CarryableUserData->CarryTransform;
