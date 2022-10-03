@@ -21,5 +21,11 @@ public:
 	bool bCanPlayerPickUp;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bIgnoreMass;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bIgnoreRadius;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FTransform CarryTransform;
 };

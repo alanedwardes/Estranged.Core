@@ -633,19 +633,20 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 		return false;
 	}
 
-	if (PrimitiveToHold->GetMass() > MaxMass)
+	UEstCarryableUserData* CarryableUserData = GetCarryableUserDataFromMesh(PrimitiveToHold);
+
+	if (!(CarryableUserData != nullptr && CarryableUserData->bIgnoreMass) && PrimitiveToHold->GetMass() > MaxMass)
 	{
 		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is too heavy (max: %.2fkg, actual: %.2fkg)"), *ActorToHold->GetName(), MaxMass, PrimitiveToHold->GetMass());
 		return false;
 	}
 
-	if (PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
+	if (!(CarryableUserData != nullptr && CarryableUserData->bIgnoreRadius) && PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
 	{
 		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is too big (max: %.2f, actual: %.2f)"), *ActorToHold->GetName(), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
 		return false;
 	}
 
-	UEstCarryableUserData* CarryableUserData = GetCarryableUserDataFromMesh(PrimitiveToHold);
 	if (CarryableUserData != nullptr && !CarryableUserData->bCanPlayerPickUp)
 	{
 		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as asset contains carryable user data stating it cannot be picked up"), *ActorToHold->GetName());
