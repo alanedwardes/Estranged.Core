@@ -95,7 +95,11 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 
 	const EAttachLocation::Type AttachLocation = EAttachLocation::KeepWorldPosition;
 
-	if (ImpactEffect.Sound != nullptr)
+	if (Scale < 0.25f && ImpactEffect.ScrapeSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAttached(ImpactEffect.ScrapeSound, Component, ClosestBoneName, Position, AttachLocation, false, Scale, 1.f, 0.f, AttenuationOverride);
+	}
+	else if (ImpactEffect.Sound != nullptr)
 	{
 		UGameplayStatics::SpawnSoundAttached(ImpactEffect.Sound, Component, ClosestBoneName, Position, AttachLocation, false, Scale, 1.f, 0.f, AttenuationOverride);
 	}

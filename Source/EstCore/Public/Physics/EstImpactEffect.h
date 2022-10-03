@@ -28,6 +28,10 @@ struct ESTCORE_API FEstImpactEffect
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 	class USoundBase* Sound;
 
+	/** The sound played on scrape. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+	class USoundBase* ScrapeSound;
+
 	/** The particle system started upon impact. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ParticleSystem)
 	class UParticleSystem* ParticleSystem;
