@@ -2,6 +2,7 @@
 
 #include "Volumes/EstFootstepVolume.h"
 #include "EstCore.h"
+#include "Components/BrushComponent.h"
 #include "Gameplay/EstCharacterMovementComponent.h"
 
 AEstFootstepVolume::AEstFootstepVolume(const FObjectInitializer& ObjectInitializer)

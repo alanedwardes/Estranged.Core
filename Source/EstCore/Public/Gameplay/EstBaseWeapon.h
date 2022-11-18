@@ -128,7 +128,7 @@ public:
 	class USoundBase* EquipSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
-	class TSubclassOf<UAnimInstance> EquippedWeaponAnimClass;
+	TSubclassOf<class UAnimInstance> EquippedWeaponAnimClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	struct FEstWeaponAnimationManifest PlayerAnimManifest;

@@ -23,7 +23,6 @@ namespace UnrealBuildTool.Rules
                     "Slate",
                     "SlateCore",
                     "AIModule",
-                    "PhysX",
                     "HTTP",
                     "RenderCore"
             });

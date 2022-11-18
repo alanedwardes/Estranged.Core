@@ -1,4 +1,6 @@
 #include "Gameplay/EstHealthComponent.h"
+#include "Engine/EngineTypes.h"
+#include "Engine/DamageEvents.h"
 #include "EstCore.h"
 
 void UEstHealthComponent::OnPostRestore_Implementation()

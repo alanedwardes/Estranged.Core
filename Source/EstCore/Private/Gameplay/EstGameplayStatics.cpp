@@ -549,7 +549,7 @@ void UEstGameplayStatics::SetTransientMasterVolume(UObject* WorldContextObject, 
 	FAudioDeviceHandle WorldAudioDeviceHandle = World->GetAudioDevice();
 	if (WorldAudioDeviceHandle.IsValid())
 	{
-		WorldAudioDeviceHandle.GetAudioDevice()->SetTransientMasterVolume(InTransientMasterVolume);
+		WorldAudioDeviceHandle.GetAudioDevice()->SetTransientPrimaryVolume(InTransientMasterVolume);
 	}
 }
 
@@ -885,10 +885,10 @@ UEstCarryableUserData* UEstGameplayStatics::GetCarryableUserDataFromMesh(UPrimit
 		return StaticMeshComponent->GetStaticMesh()->GetAssetUserData<UEstCarryableUserData>();
 	}
 
-	USkinnedMeshComponent* SkinnedMeshComponent = Cast<USkinnedMeshComponent>(PrimitiveComponent);
-	if (SkinnedMeshComponent != nullptr && SkinnedMeshComponent->SkeletalMesh != nullptr)
+	USkeletalMeshComponent* SkinnedMeshComponent = Cast<USkeletalMeshComponent>(PrimitiveComponent);
+	if (SkinnedMeshComponent != nullptr && SkinnedMeshComponent->GetSkeletalMeshAsset() != nullptr)
 	{
-		return SkinnedMeshComponent->SkeletalMesh->GetAssetUserData<UEstCarryableUserData>();
+		return SkinnedMeshComponent->GetSkeletalMeshAsset()->GetAssetUserData<UEstCarryableUserData>();
 	}
 
 	return nullptr;

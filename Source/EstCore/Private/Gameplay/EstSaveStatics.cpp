@@ -17,6 +17,7 @@
 #include "Runtime/Engine/Classes/Engine/Scene.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "Runtime/Engine/Public/EngineUtils.h"
+#include "LevelSequencePlayer.h"
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {

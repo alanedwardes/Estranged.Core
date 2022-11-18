@@ -18,6 +18,8 @@
 #include "DrawDebugHelpers.h"
 #include "UI/EstHUDWidget.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Engine/EngineTypes.h"
+#include "Engine/DamageEvents.h"
 
 DEFINE_LOG_CATEGORY(LogEstPlayer);
 #define DOF_DISTANCE_MAX 10000.f
@@ -701,7 +703,7 @@ void AEstPlayer::ToggleZoomInput(float Value)
 		return;
 	}
 
-	SetZooming(FMath::IsNegativeFloat(Value) == false);
+	SetZooming(Value < 0);
 }
 
 void AEstPlayer::Landed(const FHitResult& Hit)

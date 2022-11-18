@@ -1,7 +1,9 @@
 // Estranged is a trade mark of Alan Edwardes.
 
 #include "UI/EstUIStatics.h"
+#include "Blueprint/WidgetTree.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/ScrollBox.h"
 
 void UEstUIStatics::GetChildrenRecursively(UUserWidget* UserWidget, TArray<UWidget*>& Widgets)
 {
