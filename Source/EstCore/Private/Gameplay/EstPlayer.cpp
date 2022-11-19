@@ -703,7 +703,7 @@ void AEstPlayer::ToggleZoomInput(float Value)
 		return;
 	}
 
-	SetZooming(Value < 0);
+	SetZooming(Value > 0);
 }
 
 void AEstPlayer::Landed(const FHitResult& Hit)
