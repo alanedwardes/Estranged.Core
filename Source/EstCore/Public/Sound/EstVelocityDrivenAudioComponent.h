@@ -40,16 +40,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VelocityDrivenAudio)
 	UAudioComponent* AudioComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VelocityDrivenAudio)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = VelocityDrivenAudio)
 	float VolumeMin;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VelocityDrivenAudio)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = VelocityDrivenAudio)
 	float VolumeMax;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VelocityDrivenAudio)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = VelocityDrivenAudio)
 	float PitchMin;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VelocityDrivenAudio)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = VelocityDrivenAudio)
 	float PitchMax;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VelocityDrivenAudio)
