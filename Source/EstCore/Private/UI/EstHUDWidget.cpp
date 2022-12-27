@@ -3,6 +3,9 @@
 #include "UI/EstHUDWidget.h"
 #include "Runtime/Engine/Public/SubtitleManager.h"
 #include "Gameplay/EstPlayer.h"
+#include "Gameplay/EstPlayerController.h"
+#include "Gameplay/EstFirearmWeapon.h"
+#include "Gameplay/EstFirearmAmunition.h"
 #include "EstCore.h"
 
 extern ENGINE_API float GAverageFPS;
