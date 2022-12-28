@@ -12,6 +12,7 @@
 #include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/PhysicsVolume.h"
 #include "Runtime/Engine/Public/PhysicsPublic.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -37,14 +38,30 @@ void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(TArray<F
 	}
 }
 
-UPhysicalMaterial* UEstPhysicsCollisionHandler::GetPhysicalMaterialFromCollision(const FRigidBodyCollisionInfo CollisionInfo)
+void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(const FChaosPhysicsCollisionInfo& CollisionInfo)
 {
-	const TWeakObjectPtr<UPrimitiveComponent> Component = CollisionInfo.Component;
-	if (Component == nullptr)
+	const FVector RelVel = CollisionInfo.Velocity - CollisionInfo.OtherVelocity;
+
+	// Then project along contact normal, and take magnitude.
+	float ImpactVelMag = FMath::Abs(RelVel | CollisionInfo.Normal);
+
+	DeployImpactEffect(ImpactManifest, CollisionInfo.Component, CollisionInfo.Location, CollisionInfo.Normal, ImpactVelMag);
+	DeployImpactEffect(ImpactManifest, CollisionInfo.OtherComponent, CollisionInfo.Location, CollisionInfo.Normal, ImpactVelMag);
+}
+
+void UEstPhysicsCollisionHandler::HandlePhysicsBreak_AssumesLocked(const FChaosBreakEvent& BreakEvent)
+{
+	DeployImpactEffect(FractureManifest, BreakEvent.Component, BreakEvent.Location, FVector(), BreakEvent.Velocity.SquaredLength());
+}
+
+UPhysicalMaterial* UEstPhysicsCollisionHandler::GetPhysicalMaterialFromComponent(TWeakObjectPtr<UPrimitiveComponent> Component)
+{
+	if (!Component.IsValid())
 	{
 		return nullptr;
 	}
 
+	// For now, just the first material
 	const UMaterialInterface* Material = Component->GetMaterial(0);
 	if (Material == nullptr)
 	{
@@ -75,10 +92,8 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 		// Then project along contact normal, and take magnitude.
 		float ImpactVelMag = FMath::Abs(RelVel | ContactInfo.ContactNormal);
 
-		if (ImpactVelMag < ImpactThreshold)
-		{
-			return;
-		}
+		DeployImpactEffect(ImpactManifest, MyInfo.Component, ContactInfo.ContactPosition, ContactInfo.ContactNormal, ImpactVelMag);
+		DeployImpactEffect(ImpactManifest, OtherInfo.Component, ContactInfo.ContactPosition, ContactInfo.ContactNormal, ImpactVelMag);
 
 		UWorld* World = GetWorld();
 		if (World == nullptr)
@@ -86,28 +101,26 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 			return;
 		}
 
-		const float Intensity = FMath::Clamp(ImpactVelMag / 512.f, 0.1f, 1.f);
-
-		UPhysicalMaterial* MyMaterial = GetPhysicalMaterialFromCollision(MyInfo);
-		if (MyMaterial != nullptr && MyInfo.Component.IsValid() && MyInfo.Component->Mobility == EComponentMobility::Movable && !MyInfo.Actor->ActorHasTag(TAG_NOIMPACTS))
-		{
-			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, MyMaterial);
-			if (ImpactEffect != FEstImpactEffect::None)
-			{
-				UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, MyInfo.Component.Get(), Intensity);
-			}
-		}
-
-		UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromCollision(OtherInfo);
-		if (OtherMaterial != nullptr && OtherInfo.Component.IsValid() && OtherInfo.Component->Mobility == EComponentMobility::Movable && !OtherInfo.Actor->ActorHasTag(TAG_NOIMPACTS))
-		{
-			FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(ImpactManifest, OtherMaterial);
-			if (ImpactEffect != FEstImpactEffect::None)
-			{
-				UEstGameplayStatics::DeployImpactEffect(ImpactEffect, ContactInfo.ContactPosition, ContactInfo.ContactNormal, OtherInfo.Component.Get(), Intensity);
-			}
-		}
-
 		LastImpactSoundTime = World->GetTimeSeconds();
+	}
+}
+
+void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* Manifest, TWeakObjectPtr<UPrimitiveComponent> Component, FVector Location, FVector Normal, float Velocity)
+{
+	if (Velocity < ImpactThreshold)
+	{
+		return;
+	}
+
+	const float Intensity = FMath::Clamp(Velocity / 512.f, 0.1f, 1.f);
+
+	UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromComponent(Component);
+	if (OtherMaterial != nullptr && Component.IsValid() && Component->Mobility == EComponentMobility::Movable && !Component->GetOwner()->ActorHasTag(TAG_NOIMPACTS))
+	{
+		FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(Manifest, OtherMaterial);
+		if (ImpactEffect != FEstImpactEffect::None)
+		{
+			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, Location, Normal, Component.Get(), Intensity);
+		}
 	}
 }

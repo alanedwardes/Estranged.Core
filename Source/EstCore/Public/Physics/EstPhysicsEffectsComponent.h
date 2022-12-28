@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Chaos/ChaosGameplayEventDispatcher.h"
 #include "EstPhysicsEffectsComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEstPhysicsEffectsComponent, Log, All);
@@ -18,6 +19,12 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo);
+
+	UFUNCTION()
+	virtual void OnChaosBreak(const FChaosBreakEvent& BreakEvent);
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 

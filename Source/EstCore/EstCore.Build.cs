@@ -24,7 +24,10 @@ namespace UnrealBuildTool.Rules
                     "SlateCore",
                     "AIModule",
                     "HTTP",
-                    "RenderCore"
+                    "RenderCore",
+                    "Chaos",
+                    "ChaosSolverEngine",
+                    "GeometryCollectionEngine"
             });
         }
     }

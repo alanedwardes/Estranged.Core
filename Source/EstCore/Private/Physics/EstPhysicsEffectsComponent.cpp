@@ -4,6 +4,8 @@
 #include "Physics/EstPhysicsEffectsComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Physics/EstPhysicsCollisionHandler.h"
+#include "PBDRigidsSolver.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
 
@@ -18,7 +20,7 @@ void UEstPhysicsEffectsComponent::BeginPlay()
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
 	{
-		UE_LOG(LogEstPlayer, Warning, TEXT("Parent actor is null"));
+		UE_LOG(LogTemp, Warning, TEXT("Parent actor is null"));
 		return;
 	}
 
@@ -29,6 +31,48 @@ void UEstPhysicsEffectsComponent::BeginPlay()
 		Primitive->SetNotifyRigidBodyCollision(true);
 		Primitive->OnComponentHit.AddDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
 	}
+
+	// Must be done first, see https://alanedwardes.com/blog/posts/enabling-ue5-chaos-events/
+	Chaos::FPhysicsSolver* Solver = GetWorld()->GetPhysicsScene()->GetSolver();
+	Solver->EnqueueCommandImmediate([Solver]()
+	{
+		Solver->SetGenerateBreakingData(true);
+		Solver->SetGenerateCollisionData(true);
+	});
+
+	TArray<UGeometryCollectionComponent*> GeometryCollectionComponents;
+	Owner->GetComponents<UGeometryCollectionComponent>(GeometryCollectionComponents);
+	for (UGeometryCollectionComponent* GeometryCollectionComponent : GeometryCollectionComponents)
+	{
+		GeometryCollectionComponent->SetNotifyBreaks(true);
+		GeometryCollectionComponent->OnChaosBreakEvent.AddDynamic(this, &UEstPhysicsEffectsComponent::OnChaosBreak);
+		GeometryCollectionComponent->OnChaosPhysicsCollision.AddDynamic(this, &UEstPhysicsEffectsComponent::OnChaosPhysicsCollision);
+		
+	}
+}
+
+void UEstPhysicsEffectsComponent::OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo)
+{
+	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
+	if (Handler == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
+		return;
+	}
+
+	Handler->HandlePhysicsCollisions_AssumesLocked(CollisionInfo);
+}
+
+void UEstPhysicsEffectsComponent::OnChaosBreak(const FChaosBreakEvent& BreakEvent)
+{
+	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
+	if (Handler == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
+		return;
+	}
+
+	Handler->HandlePhysicsBreak_AssumesLocked(BreakEvent);
 }
 
 void UEstPhysicsEffectsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -38,7 +82,7 @@ void UEstPhysicsEffectsComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
 	{
-		UE_LOG(LogEstPlayer, Warning, TEXT("Parent actor is null"));
+		UE_LOG(LogTemp, Warning, TEXT("Parent actor is null"));
 		return;
 	}
 
@@ -55,7 +99,7 @@ void UEstPhysicsEffectsComponent::OnComponentHit(UPrimitiveComponent* HitCompone
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		UE_LOG(LogEstPlayer, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
+		UE_LOG(LogTemp, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
 		return;
 	}
 
