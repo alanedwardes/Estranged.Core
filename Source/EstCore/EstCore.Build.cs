@@ -6,6 +6,8 @@ namespace UnrealBuildTool.Rules
         {
             PrivatePCHHeaderFile = "Public/EstCore.h";
 
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
             PublicDependencyModuleNames.AddRange(
                 new string[] {
                     "Core",
