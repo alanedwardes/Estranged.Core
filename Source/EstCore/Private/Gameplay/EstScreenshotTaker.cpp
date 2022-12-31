@@ -6,6 +6,7 @@
 #include "Gameplay/EstGameInstance.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
+#include "EngineGlobals.h"
 
 void UEstScreenshotTaker::RequestScreenshot()
 {
