@@ -14,6 +14,16 @@ public:
 
 	virtual bool InputKey(const FInputKeyParams& Params) override;
 
+	virtual void SetupInputComponent() override;
+
+	virtual void ShowMainMenu() { ShowMenuSection(NAME_None); };
+
+	virtual void ShowMenuSection(FName MenuSection);
+
+	virtual void ShowConsoleMenu() { ShowMenuSection("Console"); }
+
+	virtual void ShowLoadGameMenu() { ShowMenuSection("LoadGame"); }
+
 	virtual void BeginDestroy() override;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input)

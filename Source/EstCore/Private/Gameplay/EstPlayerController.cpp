@@ -16,6 +16,21 @@ bool AEstPlayerController::InputKey(const FInputKeyParams& Params)
 	return Super::InputKey(Params);
 }
 
+void AEstPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("Menu", IE_Released, this, &AEstPlayerController::ShowMainMenu);
+	InputComponent->BindAction("Console", IE_Released, this, &AEstPlayerController::ShowConsoleMenu);
+}
+
+void AEstPlayerController::ShowMenuSection(FName MenuSection)
+{
+	SetPause(true);
+	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true, MenuSection));
+	SetMenuFocusState(true);
+}
+
 void AEstPlayerController::BeginDestroy()
 {
 	Super::BeginDestroy();

@@ -676,9 +676,10 @@ bool AEstPlayer::IsViewTarget()
 void AEstPlayer::ShowMenuSection(FName MenuSection)
 {
 	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(Controller);
-	EstPlayerController->SetPause(true);
-	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true, MenuSection));
-	EstPlayerController->SetMenuFocusState(true);
+	if (EstPlayerController != nullptr)
+	{
+		EstPlayerController->ShowMenuSection(MenuSection);
+	}
 }
 
 bool AEstPlayer::ShouldShowLoadGameMenu()
@@ -921,8 +922,6 @@ void AEstPlayer::SetupPlayerInputComponent(UInputComponent* InInputComponent)
 	InInputComponent->BindAxis("LookUp", this, &AEstPlayer::LookUpInput);
 	InInputComponent->BindAxis("Zoom", this, &AEstPlayer::ToggleZoomInput);
 
-	InInputComponent->BindAction("Menu", IE_Released, this, &AEstPlayer::ShowMainMenu);
-	InInputComponent->BindAction("Console", IE_Released, this, &AEstPlayer::ShowConsoleMenu);
 	InInputComponent->BindAction("Interact", IE_Pressed, this, &AEstPlayer::InteractPressedInput);
 	InInputComponent->BindAction("Interact", IE_Released, this, &AEstPlayer::InteractReleasedInput);
 	InInputComponent->BindAction("Flashlight", IE_Pressed, this, &AEstPlayer::ToggleFlashlight);

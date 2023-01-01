@@ -297,16 +297,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Camera")
 	virtual bool IsViewTarget();
 
-	/** Show menu */
-	virtual void ShowMainMenu() { ShowMenuSection(NAME_None); };
-
 	/** Show menu section */
 	virtual void ShowMenuSection(FName MenuSection);
 
-	/** Show console menu */
-	virtual void ShowConsoleMenu() { ShowMenuSection("Console"); }
-
-	/** Show console menu */
+	/** Show load game menu */
 	virtual void ShowLoadGameMenu() { ShowMenuSection("LoadGame"); }
 
 	/** Shared logic to determine whether the load game menu should be shown on this input press. */
