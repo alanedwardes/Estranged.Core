@@ -19,6 +19,10 @@ public:
 
 	virtual void ActorLeavingVolume(class AActor* Other) override;
 
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
+
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp)
@@ -30,4 +34,6 @@ public:
 private:
 	UPROPERTY()
 	TSet<APawn*> Pawns;
+	UPROPERTY()
+	TSet<AActor*> Actors;
 };
