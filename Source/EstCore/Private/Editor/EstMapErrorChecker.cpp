@@ -11,6 +11,7 @@
 #include "Interfaces/EstSaveRestore.h"
 #include "Misc/MapErrors.h"
 #include "Engine/CollisionProfile.h"
+#include "Physics/EstPhysicsEffectsComponent.h"
 
 #if WITH_EDITOR
 void AEstMapErrorChecker::CheckForErrors()
@@ -30,42 +31,6 @@ void AEstMapErrorChecker::CheckForErrors()
 		if (Actor->IsEditorOnly())
 		{
 			continue;
-		}
-
-		if (Actor->Implements<UEstSaveRestore>())
-		{
-			FStructProperty* SaveIdProperty = CastFieldChecked<FStructProperty>(Actor->GetClass()->FindPropertyByName(FName("SaveId")));
-			if (SaveIdProperty == nullptr)
-			{
-				MapCheck.Error()
-					->AddToken(FUObjectToken::Create(this))
-					->AddToken(FTextToken::Create(FText::FromString("Savable actor")))
-					->AddToken(FUObjectToken::Create(Actor))
-					->AddToken(FTextToken::Create(FText::FromString("has no SaveId property.")));
-				continue;
-			}
-
-			const FGuid SaveId = *SaveIdProperty->ContainerPtrToValuePtr<FGuid>(Actor);
-			if (!SaveId.IsValid())
-			{
-				FMessageLog("PIE").Error()
-					->AddToken(FTextToken::Create(FText::FromString("Actor")))
-					->AddToken(FUObjectToken::Create(Actor->GetClass()))
-					->AddToken(FTextToken::Create(FText::FromString("does not implement GetSaveId(). This actor will be skipped in save games.")));
-				continue;
-			}
-
-			if (EditorSeenSaveIds.Contains(SaveId))
-			{
-				MapCheck.Error()
-					->AddToken(FUObjectToken::Create(this))
-					->AddToken(FTextToken::Create(FText::FromString("Actor")))
-					->AddToken(FUObjectToken::Create(Actor))
-					->AddToken(FTextToken::Create(FText::FromString("has SaveId")))
-					->AddToken(FTextToken::Create(FText::FromString(SaveId.ToString())))
-					->AddToken(FTextToken::Create(FText::FromString("which is the same as another actor.")));
-			}
-			EditorSeenSaveIds.Add(SaveId);
 		}
 		
 		for (const UActorComponent* Component : Actor->GetComponents())
@@ -91,7 +56,7 @@ void AEstMapErrorChecker::CheckForErrors()
 
 					if (StaticMesh->GetNumLODs() == 1 && Lod1Tris > 2048)
 					{
-						MapCheck.Error()
+						MapCheck.PerformanceWarning()
 							->AddToken(FUObjectToken::Create(this))
 							->AddToken(FTextToken::Create(FText::FromString("Actor")))
 							->AddToken(FUObjectToken::Create(Actor))
@@ -103,7 +68,7 @@ void AEstMapErrorChecker::CheckForErrors()
 					const int32 LastLodTris = StaticMesh->GetRenderData()->LODResources[StaticMesh->GetNumLODs() - 1].GetNumTriangles();
 					if (StaticMesh->GetNumLODs() > 1 && LastLodTris > 2048)
 					{
-						MapCheck.Warning()
+						MapCheck.PerformanceWarning()
 							->AddToken(FUObjectToken::Create(this))
 							->AddToken(FTextToken::Create(FText::FromString("Actor")))
 							->AddToken(FUObjectToken::Create(Actor))
@@ -123,7 +88,7 @@ void AEstMapErrorChecker::CheckForErrors()
 
 			if (SceneComponent->GetCollisionProfileName() == UCollisionProfile::CustomCollisionProfileName)
 			{
-				MapCheck.Error()
+				MapCheck.Warning()
 					->AddToken(FUObjectToken::Create(this))
 					->AddToken(FTextToken::Create(FText::FromString("Actor")))
 					->AddToken(FUObjectToken::Create(Actor))
@@ -158,13 +123,28 @@ void AEstMapErrorChecker::CheckForErrors()
 
 				if (Material->GetPhysicalMaterial() == nullptr || Material->GetPhysicalMaterial() == GEngine->DefaultPhysMaterial)
 				{
-					MapCheck.Error()
+					MapCheck.Warning()
 						->AddToken(FUObjectToken::Create(this))
 						->AddToken(FTextToken::Create(FText::FromString("Actor")))
 						->AddToken(FUObjectToken::Create(Actor))
 						->AddToken(FTextToken::Create(FText::FromString("has material")))
 						->AddToken(FUObjectToken::Create(Material))
 						->AddToken(FTextToken::Create(FText::FromString("which does not have a valid physical material")));
+				}
+			}
+
+			if (SceneComponent->IsAnySimulatingPhysics())
+			{
+				TArray<UEstPhysicsEffectsComponent*> PhysicsEffectsComponents;
+				Actor->GetComponents<UEstPhysicsEffectsComponent>(PhysicsEffectsComponents);
+
+				if (PhysicsEffectsComponents.Num() == 0)
+				{
+					MapCheck.Error()
+						->AddToken(FUObjectToken::Create(this))
+						->AddToken(FTextToken::Create(FText::FromString("Actor")))
+						->AddToken(FUObjectToken::Create(Actor))
+						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but does not have a UEstPhysicsEffectsComponent")));
 				}
 			}
 		}
