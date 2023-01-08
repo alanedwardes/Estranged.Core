@@ -7,7 +7,7 @@
 UCLASS(abstract)
 class ESTCORE_API UEstPhysicsCollisionHandler : public UPhysicsCollisionHandler
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -15,6 +15,11 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UEstImpactManifest* FractureManifest;
+
+	// The time to wait after the world is brought up before impact effects can start to happen
+	// Prevents physics objects which are settling from being heard right at the start of play
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Impact)
+	float WorldUpDelay;
 
 	class UPhysicalMaterial* GetPhysicalMaterialFromComponent(TWeakObjectPtr<UPrimitiveComponent> Component);
 

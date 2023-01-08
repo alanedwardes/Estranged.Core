@@ -15,6 +15,13 @@
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+
+UEstPhysicsCollisionHandler::UEstPhysicsCollisionHandler(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	WorldUpDelay = 2.5f;
+}
 
 void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(TArray<FCollisionNotifyInfo>& PendingCollisionNotifies)
 {
@@ -112,15 +119,44 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 		return;
 	}
 
-	const float Intensity = FMath::Clamp(Velocity / 512.f, 0.1f, 1.f);
-
-	UPhysicalMaterial* OtherMaterial = GetPhysicalMaterialFromComponent(Component);
-	if (OtherMaterial != nullptr && Component.IsValid() && Component->Mobility == EComponentMobility::Movable && !Component->GetOwner()->ActorHasTag(TAG_NOIMPACTS))
+	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
 	{
-		FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(Manifest, OtherMaterial);
-		if (ImpactEffect != FEstImpactEffect::None)
-		{
-			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, Location, Normal, Component.Get(), Intensity);
-		}
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it impacted too soon after the world came up (currently %.2fs, need to wait until %.2fs)"), *Component->GetName(), GetWorld()->GetRealTimeSeconds(), WorldUpDelay);
+		return;
 	}
+
+	if (!Component.IsValid())
+	{
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Can't deploy impact effect as component is not a live UObject"));
+		return;
+	}
+
+	if (Component->Mobility != EComponentMobility::Movable)
+	{
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it is not movable"), *Component->GetName());
+		return;
+	}
+
+	if (Component->GetOwner()->ActorHasTag(TAG_NOIMPACTS))
+	{
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it has the tag NOIMPACTS"), *Component->GetName());
+		return;
+	}
+
+	UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterialFromComponent(Component);
+	if (PhysicalMaterial == nullptr)
+	{
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it doesn't have a physical material"), *Component->GetName());
+		return;
+	}
+
+	FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(Manifest, PhysicalMaterial);
+	if (ImpactEffect == FEstImpactEffect::None)
+	{
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because its physical material %s has no effects in the manifest"), *Component->GetName(), *PhysicalMaterial->GetName());
+		return;
+	}
+
+	const float Intensity = FMath::Clamp(Velocity / 512.f, 0.1f, 1.f);
+	UEstGameplayStatics::DeployImpactEffect(ImpactEffect, Location, Normal, Component.Get(), Intensity);
 }
