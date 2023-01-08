@@ -123,7 +123,7 @@ void AEstMapErrorChecker::CheckForErrors()
 
 				if (Material->GetPhysicalMaterial() == nullptr || Material->GetPhysicalMaterial() == GEngine->DefaultPhysMaterial)
 				{
-					MapCheck.Warning()
+					MapCheck.Info()
 						->AddToken(FUObjectToken::Create(this))
 						->AddToken(FTextToken::Create(FText::FromString("Actor")))
 						->AddToken(FUObjectToken::Create(Actor))
@@ -145,6 +145,15 @@ void AEstMapErrorChecker::CheckForErrors()
 						->AddToken(FTextToken::Create(FText::FromString("Actor")))
 						->AddToken(FUObjectToken::Create(Actor))
 						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but does not have a UEstPhysicsEffectsComponent")));
+				}
+
+				if (!SceneComponent->GetGenerateOverlapEvents())
+				{
+					MapCheck.Warning()
+						->AddToken(FUObjectToken::Create(this))
+						->AddToken(FTextToken::Create(FText::FromString("Actor")))
+						->AddToken(FUObjectToken::Create(Actor))
+						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but does not have \"Generate Overlap Events\" enabled (meaning it can't be affected by physics push volumes)")));
 				}
 			}
 		}
