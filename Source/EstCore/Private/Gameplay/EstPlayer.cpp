@@ -20,6 +20,11 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/DamageEvents.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Animation/AnimInstance.h"
 
 DEFINE_LOG_CATEGORY(LogEstPlayer);
 #define DOF_DISTANCE_MAX 10000.f
@@ -127,8 +132,12 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	GetCharacterMovement()->MaxFlySpeed = 4096.f;
 	GetCharacterMovement()->BrakingDecelerationFlying = 512.f;
 
-	VelocityDamageThreshold = 700.f;
-	VelocityDamageMinimum = 10.f;
+	AirSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("AirSound"));
+	AirSound->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	AirSound->SetVolumeMultiplier(0.f);
+
+	VelocityAirEffectsThreshold = 1024.0;
+	VelocityDamageThreshold = 2048.0;
 
 	PlayerThrowAngularVelocity = FVector(0.f, 100.f, 500.f);
 }
@@ -209,12 +218,9 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 	if (!bWasDeadBefore && HealthComponent->IsDepleted())
 	{
 		UGameplayStatics::PlaySound2D(this, DeathSound);
-	}
-
-	if (HealthComponent->IsDepleted())
-	{
 		UnequipWeapon();
 		BaseEyeHeight = 0.f;
+		GetMovementComponent()->Velocity = FVector();
 		GetMovementComponent()->NavAgentProps.bCanCrouch = false;
 		GetMovementComponent()->NavAgentProps.bCanJump = false;
 		GetMovementComponent()->NavAgentProps.bCanSwim = false;
@@ -229,6 +235,8 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 		return Result;
 	}
 
+	float DamageSeverity = FMath::GetMappedRangeValueClamped(FVector2D(0, HealthComponent->MaxResource), FVector2D(0.f, 1.f), Damage);
+
 	if (IsHoldingActor() && !DamageEvent.DamageTypeClass.GetDefaultObject()->bCausedByWorld)
 	{
 		if (EventInstigator == nullptr || DamageCauser == nullptr)
@@ -237,7 +245,7 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 		}
 		else
 		{
-			DropHeldActor(DamageCauser->GetActorForwardVector() * (Damage * 100.f));
+			DropHeldActor(DamageCauser->GetActorForwardVector() * DamageSeverity);
 		}
 	}
 
@@ -254,14 +262,14 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 		USoundBase** Sound = DamageSounds.Find(DamageEvent.DamageTypeClass);
 		if (Sound != nullptr)
 		{
-			UGameplayStatics::PlaySound2D(this, *Sound);
+			UGameplayStatics::PlaySound2D(this, *Sound, DamageSeverity);
 		}
 
 		APlayerController* PlayerController = Cast<APlayerController>(Controller);
 		const TSubclassOf<UCameraShakeBase>* Shake = DamageShakes.Find(DamageEvent.DamageTypeClass);
 		if (PlayerController != nullptr && PlayerController->PlayerCameraManager != nullptr && Shake != nullptr)
 		{
-			PlayerController->PlayerCameraManager->StartCameraShake(*Shake);
+			PlayerController->PlayerCameraManager->StartCameraShake(*Shake, DamageSeverity);
 		}
 
 		UForceFeedbackEffect** ForceFeedback = DamageForceFeedback.Find(DamageEvent.DamageTypeClass);
@@ -278,7 +286,15 @@ void AEstPlayer::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	SmoothZVelocity = FMath::FInterpConstantTo(SmoothZVelocity, FMath::Abs(GetVelocity().Z), DeltaSeconds, 1000.f);
+	// Smooth out player velocity over time to prevent sudden changes
+	SmoothVelocity = GetVelocity().IsNearlyZero(16.f) ? FVector() : FMath::VInterpTo(SmoothVelocity, GetVelocity(), DeltaSeconds, 1.f);
+
+	float VelocityLerpSoundAmount = 2048.f;
+
+	float VolumeMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(VelocityAirEffectsThreshold, VelocityAirEffectsThreshold + VelocityLerpSoundAmount), FVector2D(0.f, 1.f), SmoothVelocity.GetAbsMax());
+
+	// If the velocity is low, mute the sound immediately - this catches where the player impacted something
+	AirSound->SetVolumeMultiplier(VolumeMultiplier);
 
 	// Regenerate health when below 50%
 	HealthComponent->SetChangePerSecond(HealthComponent->GetResource() < 50.f ? 1.f : 0.f);
@@ -711,18 +727,16 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	OnLandedDelegate.Broadcast(Hit, SmoothZVelocity);
+	OnLandedDelegate.Broadcast(Hit, GetVelocity().GetAbsMax());
 
-	if (SmoothZVelocity > VelocityDamageThreshold)
+	if (GetVelocity().GetAbsMax() > VelocityDamageThreshold)
 	{
-		const float Exceeded = SmoothZVelocity - VelocityDamageThreshold;
+		const float Exceeded = GetVelocity().GetAbsMax() - VelocityDamageThreshold;
 		const float Damage = Exceeded / 10.f;
-		if (Damage > VelocityDamageMinimum)
-		{
-			UE_LOG(LogEstPlayer, Log, TEXT("Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage"), VelocityDamageThreshold, Exceeded, Damage);
-			UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.GetActor(), FallDamageType);
-			EstCharacterMovement->DoFootstep(5.f);
-		}
+
+		UE_LOG(LogEstPlayer, Log, TEXT("Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage"), VelocityDamageThreshold, Exceeded, Damage);
+		UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.GetActor(), FallDamageType);
+		EstCharacterMovement->DoFootstep(5.f);
 	}
 }
 

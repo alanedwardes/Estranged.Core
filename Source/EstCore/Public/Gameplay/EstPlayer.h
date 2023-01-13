@@ -139,14 +139,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerMaximumCarryRadius;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	class UAudioComponent* AirSound;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Damage")
-	float SmoothZVelocity;
+	FVector SmoothVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float VelocityAirEffectsThreshold;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float VelocityDamageThreshold;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	float VelocityDamageMinimum;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<class UDamageType> FallDamageType;
@@ -165,6 +168,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	class USoundBase* DeathSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	class USoundBase* AirEffectsSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Water")
 	FLinearColor UnderwaterTintColor;
