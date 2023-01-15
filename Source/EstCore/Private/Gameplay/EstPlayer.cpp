@@ -287,14 +287,12 @@ void AEstPlayer::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Smooth out player velocity over time to prevent sudden changes
-	SmoothVelocity = GetVelocity().IsNearlyZero(16.f) ? FVector() : FMath::VInterpTo(SmoothVelocity, GetVelocity(), DeltaSeconds, 1.f);
+	SmoothVelocity = FMath::VInterpTo(SmoothVelocity, GetVelocity(), DeltaSeconds, 1.f);
 
-	float VelocityLerpSoundAmount = 2048.f;
-
-	float VolumeMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(VelocityAirEffectsThreshold, VelocityAirEffectsThreshold + VelocityLerpSoundAmount), FVector2D(0.f, 1.f), SmoothVelocity.GetAbsMax());
+	float VolumeMultiplier = FMath::GetMappedRangeValueClamped(FVector2D(VelocityAirEffectsThreshold, VelocityAirEffectsThreshold * 2.f), FVector2D(0.f, 1.f), SmoothVelocity.GetAbsMax());
 
 	// If the velocity is low, mute the sound immediately - this catches where the player impacted something
-	AirSound->SetVolumeMultiplier(VolumeMultiplier);
+	AirSound->SetVolumeMultiplier(GetVelocity().GetAbsMax() < VelocityAirEffectsThreshold * .25f ? 0 : VolumeMultiplier);
 
 	// Regenerate health when below 50%
 	HealthComponent->SetChangePerSecond(HealthComponent->GetResource() < 50.f ? 1.f : 0.f);
