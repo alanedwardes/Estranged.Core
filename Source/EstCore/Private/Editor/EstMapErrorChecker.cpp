@@ -22,8 +22,9 @@ void AEstMapErrorChecker::CheckForErrors()
 
 	TSet<const UMaterialInterface*> SeenMaterials;
 	TSet<const UStaticMesh*> SeenMeshes;
+	TSet<const USoundBase*> SeenSounds;
 	TSet<FGuid> EditorSeenSaveIds;
-	
+
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		const AActor *Actor = *ActorItr;
@@ -35,22 +36,49 @@ void AEstMapErrorChecker::CheckForErrors()
 		
 		for (const UActorComponent* Component : Actor->GetComponents())
 		{
-			const UPrimitiveComponent* SceneComponent = Cast<UPrimitiveComponent>(Component);
-			if (SceneComponent == nullptr)
+			if (Component->IsEditorOnly())
 			{
 				continue;
 			}
 
-			if (SceneComponent->IsEditorOnly())
+			const UAudioComponent* AudioComponent = Cast<UAudioComponent>(Component);
+			if (AudioComponent != nullptr)
 			{
-				continue;
+				if (AudioComponent->SoundClassOverride != nullptr && !AudioComponent->SoundClassOverride->GetPathName().StartsWith("/Game/Sound/Classes/"))
+				{
+					MapCheck.Error()
+						->AddToken(FUObjectToken::Create(this))
+						->AddToken(FTextToken::Create(FText::FromString("Actor")))
+						->AddToken(FUObjectToken::Create(Actor))
+						->AddToken(FTextToken::Create(FText::FromString("has audio component")))
+						->AddToken(FUObjectToken::Create(AudioComponent))
+						->AddToken(FTextToken::Create(FText::FromString("with invalid sound class override")));
+				}
+
+				const USoundBase* Sound = AudioComponent->Sound;
+				if (Sound != nullptr && !SeenSounds.Contains(Sound))
+				{
+					const USoundClass* SoundClass = Sound->SoundClassObject;
+					if (SoundClass == nullptr || !SoundClass->GetPathName().StartsWith("/Game/Sound/Classes/"))
+					{
+						MapCheck.Warning()
+							->AddToken(FUObjectToken::Create(this))
+							->AddToken(FTextToken::Create(FText::FromString("Actor")))
+							->AddToken(FUObjectToken::Create(Actor))
+							->AddToken(FTextToken::Create(FText::FromString("has sound")))
+							->AddToken(FUObjectToken::Create(Sound))
+							->AddToken(FTextToken::Create(FText::FromString("with no explicit sound class (so the default will be used)")));
+					}
+
+					SeenSounds.Add(Sound);
+				}
 			}
 
 			const UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(Component);
 			if (MeshComponent != nullptr)
 			{
 				const UStaticMesh* StaticMesh = MeshComponent->GetStaticMesh();
-				if (StaticMesh && !SeenMeshes.Contains(StaticMesh) && !StaticMesh->GetPathName().StartsWith("/Engine/"))
+				if (StaticMesh != nullptr && !SeenMeshes.Contains(StaticMesh) && !StaticMesh->GetPathName().StartsWith("/Engine/"))
 				{
 					const int32 Lod1Tris = StaticMesh->GetRenderData()->LODResources[0].GetNumTriangles();
 
@@ -81,12 +109,19 @@ void AEstMapErrorChecker::CheckForErrors()
 				}
 			}
 
-			if (!SceneComponent->GetCollisionEnabled())
+			const UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(Component);
+			if (PrimitiveComponent == nullptr)
 			{
 				continue;
 			}
 
-			if (SceneComponent->GetCollisionProfileName() == UCollisionProfile::CustomCollisionProfileName)
+			if (!PrimitiveComponent->GetCollisionEnabled())
+			{
+				// Only physics/collision checks from here on
+				continue;
+			}
+
+			if (PrimitiveComponent->GetCollisionProfileName() == UCollisionProfile::CustomCollisionProfileName)
 			{
 				MapCheck.Warning()
 					->AddToken(FUObjectToken::Create(this))
@@ -95,10 +130,10 @@ void AEstMapErrorChecker::CheckForErrors()
 					->AddToken(FTextToken::Create(FText::FromString("is using custom collision profile")));
 			}
 
-			int32 NumMaterials = SceneComponent->GetNumMaterials();
+			int32 NumMaterials = PrimitiveComponent->GetNumMaterials();
 			for (int32 i = 0; i < NumMaterials; i++)
 			{
-				const UMaterialInterface* Material = SceneComponent->GetMaterial(i);
+				const UMaterialInterface* Material = PrimitiveComponent->GetMaterial(i);
 				if (Material == nullptr)
 				{
 					continue;
@@ -133,7 +168,7 @@ void AEstMapErrorChecker::CheckForErrors()
 				}
 			}
 
-			if (SceneComponent->IsAnySimulatingPhysics())
+			if (PrimitiveComponent->IsAnySimulatingPhysics())
 			{
 				TArray<UEstPhysicsEffectsComponent*> PhysicsEffectsComponents;
 				Actor->GetComponents<UEstPhysicsEffectsComponent>(PhysicsEffectsComponents);
@@ -147,7 +182,7 @@ void AEstMapErrorChecker::CheckForErrors()
 						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but does not have a UEstPhysicsEffectsComponent")));
 				}
 
-				if (!SceneComponent->GetGenerateOverlapEvents())
+				if (!PrimitiveComponent->GetGenerateOverlapEvents())
 				{
 					MapCheck.Warning()
 						->AddToken(FUObjectToken::Create(this))
