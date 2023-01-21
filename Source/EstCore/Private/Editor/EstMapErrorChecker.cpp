@@ -12,8 +12,32 @@
 #include "Misc/MapErrors.h"
 #include "Engine/CollisionProfile.h"
 #include "Physics/EstPhysicsEffectsComponent.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "Misc/AssetRegistryInterface.h"
 
 #if WITH_EDITOR
+void GetDependenciesRecursive(IAssetRegistry* Registry, FName Start, TSet<TTuple<FName, FName>>& Dependencies)
+{
+	TArray<FName> FoundDependencies;
+	Registry->GetDependencies(Start, FoundDependencies, EAssetRegistryDependencyType::Type::Hard);
+	for (const FName FoundDependency : FoundDependencies)
+	{
+		if (FoundDependency.ToString().StartsWith("/Engine/"))
+		{
+			continue;
+		}
+
+		bool bIsAlreadyInSet;
+		Dependencies.Add(TTuple<FName, FName>(Start, FoundDependency), &bIsAlreadyInSet);
+
+		if (!bIsAlreadyInSet)
+		{
+			GetDependenciesRecursive(Registry, FoundDependency, Dependencies);
+		}
+	}
+}
+
+
 void AEstMapErrorChecker::CheckForErrors()
 {
 	Super::CheckForErrors();
@@ -24,6 +48,53 @@ void AEstMapErrorChecker::CheckForErrors()
 	TSet<const UStaticMesh*> SeenMeshes;
 	TSet<const USoundBase*> SeenSounds;
 	TSet<FGuid> EditorSeenSaveIds;
+
+	auto LevelPath = GetWorld()->PersistentLevel->GetPackage()->GetFName();
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+
+	IAssetRegistry* Registry = &AssetRegistryModule.Get();
+
+	TSet<TTuple<FName, FName>> Dependencies;
+	GetDependenciesRecursive(Registry, LevelPath, Dependencies);
+
+	for (const TTuple<FName, FName> Dependency : Dependencies)
+	{
+		TArray<FAssetData> ParentAssets;
+		Registry->GetAssetsByPackageName(Dependency.Key, ParentAssets);
+		if (ParentAssets.Num() == 0)
+		{
+			continue;
+		}
+
+		FAssetData Parent = ParentAssets[0];
+
+		TArray<FAssetData> Assets;
+		Registry->GetAssetsByPackageName(Dependency.Value, Assets);
+		if (Assets.Num() == 0)
+		{
+			continue;
+		}
+
+		FAssetData Asset = Assets[0];
+
+		if (Asset.GetClass()->IsChildOf(USoundBase::StaticClass()) && !Parent.GetClass()->IsChildOf(USoundCue::StaticClass()))
+		{
+			USoundBase* Sound = Cast<USoundBase>(Asset.GetAsset());
+
+			const USoundClass* SoundClass = Sound->SoundClassObject;
+			if (SoundClass != nullptr && !SoundClass->GetPathName().StartsWith("/Game/Sound/Classes/"))
+			{
+				MapCheck.Warning()
+					->AddToken(FUObjectToken::Create(this))
+					->AddToken(FTextToken::Create(FText::FromString("Found sound asset")))
+					->AddToken(FUObjectToken::Create(Sound))
+					->AddToken(FTextToken::Create(FText::FromString("with bad sound class")));
+			}
+
+			SeenSounds.Add(Sound);
+		}
+	}
 
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
