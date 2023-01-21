@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
 	static void DeployImpactEffect(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
 
+	UFUNCTION(BlueprintCallable, Category = Projectiles)
+	static void DeployImpactEffectFromHit(const UEstImpactManifest* ImpactEffects, const FHitResult Hit);
+
 	/** Deploy impact effects at a specified location with a delay. */
 	UFUNCTION(BlueprintCallable, Category = Projectiles)
 	static void DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale = 1.0f, class USoundAttenuation* AttenuationOverride = nullptr);
@@ -43,6 +46,12 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Projectiles)
 	static FName FindClosestBoneName(USceneComponent * Component, FVector Location);
+
+	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	static AController* GetInstigatorFromContext(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = Projectiles)
+	static void DeployPointDamage(USceneComponent* SceneComponent, float MaxDamage, FHitResult Hit, TSubclassOf<UDamageType> DamageTypeClass);
 
 	/** Pause or unpause all local player controllers. */
 	UFUNCTION(BlueprintCallable, Category = Game)

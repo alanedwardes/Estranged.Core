@@ -34,6 +34,8 @@
 #include "EstConsoleVariables.h"
 #include "InputCoreTypes.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Perception/AISense_Hearing.h"
+#include "Perception/AISense_Damage.h"
 
 DEFINE_LOG_CATEGORY(LogEstGameplayStatics);
 
@@ -120,6 +122,22 @@ void UEstGameplayStatics::DeployImpactEffect(const FEstImpactEffect ImpactEffect
 	}
 }
 
+void UEstGameplayStatics::DeployImpactEffectFromHit(const UEstImpactManifest* ImpactEffects, const FHitResult Hit)
+{
+	if (!Hit.PhysMaterial.IsValid() || !Hit.Component.IsValid())
+	{
+		return;
+	}
+
+	FEstImpactEffect ImpactEffect = FindImpactEffect(ImpactEffects, Hit.PhysMaterial.Get());
+	if (ImpactEffect == FEstImpactEffect::None)
+	{
+		return;
+	}
+
+	DeployImpactEffect(ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal, Hit.Component.Get());
+}
+
 void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect ImpactEffect, const FVector ImpactPoint, const FVector ImpactNormal, class USceneComponent* Component, const float Delay, const float Scale, class USoundAttenuation* AttenuationOverride)
 {
 	if (FMath::IsNearlyZero(Delay))
@@ -141,6 +159,58 @@ void UEstGameplayStatics::DeployImpactEffectDelayed(const FEstImpactEffect Impac
 
 	FTimerHandle Handle;
 	Component->GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, Delay, false);
+}
+
+AController* UEstGameplayStatics::GetInstigatorFromContext(UObject* WorldContextObject)
+{
+	AActor* Actor = Cast<AActor>(WorldContextObject);
+	if (Actor == nullptr)
+	{
+		return nullptr;
+	}
+
+	APawn* Instigator = Actor->GetInstigator();
+	if (Instigator != nullptr)
+	{
+		return Instigator->GetController();
+	}
+
+	AActor* Owner = Actor->GetOwner();
+	if (Owner == nullptr)
+	{
+		return nullptr;
+	}
+
+	return GetInstigatorFromContext(Owner);
+}
+
+void UEstGameplayStatics::DeployPointDamage(USceneComponent* SceneComponent, float MaxDamage, FHitResult Hit, TSubclassOf<UDamageType> DamageTypeClass)
+{
+	AActor* Owner = SceneComponent->GetOwner();
+	if (Owner == nullptr)
+	{
+		return;
+	}
+
+	AController* Instigator = GetInstigatorFromContext(Owner);
+
+	// Trigger sound event from the damage source
+	// TODO: This is too firearm specific
+	UAISense_Hearing::ReportNoiseEvent(SceneComponent, SceneComponent->GetComponentLocation(), 1.f, Instigator, 5000.f, FName("Gunshot"));
+
+	AActor* HitActor = Hit.GetActor();
+	if (HitActor == nullptr)
+	{
+		return;
+	}
+	
+	FRotator LookAt = UKismetMathLibrary::FindLookAtRotation(HitActor->GetActorLocation(), SceneComponent->GetComponentLocation());
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(LookAt) * -1.f;
+
+	// TODO: Scale damage depending on bone hit
+	float ActualDamage = UGameplayStatics::ApplyPointDamage(HitActor, MaxDamage, ForwardVector, Hit, Instigator, Owner, DamageTypeClass);
+
+	UAISense_Damage::ReportDamageEvent(SceneComponent, HitActor, Instigator, ActualDamage, Hit.Location, Hit.Location);
 }
 
 void UEstGameplayStatics::SetPause(bool bIsPaused)
