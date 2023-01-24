@@ -21,6 +21,8 @@ public:
 
 	APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
 
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
 private:
 	TMap<class APawn*, class AEstPlayerStart*> StartedPawns;
 };

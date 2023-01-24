@@ -8,6 +8,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Interfaces/EstPreBeginPlay.h"
 #include "Interfaces/EstPlayerSpawn.h"
+#include "GameFramework/PlayerStart.h"
+#include "EngineUtils.h"
+#include "Engine/PlayerStartPIE.h"
 
 void AEstGameMode::HandleMatchHasStarted()
 {
@@ -109,4 +112,26 @@ APawn* AEstGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, 
 	}
 
 	return Pawn;
+}
+
+AActor* AEstGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+#if WITH_EDITOR
+	for (TActorIterator<APlayerStartPIE> It(GetWorld()); It; ++It)
+	{
+		return *It;
+	}
+#endif
+
+	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+	{
+		APlayerStart* PlayerStart = *It;
+
+		if (PlayerStart->PlayerStartTag == NAME_None)
+		{
+			return PlayerStart;
+		}
+	}
+
+	return nullptr;
 }
