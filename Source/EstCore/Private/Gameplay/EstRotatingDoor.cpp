@@ -1,6 +1,7 @@
 // Estranged is a trade mark of Alan Edwardes.
 
 #include "Gameplay/EstRotatingDoor.h"
+#include "Components/ArrowComponent.h"
 #include "Gameplay/EstBaseCharacter.h"
 #include "Components/StaticMeshComponent.h"
 

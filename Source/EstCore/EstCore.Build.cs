@@ -4,8 +4,7 @@ namespace UnrealBuildTool.Rules
     {
         public EstCore(ReadOnlyTargetRules Target) : base(Target)
         {
-            PrivatePCHHeaderFile = "Public/EstCore.h";
-
+            bEnforceIWYU = true;
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
             PublicDependencyModuleNames.AddRange(
