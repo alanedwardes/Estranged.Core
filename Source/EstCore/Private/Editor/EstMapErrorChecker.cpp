@@ -12,6 +12,7 @@
 #include "Misc/UObjectToken.h"
 #include "Interfaces/EstSaveRestore.h"
 #include "Misc/MapErrors.h"
+#include "Sound/SoundClass.h"
 #include "Engine/CollisionProfile.h"
 #include "Physics/EstPhysicsEffectsComponent.h"
 

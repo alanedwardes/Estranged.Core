@@ -5,6 +5,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "Physics/EstPhysicsCollisionHandler.h"
 #include "PBDRigidsSolver.h"
+#include "Physics/Experimental/PhysScene_Chaos.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);

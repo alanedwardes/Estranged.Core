@@ -40,7 +40,7 @@ void UEstHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, cons
 	}
 }
 
-void UEstHealthComponent::TakeRadialDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, FVector Origin, FHitResult HitInfo, AController * InstigatedBy, AActor * DamageCauser)
+void UEstHealthComponent::TakeRadialDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, FVector Origin, const FHitResult& HitInfo, AController * InstigatedBy, AActor * DamageCauser)
 {
 	LastDamageLocation = HitInfo.Location;
 	LastDamageDirection = -HitInfo.Normal;
