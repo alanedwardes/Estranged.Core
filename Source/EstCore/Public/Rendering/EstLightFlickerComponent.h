@@ -31,4 +31,5 @@ protected:
 	class ULightComponent* Light;
 
 	float LightIntensity;
+	float RandomOffset;
 };

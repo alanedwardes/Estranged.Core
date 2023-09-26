@@ -24,7 +24,7 @@ void UEstLightFlickerComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	Curve->GetTimeRange(MinTime, MaxTime);
 
 	const float CurveLength = MaxTime - MinTime;
-	const float CurvePosition = MinTime + FMath::Fmod(GetWorld()->TimeSeconds, CurveLength);
+	const float CurvePosition = MinTime + FMath::Fmod(GetWorld()->TimeSeconds + RandomOffset, CurveLength);
 	const float CurveValue = Curve->GetFloatValue(CurvePosition);
 
 	Light->SetIntensity(LightIntensity * CurveValue);
@@ -34,6 +34,9 @@ void UEstLightFlickerComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 void UEstLightFlickerComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
+
+	// Inject a random offset into the curve time, so not all flickers start at the same time
+	RandomOffset = FMath::FRand() * 10.f;
 	
 	if (GetOwner() != nullptr && Light == nullptr)
 	{
