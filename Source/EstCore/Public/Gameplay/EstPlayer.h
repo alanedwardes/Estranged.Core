@@ -251,7 +251,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
 	FBox HeldActorBounds;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FTransform HeldPrimitiveTransform;
 
 	/** Actor the player is currently using */
