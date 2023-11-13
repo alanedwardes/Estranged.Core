@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interfaces/EstInteractive.h"
 #include "Interfaces/EstSaveRestore.h"
+#include "EstGameplayStatics.h"
 #include "EstDoor.generated.h"
 
 UENUM(BlueprintType)

@@ -3,6 +3,9 @@
 #include "Gameplay/EstSaveStatics.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Gameplay/EstPlayerCameraManager.h"
+#include "GameFramework/PlayerInput.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 AEstPlayerController::AEstPlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
@@ -20,8 +23,14 @@ void AEstPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("Menu", IE_Released, this, &AEstPlayerController::ShowMainMenu);
-	InputComponent->BindAction("Console", IE_Released, this, &AEstPlayerController::ShowConsoleMenu);
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
+	{
+		// Menu
+		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started, this, &AEstPlayerController::ShowMainMenu);
+
+		// Console
+		EnhancedInputComponent->BindAction(ConsoleAction, ETriggerEvent::Started, this, &AEstPlayerController::ShowConsoleMenu);
+	}
 }
 
 void AEstPlayerController::ShowMenuSection(FName MenuSection)
@@ -29,6 +38,16 @@ void AEstPlayerController::ShowMenuSection(FName MenuSection)
 	SetPause(true);
 	UEstGameplayStatics::GetEstGameInstance(this)->SetMenuVisibility(FEstMenuVisibilityContext(true, MenuSection));
 	SetMenuFocusState(true);
+}
+
+void AEstPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(MainMappingContext, INT32_MAX);
+	}
 }
 
 void AEstPlayerController::BeginDestroy()

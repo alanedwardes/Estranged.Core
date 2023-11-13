@@ -25,6 +25,8 @@
 #include "GameFramework/DamageType.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Animation/AnimInstance.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 
 DEFINE_LOG_CATEGORY(LogEstPlayer);
 #define DOF_DISTANCE_MAX 10000.f
@@ -322,8 +324,6 @@ void AEstPlayer::Tick(float DeltaSeconds)
 	UpdateZoomTick(DeltaSeconds);
 	UpdateViewModelTick(DeltaSeconds);
 
-	MoveForwardInput(MoveForwardsAxis + MoveBackwardsAxis);
-	MoveRightInput(MoveRightAxis + MoveLeftAxis);
 	if (SwimmingUp)
 	{
 		AddMovementInput(FVector(0.f, 0.f, 1.f));
@@ -381,6 +381,14 @@ void AEstPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	Camera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(FirstPersonMappingContext, 0);
+		}
+	}
 }
 
 void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
@@ -924,45 +932,55 @@ float AEstPlayer::GetFlashlightPower()
 	return Battery->GetResource();
 }
 
-void AEstPlayer::SetupPlayerInputComponent(UInputComponent* InInputComponent)
+void AEstPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(InInputComponent);
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		// Jumping
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-	InInputComponent->BindAxis("MoveForward", this, &AEstPlayer::MoveForwardInput);
-	InInputComponent->BindAxis("MoveRight", this, &AEstPlayer::MoveRightInput);
-	InInputComponent->BindAxis("Turn", this, &AEstPlayer::TurnInput);
-	InInputComponent->BindAxis("LookUp", this, &AEstPlayer::LookUpInput);
-	InInputComponent->BindAxis("Zoom", this, &AEstPlayer::ToggleZoomInput);
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEstPlayer::Move);
 
-	InInputComponent->BindAction("Interact", IE_Pressed, this, &AEstPlayer::InteractPressedInput);
-	InInputComponent->BindAction("Interact", IE_Released, this, &AEstPlayer::InteractReleasedInput);
-	InInputComponent->BindAction("Flashlight", IE_Pressed, this, &AEstPlayer::ToggleFlashlight);
-	InInputComponent->BindAction("Crouch", IE_Pressed, this, &AEstPlayer::CrouchPressedInput);
-	InInputComponent->BindAction("Crouch", IE_Released, this, &AEstPlayer::CrouchReleasedInput);
-	InInputComponent->BindAction("Jump", IE_Pressed, this, &AEstPlayer::JumpPressedInput);
-	InInputComponent->BindAction("Jump", IE_Released, this, &AEstPlayer::JumpReleasedInput);
-	InInputComponent->BindAction("Reload", IE_Pressed, this, &AEstPlayer::ReloadInput);
-	InInputComponent->BindAction("Sprint", IE_Pressed, this, &AEstPlayer::SprintPressedInput);
-	InInputComponent->BindAction("Sprint", IE_Released, this, &AEstPlayer::SprintReleasedInput);
-	InInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AEstPlayer::PrimaryAttackPressedInput);
-	InInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AEstPlayer::PrimaryAttackReleasedInput);
-	InInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &AEstPlayer::SecondaryAttackPressedInput);
-	InInputComponent->BindAction("SecondaryAttack", IE_Released, this, &AEstPlayer::SecondaryAttackReleasedInput);
+		// Looking
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEstPlayer::Look);
 
-	InInputComponent->BindAction("MoveForward", IE_Pressed, this, &AEstPlayer::MoveForwardsPressedInput);
-	InInputComponent->BindAction("MoveForward", IE_Released, this, &AEstPlayer::MoveForwardsReleasedInput);
-	InInputComponent->BindAction("MoveBackward", IE_Pressed, this, &AEstPlayer::MoveBackwardsPressedInput);
-	InInputComponent->BindAction("MoveBackward", IE_Released, this, &AEstPlayer::MoveBackwardsReleasedInput);
+		// Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEstPlayer::InteractPressedInput);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AEstPlayer::InteractReleasedInput);
 
-	InInputComponent->BindAction("MoveRight", IE_Pressed, this, &AEstPlayer::MoveRightPressedInput);
-	InInputComponent->BindAction("MoveRight", IE_Released, this, &AEstPlayer::MoveRightReleasedInput);
-	InInputComponent->BindAction("MoveLeft", IE_Pressed, this, &AEstPlayer::MoveLeftPressedInput);
-	InInputComponent->BindAction("MoveLeft", IE_Released, this, &AEstPlayer::MoveLeftReleasedInput);
+		// Crouch
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AEstPlayer::CrouchPressedInput);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AEstPlayer::CrouchReleasedInput);
+
+		// Sprint
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AEstPlayer::SprintPressedInput);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AEstPlayer::SprintReleasedInput);
+
+		// PrimaryAttack
+		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Started, this, &AEstPlayer::PrimaryAttackPressedInput);
+		EnhancedInputComponent->BindAction(PrimaryAttackAction, ETriggerEvent::Completed, this, &AEstPlayer::PrimaryAttackReleasedInput);
+
+		// SecondaryAttack
+		EnhancedInputComponent->BindAction(SecondaryAttackAction, ETriggerEvent::Started, this, &AEstPlayer::SecondaryAttackPressedInput);
+		EnhancedInputComponent->BindAction(SecondaryAttackAction, ETriggerEvent::Completed, this, &AEstPlayer::SecondaryAttackReleasedInput);
+
+		// Flashlight
+		EnhancedInputComponent->BindAction(FlashlightAction, ETriggerEvent::Started, this, &AEstPlayer::ToggleFlashlight);
+
+		// Zoom
+		//EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AEstPlayer::ToggleZoomInput);
+
+		// Reload
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AEstPlayer::ReloadInput);
+	}
 }
 
-void AEstPlayer::MoveForwardInput(float Value)
+void AEstPlayer::Move(const FInputActionValue& Value)
 {
-	if (!IsViewTarget() || FMath::IsNearlyZero(Value))
+	if (!IsViewTarget())
 	{
 		return;
 	}
@@ -974,38 +992,32 @@ void AEstPlayer::MoveForwardInput(float Value)
 
 	SetZooming(false);
 
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
 	if (GetCharacterMovement()->IsSwimming() || GetCharacterMovement()->IsFlying())
 	{
-		AddMovementInput(Camera->GetForwardVector(), Value);
+		AddMovementInput(Camera->GetForwardVector(), MovementVector.Y);
 	}
 	else
 	{
-		AddMovementInput(GetCapsuleComponent()->GetForwardVector(), Value);
+		AddMovementInput(GetCapsuleComponent()->GetForwardVector(), MovementVector.Y);
 	}
+
+	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
+	AddMovementInput(GetActorRightVector(), MovementVector.X);
 }
 
-void AEstPlayer::MoveRightInput(float Value)
+void AEstPlayer::Look(const FInputActionValue& Value)
 {
-	if (!IsViewTarget() || FMath::IsNearlyZero(Value))
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
 	{
-		return;
+		// add yaw and pitch input to controller
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
 	}
-
-	SetZooming(false);
-
-	// Get right vector
-	const FVector Direction = FRotationMatrix(GetControlRotation()).GetScaledAxis(EAxis::Y);
-	AddMovementInput(Direction, Value);
-}
-
-void AEstPlayer::TurnInput(float Value)
-{
-	AddControllerYawInput(Value);
-}
-
-void AEstPlayer::LookUpInput(float Value)
-{
-	AddControllerPitchInput(Value);
 }
 
 void AEstPlayer::CrouchPressedInput()

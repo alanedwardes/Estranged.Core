@@ -175,6 +175,46 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Water")
 	FLinearColor UnderwaterTintColor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* FirstPersonMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* CrouchAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* PrimaryAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SecondaryAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* FlashlightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ZoomAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ReloadAction;
+
+	virtual void Move(const struct FInputActionValue& Value);
+
+	virtual void Look(const struct FInputActionValue& Value);
+
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -320,22 +360,6 @@ public:
 
 	/** Set up the player input */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-
-	/** Input: Move forward */
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	virtual void MoveForwardInput(float Value);
-
-	/** Input: Move right */
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	virtual void MoveRightInput(float Value);
-
-	/** Input: Turn */
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	virtual void TurnInput(float Value);
-
-	/** Input: Look Up */
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	virtual void LookUpInput(float Value);
 
 	/** Input: Crouch */
 	UFUNCTION(BlueprintCallable, Category = "Input")

@@ -28,7 +28,8 @@ namespace UnrealBuildTool.Rules
                     "RenderCore",
                     "Chaos",
                     "ChaosSolverEngine",
-                    "GeometryCollectionEngine"
+                    "GeometryCollectionEngine",
+                    "EnhancedInput"
             });
         }
     }

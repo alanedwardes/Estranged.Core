@@ -24,7 +24,18 @@ public:
 
 	virtual void ShowLoadGameMenu() { ShowMenuSection("LoadGame"); }
 
+	virtual void BeginPlay() override;
+
 	virtual void BeginDestroy() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* MainMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MenuAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ConsoleAction;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input)
 	bool bIsUsingGamepad;
