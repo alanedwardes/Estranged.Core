@@ -719,14 +719,9 @@ void AEstPlayer::SetZooming(bool Zooming)
 	bZoomDesired = Zooming;
 }
 
-void AEstPlayer::ToggleZoomInput(float Value)
+void AEstPlayer::ToggleZoomInput(const FInputActionValue& Value)
 {
-	if (FMath::IsNearlyZero(Value))
-	{
-		return;
-	}
-
-	SetZooming(Value > 0);
+	SetZooming(Value.Get<FInputActionValue::Axis1D>() > 0.f);
 }
 
 void AEstPlayer::Landed(const FHitResult& Hit)
@@ -971,7 +966,11 @@ void AEstPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(FlashlightAction, ETriggerEvent::Started, this, &AEstPlayer::ToggleFlashlight);
 
 		// Zoom
-		//EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AEstPlayer::ToggleZoomInput);
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Started, this, &AEstPlayer::ToggleZoomInput);
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Completed, this, &AEstPlayer::ToggleZoomInput);
+
+		// Zoom Axis
+		EnhancedInputComponent->BindAction(ZoomAxisAction, ETriggerEvent::Started, this, &AEstPlayer::ToggleZoomInput);
 
 		// Reload
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AEstPlayer::ReloadInput);

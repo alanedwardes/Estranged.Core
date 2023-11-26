@@ -209,6 +209,9 @@ public:
 	class UInputAction* ZoomAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ZoomAxisAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* ReloadAction;
 
 	virtual void Move(const struct FInputActionValue& Value);
@@ -356,7 +359,7 @@ public:
 	virtual void SetZooming(bool Zooming);
 
 	/** Toggle zoom */
-	virtual void ToggleZoomInput(float Value);
+	virtual void ToggleZoomInput(const FInputActionValue& Value);
 
 	/** Set up the player input */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
