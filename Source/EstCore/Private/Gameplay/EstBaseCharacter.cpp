@@ -112,6 +112,8 @@ void AEstBaseCharacter::OnDeath_Implementation()
 	{
 		UnequipWeapon();
 	}
+
+	SetCanBeDamaged(false);
 }
 
 bool AEstBaseCharacter::CanJumpInternal_Implementation() const
