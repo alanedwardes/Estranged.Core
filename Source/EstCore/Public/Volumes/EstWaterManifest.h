@@ -26,6 +26,9 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UPhysicalMaterial* PhysicalMaterialOverride;
 
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class UMaterialParameterCollection* ParameterCollection;
+
 	/** Whether volume currently causes damage. */
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	uint32 bPainCausing : 1;

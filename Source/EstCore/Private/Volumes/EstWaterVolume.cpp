@@ -10,8 +10,11 @@
 #include "Gameplay/EstCharacterMovementComponent.h"
 #include "Camera/CameraModifier.h"
 #include "Engine/DamageEvents.h"
+#include "Materials/MaterialParameterCollection.h"
+#include "Kismet/KismetMaterialLibrary.h"
 
 #define REVERB_TAG_UNDERWATER "Underwater"
+#define WATER_SURFACE_MATERIAL_PARAMETER "WaterSurface"
 
 AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -85,6 +88,8 @@ void AEstWaterVolume::SetPlayerImmersed(bool bEnabled)
 	{
 		if (!bPlayerImmersed)
 		{
+			FBoxSphereBounds Bounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
+			UKismetMaterialLibrary::SetScalarParameterValue(this, Manifest->ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, (Bounds.Origin + Bounds.BoxExtent).Z);
 			UGameplayStatics::PushSoundMixModifier(this, Manifest->SoundMixOverride);
 			UGameplayStatics::ActivateReverbEffect(this, Manifest->ReverbOverride, REVERB_TAG_UNDERWATER);
 			if (IsValid(OverlappingPlayer) && IsValid(OverlappingPlayer->PlayerCameraManager) && IsValid(Manifest->CameraModifierOverride))
