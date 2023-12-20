@@ -36,6 +36,7 @@
 #include "Engine/TextureRenderTarget2D.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Damage.h"
+#include "GameFramework/PhysicsVolume.h"
 
 DEFINE_LOG_CATEGORY(LogEstGameplayStatics);
 
@@ -1199,4 +1200,30 @@ void UEstGameplayStatics::UpdateCameraManager(APlayerController* Controller, flo
 	{
 		Controller->UpdateCameraManager(DeltaSeconds);
 	}
+}
+
+bool UEstGameplayStatics::IsActorInWater(AActor* Actor)
+{
+	if (!IsValid(Actor))
+	{
+		return false;
+	}
+
+	APhysicsVolume* CurrentPhysicsVolume = Actor->GetPhysicsVolume();
+	return IsValid(CurrentPhysicsVolume) && CurrentPhysicsVolume->bWaterVolume;
+}
+
+bool UEstGameplayStatics::AreActorsEyesInWater(AActor* Actor)
+{
+	if (!IsValid(Actor))
+	{
+		return false;
+	}
+
+	FVector Location;
+	FRotator Rotator;
+	Actor->GetActorEyesViewPoint(Location, Rotator);
+
+	APhysicsVolume* CurrentPhysicsVolume = Actor->GetPhysicsVolume();
+	return IsValid(CurrentPhysicsVolume) && CurrentPhysicsVolume->bWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
 }

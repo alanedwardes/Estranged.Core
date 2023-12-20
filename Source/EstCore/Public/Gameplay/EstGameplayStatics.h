@@ -247,6 +247,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = Health)
 	static bool IsActorAlive(AActor* Actor) { return !IsActorDead(Actor); }
 
+	/* Simple check to see if this actor's physics volume is a water volume. */
+	UFUNCTION(BlueprintPure, Category = Water)
+	static bool IsActorInWater(AActor* Actor);
+
+	/* Advanced check for actors with eyes to check if the eyes are immersed in water. */
+	UFUNCTION(BlueprintPure, Category = Water)
+	static bool AreActorsEyesInWater(AActor* Actor);
+
 	UFUNCTION(BlueprintCallable, Category = "ForceFeedback")
 	static class UForceFeedbackComponent* SpawnForceFeedbackAttached(class UForceFeedbackEffect* ForceFeedbackEffect, USceneComponent* AttachToComponent);
 
