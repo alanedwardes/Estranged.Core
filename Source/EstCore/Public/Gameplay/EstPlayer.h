@@ -161,6 +161,9 @@ public:
 	TMap<TSubclassOf<class UDamageType>, class USoundBase*> DamageSounds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	class USoundBase* UnderwaterDamageSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TMap<TSubclassOf<class UDamageType>, TSubclassOf<class UCameraShakeBase>> DamageShakes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
@@ -171,9 +174,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	class USoundBase* AirEffectsSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Water")
-	FLinearColor UnderwaterTintColor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* FirstPersonMappingContext;
@@ -314,7 +314,7 @@ public:
 
 	/** Check if the player is in water */
 	UFUNCTION(BlueprintCallable, Category = "Tick")
-	virtual void InWaterCheckSubTick();
+	virtual void UpdateWater(float DeltaSeconds);
 
 	/** Update the flashlight intensity */
 	UFUNCTION(BlueprintCallable, Category = "Tick")
@@ -506,9 +506,6 @@ public:
 
 	UPROPERTY()
 	float InFrontCheckSubTickTime;
-
-	UPROPERTY()
-	float InWaterCheckSubTickTime;
 
 	UPROPERTY()
 	float BlurFocusCheckSubTickTime;

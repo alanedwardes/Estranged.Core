@@ -84,8 +84,6 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	Oxygen = PCIP.CreateDefaultSubobject<UEstResourceComponent>(this, TEXT("Oxygen"));
 	Oxygen->SetComponentTickInterval(1.f);
 
-	UnderwaterTintColor = FLinearColor(.6f, .7f, 1.f);
-
 	ViewModel = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("ViewModelScene"));
 	ViewModel->AttachToComponent(Camera, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -261,10 +259,12 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	if (!bWasDeadBefore && !HealthComponent->GetIsFrozen())
 	{
-		USoundBase** Sound = DamageSounds.Find(DamageEvent.DamageTypeClass);
+		USoundBase** Sound = HeadInWater ? &UnderwaterDamageSound : DamageSounds.Find(DamageEvent.DamageTypeClass);
 		if (Sound != nullptr)
 		{
-			UGameplayStatics::PlaySound2D(this, *Sound, DamageSeverity);
+			UAudioComponent* AudioComponent = UGameplayStatics::CreateSound2D(this, *Sound);
+			AudioComponent->SetFloatParameter(SOUND_INSTANCE_PARAMETER_DAMAGE_SEVERITY, DamageSeverity);
+			AudioComponent->Play();
 		}
 
 		APlayerController* PlayerController = Cast<APlayerController>(Controller);
@@ -311,12 +311,7 @@ void AEstPlayer::Tick(float DeltaSeconds)
 		BlurFocusCheckSubTickTime = GetWorld()->GetTimeSeconds();
 	}
 
-	if (GetWorld()->TimeSince(InWaterCheckSubTickTime) > .1f)
-	{
-		InWaterCheckSubTick();
-		InWaterCheckSubTickTime = GetWorld()->GetTimeSeconds();
-	}
-
+	UpdateWater(DeltaSeconds);
 	UpdatePostProcessingTick(DeltaSeconds);
 	UpdateCameraTick(DeltaSeconds);
 	UpdateHeldActorTick(DeltaSeconds);
@@ -326,7 +321,7 @@ void AEstPlayer::Tick(float DeltaSeconds)
 
 	if (SwimmingUp)
 	{
-		AddMovementInput(FVector(0.f, 0.f, 1.f));
+  		AddMovementInput(FVector(0.f, 0.f, 1.f));
 	}
 }
 
@@ -547,17 +542,9 @@ void AEstPlayer::InFrontCheckSubTick()
 	}
 }
 
-void AEstPlayer::InWaterCheckSubTick()
+void AEstPlayer::UpdateWater(float DeltaSeconds)
 {
-	FVector Location;
-	FRotator Rotator;
-	GetActorEyesViewPoint(Location, Rotator);
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	const bool bIsInWater = GetWorld()->OverlapBlockingTestByChannel(Location, Rotator.Quaternion(), CHANNEL_PLAYER_WATER_CHECK, FCollisionShape::MakeBox(FVector(1.f)), Params);
-	if (bIsInWater && IsViewTarget())
+	if (UEstGameplayStatics::AreActorsEyesInWater(this) && IsViewTarget())
 	{
 		Oxygen->SetChangePerSecond(-5.f);
 		HeadInWater = true;
@@ -933,8 +920,8 @@ void AEstPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCom
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AEstPlayer::JumpPressedInput);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AEstPlayer::JumpReleasedInput);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEstPlayer::Move);
