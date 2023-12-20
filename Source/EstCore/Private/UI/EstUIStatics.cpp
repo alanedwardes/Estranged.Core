@@ -34,7 +34,7 @@ UWidget* UEstUIStatics::GetFirstFocusableWidget(TArray<UWidget*> Widgets)
 
 		if (UUserWidget* UserWidget = Cast<UUserWidget>(Widget))
 		{
-			if (UserWidget->bIsFocusable)
+			if (UserWidget->IsFocusable())
 			{
 				return Widget;
 			}
