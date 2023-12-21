@@ -37,6 +37,7 @@
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Damage.h"
 #include "GameFramework/PhysicsVolume.h"
+#include "Volumes/EstWaterVolume.h"
 
 DEFINE_LOG_CATEGORY(LogEstGameplayStatics);
 
@@ -1225,5 +1226,7 @@ bool UEstGameplayStatics::AreActorsEyesInWater(AActor* Actor)
 	Actor->GetActorEyesViewPoint(Location, Rotator);
 
 	APhysicsVolume* CurrentPhysicsVolume = Actor->GetPhysicsVolume();
-	return IsValid(CurrentPhysicsVolume) && CurrentPhysicsVolume->bWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
+	const bool bIsWaterVolume = CurrentPhysicsVolume->bWaterVolume || CurrentPhysicsVolume->IsA<AEstWaterVolume>();
+
+	return IsValid(CurrentPhysicsVolume) && bIsWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
 }
