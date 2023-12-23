@@ -153,7 +153,7 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 	FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(Manifest, PhysicalMaterial);
 	if (ImpactEffect == FEstImpactEffect::None)
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because its physical material %s has no effects in the manifest"), *Component->GetName(), *PhysicalMaterial->GetName());
+		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s"), *Component->GetName(), *PhysicalMaterial->GetName(), *Manifest->GetName());
 		return;
 	}
 
