@@ -22,7 +22,7 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	GetBrushComponent()->SetCollisionProfileName(PROFILE_TRIGGER);
+	GetBrushComponent()->SetCollisionProfileName(PROFILE_WATER);
 	FluidFriction = 0.35f;
 	bWaterVolume = true;
 	bPhysicsOnContact = false;

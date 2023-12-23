@@ -13,6 +13,7 @@
 #define PROFILE_BULLET "Bullet"
 #define PROFILE_DEBRIS "Debris"
 #define PROFILE_FOOTSTEPS "Footsteps"
+#define PROFILE_WATER "Water"
 
 #define SURFACE_TYPE_GLASS EPhysicalSurface::SurfaceType1
 #define SURFACE_TYPE_FOLIAGE EPhysicalSurface::SurfaceType2
