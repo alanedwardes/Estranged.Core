@@ -17,6 +17,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
+#define MAX_VELOCITY 512.f
+
 UEstPhysicsCollisionHandler::UEstPhysicsCollisionHandler(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -58,7 +60,8 @@ void UEstPhysicsCollisionHandler::HandlePhysicsCollisions_AssumesLocked(const FC
 
 void UEstPhysicsCollisionHandler::HandlePhysicsBreak_AssumesLocked(const FChaosBreakEvent& BreakEvent)
 {
-	DeployImpactEffect(FractureManifest, BreakEvent.Component, BreakEvent.Location, FVector(), BreakEvent.Velocity.SquaredLength());
+	const float Velocity = BreakEvent.Velocity.IsNearlyZero() ? MAX_VELOCITY : BreakEvent.Velocity.SquaredLength();
+	DeployImpactEffect(FractureManifest, BreakEvent.Component, BreakEvent.Location, FVector(), Velocity);
 }
 
 UPhysicalMaterial* UEstPhysicsCollisionHandler::GetPhysicalMaterialFromComponent(TWeakObjectPtr<UPrimitiveComponent> Component)
@@ -157,6 +160,6 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 		return;
 	}
 
-	const float Intensity = FMath::Clamp(Velocity / 512.f, 0.1f, 1.f);
+	const float Intensity = FMath::Clamp(Velocity / MAX_VELOCITY, 0.1f, 1.f);
 	UEstGameplayStatics::DeployImpactEffect(ImpactEffect, Location, Normal, Component.Get(), Intensity);
 }
