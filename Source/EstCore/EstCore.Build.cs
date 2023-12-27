@@ -4,7 +4,7 @@ namespace UnrealBuildTool.Rules
     {
         public EstCore(ReadOnlyTargetRules Target) : base(Target)
         {
-            bEnforceIWYU = true;
+            IWYUSupport = IWYUSupport.Full;
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
             PublicDependencyModuleNames.AddRange(

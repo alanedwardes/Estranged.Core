@@ -22,8 +22,8 @@ AEstRotatingDoor::AEstRotatingDoor(const FObjectInitializer& ObjectInitializer)
 	CurrentOpenDirection = EEstRotatingDoorDirection::Forwards;
 
 	// By default, both directions are possible
-	EnumAddFlags(PossibleOpenDirections, (uint8)EEstRotatingDoorDirection::Forwards);
-	EnumAddFlags(PossibleOpenDirections, (uint8)EEstRotatingDoorDirection::Backwards);
+	EnumAddFlags(PossibleOpenDirections, EEstRotatingDoorDirection::Forwards);
+	EnumAddFlags(PossibleOpenDirections, EEstRotatingDoorDirection::Backwards);
 }
 
 void AEstRotatingDoor::UpdateDoor()
@@ -62,8 +62,8 @@ void AEstRotatingDoor::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 	// If unset, set both as valid
 	if ((EEstRotatingDoorDirection)PossibleOpenDirections == EEstRotatingDoorDirection::None)
 	{
-		EnumAddFlags(PossibleOpenDirections, (uint8)EEstRotatingDoorDirection::Forwards);
-		EnumAddFlags(PossibleOpenDirections, (uint8)EEstRotatingDoorDirection::Backwards);
+		EnumAddFlags(PossibleOpenDirections, EEstRotatingDoorDirection::Forwards);
+		EnumAddFlags(PossibleOpenDirections, EEstRotatingDoorDirection::Backwards);
 	}
 }
 #endif

@@ -47,7 +47,7 @@ public:
 	bool TrySetDoorState(class AEstBaseCharacter* User, EEstDoorState NewDoorState) override;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Bitmask, BitmaskEnum = EEstRotatingDoorDirection), Category = Door)
-	uint8 PossibleOpenDirections;
+	EEstRotatingDoorDirection PossibleOpenDirections;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Door)
 	EEstRotatingDoorDirection CurrentOpenDirection;

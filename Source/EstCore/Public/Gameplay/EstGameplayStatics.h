@@ -1,8 +1,7 @@
 #pragma once
 
 #include "HAL/IConsoleManager.h"
-#include "Engine/Classes/Engine/EngineTypes.h"
-#include "Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
+#include "Delegates/Delegate.h"
 #include "Runtime/InputCore/Classes/InputCoreTypes.h"
 #include "Framework/Commands/InputChord.h"
 #include "GameFramework/Actor.h"
