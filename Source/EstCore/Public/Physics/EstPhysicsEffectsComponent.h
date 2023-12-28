@@ -18,7 +18,8 @@ public:
 	UEstPhysicsEffectsComponent();
 
 protected:
-	virtual void BeginPlay() override;
+	UFUNCTION()
+	virtual void OnRegister() override;
 
 	UFUNCTION()
 	virtual void OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo);

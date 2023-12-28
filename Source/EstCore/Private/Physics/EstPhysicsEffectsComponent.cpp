@@ -14,9 +14,13 @@ UEstPhysicsEffectsComponent::UEstPhysicsEffectsComponent()
 {
 }
 
-void UEstPhysicsEffectsComponent::BeginPlay()
+void UEstPhysicsEffectsComponent::OnRegister()
 {
-	Super::BeginPlay();
+	// WARNING: This method MUST be idempotent, since it is executed multiple times.
+	// For example: it is executed in the editor, then in PIE.
+	// Use AddUniqueDynamic instead of AddDynamic for delegates.
+
+	Super::OnRegister();
 
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
@@ -30,25 +34,17 @@ void UEstPhysicsEffectsComponent::BeginPlay()
 	for (UPrimitiveComponent* Primitive : Primitives)
 	{
 		Primitive->SetNotifyRigidBodyCollision(true);
-		Primitive->OnComponentHit.AddDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
+		Primitive->OnComponentHit.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
 	}
-
-	// Must be done first, see https://alanedwardes.com/blog/posts/enabling-ue5-chaos-events/
-	Chaos::FPhysicsSolver* Solver = GetWorld()->GetPhysicsScene()->GetSolver();
-	Solver->EnqueueCommandImmediate([Solver]()
-	{
-		Solver->SetGenerateBreakingData(true);
-		Solver->SetGenerateCollisionData(true);
-	});
 
 	TArray<UGeometryCollectionComponent*> GeometryCollectionComponents;
 	Owner->GetComponents<UGeometryCollectionComponent>(GeometryCollectionComponents);
 	for (UGeometryCollectionComponent* GeometryCollectionComponent : GeometryCollectionComponents)
 	{
-		GeometryCollectionComponent->SetNotifyBreaks(true);
-		GeometryCollectionComponent->OnChaosBreakEvent.AddDynamic(this, &UEstPhysicsEffectsComponent::OnChaosBreak);
-		GeometryCollectionComponent->OnChaosPhysicsCollision.AddDynamic(this, &UEstPhysicsEffectsComponent::OnChaosPhysicsCollision);
-		
+		GeometryCollectionComponent->bNotifyCollisions = true;
+		GeometryCollectionComponent->bNotifyBreaks = true;
+		GeometryCollectionComponent->OnChaosBreakEvent.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnChaosBreak);
+		GeometryCollectionComponent->OnChaosPhysicsCollision.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnChaosPhysicsCollision);
 	}
 }
 
