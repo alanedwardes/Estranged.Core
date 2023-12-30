@@ -1057,6 +1057,26 @@ void UEstGameplayStatics::ClearGameUserSettingsIniCulture()
 	GConfig->Flush(false, GGameUserSettingsIni);
 }
 
+#define SYSTEM_SETTINGS_INI_SECTION TEXT("SystemSettings")
+#define ANTI_ALIASING_METHOD_INI_KEY SYSTEM_SETTINGS_INI_SECTION, TEXT("r.AntiAliasingMethod")
+static IConsoleVariable* AntiAliasingCvar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.AntiAliasingMethod"));
+
+int32 UEstGameplayStatics::GetAntiAliasingMethod()
+{
+	return AntiAliasingCvar->GetInt();
+}
+
+void UEstGameplayStatics::SetAntiAliasingMethod(int32 AntiAliasingMethod, bool bPersist)
+{
+	AntiAliasingCvar->Set(AntiAliasingMethod);
+
+	if (bPersist)
+	{
+		GConfig->SetInt(ANTI_ALIASING_METHOD_INI_KEY, AntiAliasingMethod, GEngineIni);
+		GConfig->Flush(false, GEngineIni);
+	}
+}
+
 void UEstGameplayStatics::ParseVersion(FString Version, TArray<int32> &Components)
 {
 	TArray<FString> VersionParts;

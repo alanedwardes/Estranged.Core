@@ -222,6 +222,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Internationalization)
 	static void ClearGameUserSettingsIniCulture();
 
+	UFUNCTION(BlueprintPure, Category = Configuration)
+	static int32 GetAntiAliasingMethod();
+
+	UFUNCTION(BlueprintCallable, Category = Configuration)
+	static void SetAntiAliasingMethod(int32 AntiAliasingMethod, bool bPersist);
+
 	UFUNCTION(BlueprintPure, Category = Parsing)
 	static void ParseVersion(FString Version, TArray<int32> &Components);
 
