@@ -369,22 +369,34 @@ void UEstSaveStatics::SaveCheckpoints(UEstCheckpointSave* Checkpoints)
 	UGameplayStatics::SaveGameToSlot(Checkpoints, SAVE_SLOT_CHECKPOINTS, 0);
 }
 
-void UEstSaveStatics::AddCheckpoint(FEstCheckpoint NewCheckpoint)
+void UEstSaveStatics::AddCheckpoint(UObject* WorldContextObject, FEstCheckpoint NewCheckpoint)
 {
 	UEstCheckpointSave* Save = LoadCheckpoints();
+	NewCheckpoint.Level = UGameplayStatics::GetCurrentLevelName(WorldContextObject);
+	NewCheckpoint.CreatedOn = FDateTime::UtcNow();
 	Save->Checkpoints.Add(NewCheckpoint);
 	SaveCheckpoints(Save);
 }
 
-FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(bool& bIsValid)
+FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(UObject* WorldContextObject, bool bCurrentLevelOnly, bool& bIsValid)
 {
 	UEstCheckpointSave* Save = LoadCheckpoints();
 
 	TArray<FEstCheckpoint> Checkpoints = TArray(Save->Checkpoints);
 
+	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(WorldContextObject);
+
+	if (bCurrentLevelOnly)
+	{
+		Checkpoints = Checkpoints.FilterByPredicate([&CurrentLevelName](const FEstCheckpoint& Checkpoint)
+		{
+			return CurrentLevelName.Equals(Checkpoint.Level);
+		});
+	}
+
 	Checkpoints.Sort([](const FEstCheckpoint& LHS, const FEstCheckpoint& RHS)
 	{
-		return LHS.CreatedOn < RHS.CreatedOn;
+		return LHS.CreatedOn > RHS.CreatedOn;
 	});
 
 	if (Checkpoints.Num() > 0)
@@ -395,6 +407,12 @@ FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(bool& bIsValid)
 
 	bIsValid = false;
 	return FEstCheckpoint();
+}
+
+void UEstSaveStatics::OpenCheckpoint(UObject* WorldContextObject, FEstCheckpoint NewCheckpoint)
+{
+	FString LevelString = FString::Printf(TEXT("%s#%s"), *NewCheckpoint.Level, *NewCheckpoint.PlayerStartTag.ToString());
+	UGameplayStatics::OpenLevel(WorldContextObject, FName(*LevelString));
 }
 
 bool UEstSaveStatics::PersistSaveRaw(const TArray<uint8>& SrcData, const FString & SlotName, const int32 UserIndex)

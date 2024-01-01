@@ -15,15 +15,39 @@ AEstPlayerCheckpoint::AEstPlayerCheckpoint(const class FObjectInitializer& PCIP)
 	Trigger = PCIP.CreateDefaultSubobject<UBoxComponent>(this, TEXT("Trigger"));
 	Trigger->SetupAttachment(GetRootComponent());
 	Trigger->SetCollisionProfileName(PROFILE_TRIGGER);
+	TriggerExtent = FVector(32.f, 32.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 }
 
 void AEstPlayerCheckpoint::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	FEstCheckpoint NewCheckpoint;
-	NewCheckpoint.Level = UGameplayStatics::GetCurrentLevelName(this);
 	NewCheckpoint.PlayerStartTag = PlayerStartTag;
-	NewCheckpoint.CreatedOn = FDateTime::UtcNow();
-	UEstSaveStatics::AddCheckpoint(NewCheckpoint);
+	UEstSaveStatics::AddCheckpoint(this, NewCheckpoint);
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Checkpoint Saved"));
 }
+
+#if	WITH_EDITOR
+void AEstPlayerCheckpoint::PostEditMove(bool bFinished)
+{
+	Super::PostEditMove(bFinished);
+	Reposition();
+}
+
+void AEstPlayerCheckpoint::PostEditUndo()
+{
+	Super::PostEditUndo();
+	Reposition();
+}
+void AEstPlayerCheckpoint::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	Reposition();
+}
+
+void AEstPlayerCheckpoint::Reposition()
+{
+	Trigger->SetRelativeLocation(FVector(0.f, 0.f, TriggerExtent.Z - GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	Trigger->SetBoxExtent(FVector(TriggerExtent.X, TriggerExtent.Y, TriggerExtent.Z));
+}
+#endif

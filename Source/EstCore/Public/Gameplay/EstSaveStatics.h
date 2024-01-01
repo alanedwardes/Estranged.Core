@@ -25,11 +25,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Saving)
 	static void SaveCheckpoints(UEstCheckpointSave* Checkpoints);
 
-	UFUNCTION(BlueprintCallable, Category = Saving)
-	static void AddCheckpoint(FEstCheckpoint NewCheckpoint);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category = Saving)
+	static void AddCheckpoint(UObject* WorldContextObject, FEstCheckpoint NewCheckpoint);
 
-	UFUNCTION(BlueprintCallable, Category = Saving)
-	static FEstCheckpoint GetLastCheckpoint(bool& bIsValid);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category = Saving)
+	static FEstCheckpoint GetLastCheckpoint(UObject* WorldContextObject, bool bCurrentLevelOnly, bool& bIsValid);
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category = Saving)
+	static void OpenCheckpoint(UObject* WorldContextObject, FEstCheckpoint NewCheckpoint);
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
 	static bool PersistSaveRaw(const TArray<uint8> &SrcData, const FString& SlotName, const int32 UserIndex);
