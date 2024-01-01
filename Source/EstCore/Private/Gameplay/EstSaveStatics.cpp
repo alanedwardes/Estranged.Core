@@ -372,7 +372,16 @@ void UEstSaveStatics::SaveCheckpoints(UEstCheckpointSave* Checkpoints)
 void UEstSaveStatics::AddCheckpoint(UObject* WorldContextObject, FEstCheckpoint NewCheckpoint)
 {
 	UEstCheckpointSave* Save = LoadCheckpoints();
-	NewCheckpoint.Level = UGameplayStatics::GetCurrentLevelName(WorldContextObject);
+
+	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(WorldContextObject);
+
+	// Replace all other checkpoints for this level
+	Save->Checkpoints = Save->Checkpoints.FilterByPredicate([&CurrentLevelName](const FEstCheckpoint& Checkpoint)
+	{
+		return !CurrentLevelName.Equals(Checkpoint.Level);
+	});
+
+	NewCheckpoint.Level = CurrentLevelName;
 	NewCheckpoint.CreatedOn = FDateTime::UtcNow();
 	Save->Checkpoints.Add(NewCheckpoint);
 	SaveCheckpoints(Save);
