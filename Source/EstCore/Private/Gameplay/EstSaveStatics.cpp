@@ -18,6 +18,7 @@
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "LevelSequencePlayer.h"
+#include "Saves/EstCheckpointSave.h"
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {
@@ -350,6 +351,50 @@ void UEstSaveStatics::SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes)
 	Ar.ArIsSaveGame = true;
 	Ar.ArNoDelta = true;
 	Object->Serialize(Ar);
+}
+
+UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()
+{
+	UEstCheckpointSave* Save = Cast<UEstCheckpointSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_CHECKPOINTS, 0));
+	if (Save == nullptr)
+	{
+		Save = NewObject<UEstCheckpointSave>();
+	}
+
+	return Save;
+}
+
+void UEstSaveStatics::SaveCheckpoints(UEstCheckpointSave* Checkpoints)
+{
+	UGameplayStatics::SaveGameToSlot(Checkpoints, SAVE_SLOT_CHECKPOINTS, 0);
+}
+
+void UEstSaveStatics::AddCheckpoint(FEstCheckpoint NewCheckpoint)
+{
+	UEstCheckpointSave* Save = LoadCheckpoints();
+	Save->Checkpoints.Add(NewCheckpoint);
+	SaveCheckpoints(Save);
+}
+
+FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(bool& bIsValid)
+{
+	UEstCheckpointSave* Save = LoadCheckpoints();
+
+	TArray<FEstCheckpoint> Checkpoints = TArray(Save->Checkpoints);
+
+	Checkpoints.Sort([](const FEstCheckpoint& LHS, const FEstCheckpoint& RHS)
+	{
+		return LHS.CreatedOn < RHS.CreatedOn;
+	});
+
+	if (Checkpoints.Num() > 0)
+	{
+		bIsValid = true;
+		return Checkpoints[0];
+	}
+
+	bIsValid = false;
+	return FEstCheckpoint();
 }
 
 bool UEstSaveStatics::PersistSaveRaw(const TArray<uint8>& SrcData, const FString & SlotName, const int32 UserIndex)

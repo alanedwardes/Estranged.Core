@@ -28,3 +28,5 @@
 #define BLACKBOARD_FOCUS_ACTOR "FocusActor"
 
 #define SOUND_INSTANCE_PARAMETER_DAMAGE_SEVERITY "DamageSeverity"
+
+#define SAVE_SLOT_CHECKPOINTS "Checkpoints"

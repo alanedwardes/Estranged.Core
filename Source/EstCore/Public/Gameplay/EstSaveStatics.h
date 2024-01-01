@@ -20,6 +20,18 @@ class ESTCORE_API UEstSaveStatics : public UBlueprintFunctionLibrary
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = Saving)
+	static class UEstCheckpointSave* LoadCheckpoints();
+
+	UFUNCTION(BlueprintCallable, Category = Saving)
+	static void SaveCheckpoints(UEstCheckpointSave* Checkpoints);
+
+	UFUNCTION(BlueprintCallable, Category = Saving)
+	static void AddCheckpoint(FEstCheckpoint NewCheckpoint);
+
+	UFUNCTION(BlueprintCallable, Category = Saving)
+	static FEstCheckpoint GetLastCheckpoint(bool& bIsValid);
+
+	UFUNCTION(BlueprintCallable, Category = Saving)
 	static bool PersistSaveRaw(const TArray<uint8> &SrcData, const FString& SlotName, const int32 UserIndex);
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
