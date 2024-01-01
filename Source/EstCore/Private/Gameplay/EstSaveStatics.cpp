@@ -375,15 +375,25 @@ void UEstSaveStatics::AddCheckpoint(UObject* WorldContextObject, FEstCheckpoint 
 
 	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(WorldContextObject);
 
-	// Replace all other checkpoints for this level
-	Save->Checkpoints = Save->Checkpoints.FilterByPredicate([&CurrentLevelName](const FEstCheckpoint& Checkpoint)
+	// Replace this checkpoint
+	Save->Checkpoints = Save->Checkpoints.FilterByPredicate([&CurrentLevelName, &NewCheckpoint](const FEstCheckpoint& Checkpoint)
 	{
-		return !CurrentLevelName.Equals(Checkpoint.Level);
+		if (!CurrentLevelName.Equals(Checkpoint.Level))
+		{
+			return true;
+		}
+
+		if (NewCheckpoint.PlayerStartTag != Checkpoint.PlayerStartTag)
+		{
+			return true;
+		}
+
+		return false;
 	});
 
 	NewCheckpoint.Level = CurrentLevelName;
 	NewCheckpoint.CreatedOn = FDateTime::UtcNow();
-	Save->Checkpoints.Add(NewCheckpoint);
+	Save->Checkpoints.Insert(NewCheckpoint, 0);
 	SaveCheckpoints(Save);
 }
 
@@ -402,11 +412,6 @@ FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(UObject* WorldContextObject, b
 			return CurrentLevelName.Equals(Checkpoint.Level);
 		});
 	}
-
-	Checkpoints.Sort([](const FEstCheckpoint& LHS, const FEstCheckpoint& RHS)
-	{
-		return LHS.CreatedOn > RHS.CreatedOn;
-	});
 
 	if (Checkpoints.Num() > 0)
 	{
