@@ -484,11 +484,6 @@ bool UEstGameplayStatics::IsSlowerMachine()
 		return true;
 	}
 
-	if (FEstCoreModule::GetLongAverageFrameRate() < 25.f)
-	{
-		return true;
-	}
-
 	if (FParse::Param(FCommandLine::Get(), TEXT("lowendmachine")))
 	{
 		return true;

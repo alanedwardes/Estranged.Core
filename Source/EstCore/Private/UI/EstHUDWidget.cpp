@@ -9,6 +9,7 @@
 #include "EstCore.h"
 
 extern ENGINE_API float GAverageFPS;
+extern ENGINE_API float GAverageMS;
 
 #define STATS_TEXT "%i (short) / %i (long)"
 #define STATS_TEXT_CHEATS "%i (short) / %i (long) / cheats"
@@ -127,7 +128,7 @@ const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 
 const FString UEstHUDWidget::GetStatsForNerds() const
 {
-	return FString::Printf(TEXT(STATS_TEXT), FMath::RoundToInt(GAverageFPS), FMath::RoundToInt(FEstCoreModule::GetLongAverageFrameRate()));
+	return FString::Printf(TEXT("%5.2f FPS / %5.2f ms"), GAverageFPS, GAverageMS);
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)
