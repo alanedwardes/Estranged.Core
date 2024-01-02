@@ -19,6 +19,8 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "LevelSequencePlayer.h"
 #include "Saves/EstCheckpointSave.h"
+#include "Saves/EstAudioSave.h"
+#include "AudioDevice.h"
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {
@@ -351,6 +353,36 @@ void UEstSaveStatics::SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes)
 	Ar.ArIsSaveGame = true;
 	Ar.ArNoDelta = true;
 	Object->Serialize(Ar);
+}
+
+UEstAudioSave* UEstSaveStatics::LoadAudioSettings()
+{
+	UEstAudioSave* Save = Cast<UEstAudioSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_AUDIO, 0));
+	if (Save == nullptr)
+	{
+		Save = NewObject<UEstAudioSave>();
+	}
+
+	return Save;
+}
+
+void UEstSaveStatics::SaveAudioSettings(UEstAudioSave* AudioSettings)
+{
+	UGameplayStatics::SaveGameToSlot(AudioSettings, SAVE_SLOT_AUDIO, 0);
+}
+
+void UEstSaveStatics::ApplyAudioSettings(UEstAudioSave* AudioSettings, class USoundMix* SoundMix, class USoundClass* EffectsSoundClass, class USoundClass* VoiceSoundClass, class USoundClass* MusicSoundClass)
+{
+	FAudioDeviceHandle AudioDeviceHandle = GEngine->GetActiveAudioDevice();
+	if (!AudioDeviceHandle.IsValid())
+	{
+		return;
+	}
+
+	FApp::SetVolumeMultiplier(AudioSettings->MasterVolume);
+	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, EffectsSoundClass, AudioSettings->EffectsVolume, 1.f, 1.f, true);
+	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, VoiceSoundClass, AudioSettings->VoiceVolume, 1.f, 1.f, true);
+	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, MusicSoundClass, AudioSettings->MusicVolume, 1.f, 1.f, true);
 }
 
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()
