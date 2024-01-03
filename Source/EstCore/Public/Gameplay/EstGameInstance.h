@@ -74,9 +74,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Music)
 	virtual void PlayMusic(FEstMusic Music);
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Music)
-	class USoundClass* MusicSoundClass;
-
 	UFUNCTION(BlueprintPure, Category = Music)
 	virtual FEstMusic GetMusic();
 
@@ -99,6 +96,21 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> LoggerWidgetType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Audio)
+	class USoundMix* SoundMix;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Audio)
+	class USoundClass* EffectsSoundClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Audio)
+	class USoundClass* VoiceSoundClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Audio)
+	class USoundClass* MusicSoundClass;
+
+	UFUNCTION(BlueprintCallable, Category = Audio)
+	void ApplyAudioSettings(UEstAudioSave* AudioSettings);
 
 	TSharedPtr<SWidget> GetRawMenuWidget() { return MenuSlateWidget; }
 private:

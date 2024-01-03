@@ -371,20 +371,6 @@ void UEstSaveStatics::SaveAudioSettings(UEstAudioSave* AudioSettings)
 	UGameplayStatics::SaveGameToSlot(AudioSettings, SAVE_SLOT_AUDIO, 0);
 }
 
-void UEstSaveStatics::ApplyAudioSettings(UEstAudioSave* AudioSettings, class USoundMix* SoundMix, class USoundClass* EffectsSoundClass, class USoundClass* VoiceSoundClass, class USoundClass* MusicSoundClass)
-{
-	FAudioDeviceHandle AudioDeviceHandle = GEngine->GetActiveAudioDevice();
-	if (!AudioDeviceHandle.IsValid())
-	{
-		return;
-	}
-
-	FApp::SetVolumeMultiplier(AudioSettings->MasterVolume);
-	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, EffectsSoundClass, AudioSettings->EffectsVolume, 1.f, 1.f, true);
-	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, VoiceSoundClass, AudioSettings->VoiceVolume, 1.f, 1.f, true);
-	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, MusicSoundClass, AudioSettings->MusicVolume, 1.f, 1.f, true);
-}
-
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()
 {
 	UEstCheckpointSave* Save = Cast<UEstCheckpointSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_CHECKPOINTS, 0));

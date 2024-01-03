@@ -10,6 +10,8 @@
 #include "UI/EstLoggerWidget.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Runtime/Engine/Public/AudioDevice.h"
+#include "Gameplay/EstSaveStatics.h"
+#include "Saves/EstAudioSave.h"
 
 void UEstGameInstance::Init()
 {
@@ -83,6 +85,7 @@ void UEstGameInstance::SetLoggerVisible(bool NewIsVisible)
 void UEstGameInstance::OnStart()
 {
 	SetLoggerVisible(true);
+	ApplyAudioSettings(UEstSaveStatics::LoadAudioSettings());
 }
 
 void UEstGameInstance::LogMessage(FEstLoggerMessage Message)
@@ -274,4 +277,19 @@ bool UEstGameInstance::Tick(float DeltaTime)
 	}
 
 	return true;
+}
+
+void UEstGameInstance::ApplyAudioSettings(UEstAudioSave* AudioSettings)
+{
+	FAudioDeviceHandle AudioDeviceHandle = GEngine->GetActiveAudioDevice();
+	if (!AudioDeviceHandle.IsValid())
+	{
+		return;
+	}
+
+	const float Pitch = 1.f;
+	const float FadeInTime = 0.f;
+	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, EffectsSoundClass, AudioSettings->EffectsVolume * AudioSettings->MasterVolume, Pitch, FadeInTime, true);
+	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, VoiceSoundClass, AudioSettings->VoiceVolume * AudioSettings->MasterVolume, Pitch, FadeInTime, true);
+	AudioDeviceHandle.GetAudioDevice()->SetSoundMixClassOverride(SoundMix, MusicSoundClass, AudioSettings->MusicVolume * AudioSettings->MasterVolume, Pitch, FadeInTime, true);
 }

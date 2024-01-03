@@ -26,9 +26,6 @@ public:
 	static void SaveAudioSettings(UEstAudioSave* AudioSettings);
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
-	static void ApplyAudioSettings(UEstAudioSave* AudioSettings, class USoundMix* SoundMix, class USoundClass* EffectsSoundClass, class USoundClass* VoiceSoundClass, class USoundClass* MusicSoundClass);
-
-	UFUNCTION(BlueprintCallable, Category = Saving)
 	static class UEstCheckpointSave* LoadCheckpoints();
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
