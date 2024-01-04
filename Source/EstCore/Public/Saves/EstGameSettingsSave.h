@@ -20,6 +20,7 @@ public:
 		EffectsVolume = 1.f;
 		VoiceVolume = 1.f;
 		MusicVolume = 1.f;
+		FieldOfView = 110.f;
 	}
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume)
@@ -33,4 +34,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume)
 	float MusicVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float FieldOfView;
 };

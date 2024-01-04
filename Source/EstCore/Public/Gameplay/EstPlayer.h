@@ -452,6 +452,9 @@ public:
 
 	virtual void PlayReload() override;
 
+	UFUNCTION(BlueprintCallable, Category = Camera)
+	virtual void SetFieldOfView(float NewFieldOfView);
+
 	/** Holds a reference to the HUD widget */
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "HUD")
 	class UEstHUDWidget* HUDWidget;

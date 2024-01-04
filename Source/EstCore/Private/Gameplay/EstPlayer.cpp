@@ -27,6 +27,8 @@
 #include "Animation/AnimInstance.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Gameplay/EstSaveStatics.h"
+#include "Saves/EstGameSettingsSave.h"
 
 DEFINE_LOG_CATEGORY(LogEstPlayer);
 #define DOF_DISTANCE_MAX 10000.f
@@ -39,10 +41,10 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	Camera->bUsePawnControlRotation = true;
 	Camera->SetupAttachment(GetRootComponent());
 
-	Camera->SetFieldOfView(110.f);
+	SetFieldOfView(UEstSaveStatics::LoadGameSettings()->FieldOfView);
+
 	CameraSmoothSpeed = 22.f;
 
-	RestingFieldOfView = Camera->FieldOfView;
 	ZoomFieldOfView = 40.f;
 
 	// Interaction
@@ -1153,6 +1155,12 @@ void AEstPlayer::PlayReload()
 	{
 		ViewModelMesh->GetAnimInstance()->Montage_Play(EquippedWeapon->PlayerAnimManifest.Reload);
 	}
+}
+
+void AEstPlayer::SetFieldOfView(float NewFieldOfView)
+{
+	Camera->SetFieldOfView(NewFieldOfView);
+	RestingFieldOfView = NewFieldOfView;
 }
 
 void AEstPlayer::ReloadInput()
