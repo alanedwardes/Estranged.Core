@@ -19,7 +19,7 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "LevelSequencePlayer.h"
 #include "Saves/EstCheckpointSave.h"
-#include "Saves/EstAudioSave.h"
+#include "Saves/EstGameSettingsSave.h"
 #include "AudioDevice.h"
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
@@ -355,20 +355,21 @@ void UEstSaveStatics::SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes)
 	Object->Serialize(Ar);
 }
 
-UEstAudioSave* UEstSaveStatics::LoadAudioSettings()
+UEstGameSettingsSave* UEstSaveStatics::LoadGameSettings()
 {
-	UEstAudioSave* Save = Cast<UEstAudioSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_AUDIO, 0));
+	UEstGameSettingsSave* Save = Cast<UEstGameSettingsSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_GAME_SETTINGS, 0));
 	if (Save == nullptr)
 	{
-		Save = NewObject<UEstAudioSave>();
+		Save = NewObject<UEstGameSettingsSave>();
 	}
 
 	return Save;
 }
 
-void UEstSaveStatics::SaveAudioSettings(UEstAudioSave* AudioSettings)
+void UEstSaveStatics::SaveGameSettings(UEstGameSettingsSave* AudioSettings)
 {
-	UGameplayStatics::SaveGameToSlot(AudioSettings, SAVE_SLOT_AUDIO, 0);
+	UGameplayStatics::SaveGameToSlot(AudioSettings, SAVE_SLOT_GAME_SETTINGS, 0);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Game Settings Saved"));
 }
 
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()

@@ -20,10 +20,10 @@ class ESTCORE_API UEstSaveStatics : public UBlueprintFunctionLibrary
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = Saving)
-	static class UEstAudioSave* LoadAudioSettings();
+	static class UEstGameSettingsSave* LoadGameSettings();
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
-	static void SaveAudioSettings(UEstAudioSave* AudioSettings);
+	static void SaveGameSettings(UEstGameSettingsSave* GameSettings);
 
 	UFUNCTION(BlueprintCallable, Category = Saving)
 	static class UEstCheckpointSave* LoadCheckpoints();

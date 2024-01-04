@@ -30,4 +30,4 @@
 #define SOUND_INSTANCE_PARAMETER_DAMAGE_SEVERITY "DamageSeverity"
 
 #define SAVE_SLOT_CHECKPOINTS "Checkpoints"
-#define SAVE_SLOT_AUDIO "Audio"
+#define SAVE_SLOT_GAME_SETTINGS "GameSettings"

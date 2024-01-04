@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "EstAudioSave.generated.h"
+#include "EstGameSettingsSave.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ESTCORE_API UEstAudioSave : public USaveGame
+class ESTCORE_API UEstGameSettingsSave : public USaveGame
 {
 	GENERATED_BODY()
 public:
-	UEstAudioSave()
+	UEstGameSettingsSave()
 	{
 		MasterVolume = 1.f;
 		EffectsVolume = 1.f;

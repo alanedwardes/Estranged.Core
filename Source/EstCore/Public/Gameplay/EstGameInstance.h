@@ -110,7 +110,7 @@ public:
 	class USoundClass* MusicSoundClass;
 
 	UFUNCTION(BlueprintCallable, Category = Audio)
-	void ApplyAudioSettings(UEstAudioSave* AudioSettings);
+	void ApplyAudioSettings(class UEstGameSettingsSave* GameSettings);
 
 	TSharedPtr<SWidget> GetRawMenuWidget() { return MenuSlateWidget; }
 private:
