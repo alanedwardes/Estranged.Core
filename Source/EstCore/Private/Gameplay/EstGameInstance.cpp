@@ -42,7 +42,7 @@ void UEstGameInstance::PreLoadMap(const FString & InMapName)
 
 void UEstGameInstance::RefreshLoggerState()
 {
-	SetLoggerVisible(bIsLoggerEnabled);
+	SetLoggerVisible(bLoggerEnabled);
 }
 
 void UEstGameInstance::PostLoadMapWithWorld(UWorld* World)
@@ -54,25 +54,40 @@ void UEstGameInstance::SetLoggerEnabled(bool NewIsEnabled)
 {
 	if (NewIsEnabled)
 	{
-		bIsLoggerEnabled = true;
+		bLoggerEnabled = true;
 		RefreshLoggerState();
 	}
 	else
 	{
-		bIsLoggerEnabled = false;
+		bLoggerEnabled = false;
 		RefreshLoggerState();
 	}
 }
 
+bool UEstGameInstance::GetLoggerEnabled()
+{
+	return bLoggerEnabled;
+}
+
+void UEstGameInstance::SetCheatsEnabled(bool NewCheatsEnabled)
+{
+	bCheatsEnabled = NewCheatsEnabled;
+}
+
+bool UEstGameInstance::GetCheatsEnabled()
+{
+	return bCheatsEnabled;
+}
+
 void UEstGameInstance::SetLoggerVisible(bool NewIsVisible)
 {
-	if (NewIsVisible == bIsLoggerVisible)
+	if (NewIsVisible == bLoggerVisible)
 	{
 		return;
 	}
 
-	bIsLoggerVisible = NewIsVisible;
-	if (bIsLoggerVisible)
+	bLoggerVisible = NewIsVisible;
+	if (bLoggerVisible)
 	{
 		LoggerUserWidget->AddToViewport();
 	}
@@ -90,7 +105,7 @@ void UEstGameInstance::OnStart()
 
 void UEstGameInstance::LogMessage(FEstLoggerMessage Message)
 {
-	if (LoggerUserWidget != nullptr && bIsLoggerEnabled)
+	if (LoggerUserWidget != nullptr && bLoggerEnabled)
 	{
 		LoggerUserWidget->OnLogMessage(Message);
 	}

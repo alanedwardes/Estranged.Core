@@ -83,19 +83,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = UI)
 	virtual void SetMenuVisibility(FEstMenuVisibilityContext InVisibilityContext);
 
-	UFUNCTION(BlueprintCallable, Category = UI)
-	virtual void LogMessage(FEstLoggerMessage Message);
-
-	UFUNCTION(BlueprintCallable, Category = UI)
-	virtual void RefreshLoggerState();
-
-	virtual void SetLoggerEnabled(bool NewIsEnabled);
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
 	TSubclassOf<class UUserWidget> MenuWidgetType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = UI)
+	UFUNCTION(BlueprintCallable, Category = Logging)
+	virtual void LogMessage(FEstLoggerMessage Message);
+
+	UFUNCTION(BlueprintCallable, Category = Logging)
+	virtual void RefreshLoggerState();
+
+	UFUNCTION(BlueprintCallable, Category = Logging)
+	virtual void SetLoggerEnabled(bool NewIsEnabled);
+
+	UFUNCTION(BlueprintPure, Category = Logging)
+	virtual bool GetLoggerEnabled();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Logging)
 	TSubclassOf<class UUserWidget> LoggerWidgetType;
+
+	UFUNCTION(BlueprintCallable, Category = Cheats)
+	virtual void SetCheatsEnabled(bool NewCheatsEnabled);
+
+	UFUNCTION(BlueprintPure, Category = Cheats)
+	virtual bool GetCheatsEnabled();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Audio)
 	class USoundMix* SoundMix;
@@ -131,8 +141,9 @@ private:
 
 	TSharedPtr<SWidget> LoggerSlateWidget;
 	class UEstLoggerWidget* LoggerUserWidget;
-	bool bIsLoggerVisible;
-	bool bIsLoggerEnabled;
+	bool bLoggerVisible;
+	bool bLoggerEnabled;
+	bool bCheatsEnabled;
 
 	TSharedPtr<SWidget> MenuSlateWidget;
 	class UEstMenuWidget* MenuUserWidget;
