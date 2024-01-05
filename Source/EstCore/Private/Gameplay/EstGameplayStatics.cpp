@@ -667,6 +667,31 @@ UEstGameInstance* UEstGameplayStatics::GetEstGameInstance(UObject* WorldContextO
 	return Cast<UEstGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
 }
 
+UEstGameInstance* UEstGameplayStatics::GetEstGameInstance()
+{
+	return GetEstGameInstance(GEngine->GetCurrentPlayWorld());
+}
+
+FString UEstGameplayStatics::GetNameOrNull(const UObject* Object)
+{
+	if (Object == nullptr)
+	{
+		return TEXT("null");
+	}
+
+	return Object->GetName();
+}
+
+FString UEstGameplayStatics::GetNameOrNull(const UActorComponent* Component)
+{
+	if (Component == nullptr)
+	{
+		return TEXT("null");
+	}
+
+	return FString::Printf(TEXT("%s(%s)"), *GetNameOrNull(Component->GetOwner()), *Component->GetName());
+}
+
 bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass, float MaxRadius)
 {
 	if (Character == nullptr || ActorToHold == nullptr)
@@ -676,27 +701,31 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 
 	if (ActorToHold->GetComponentByClass(UEstNoPickupComponent::StaticClass()) != nullptr)
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it has a \"no pickup\" component"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as it has a \"no pickup\" component"), *UEstGameplayStatics::GetNameOrNull(ActorToHold))));
 		return false;
 	}
 
 	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(ActorToHold->GetRootComponent());
 	if (PrimitiveToHold == nullptr)
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as no root primitive"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as no root primitive"), *UEstGameplayStatics::GetNameOrNull(ActorToHold))));
 		return false;
 	}
 
 	if (!PrimitiveToHold->IsSimulatingPhysics())
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is not simulating physics"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as it is not simulating physics"), *UEstGameplayStatics::GetNameOrNull(ActorToHold))));
 		return false;
 	}
 
 	// If we're standing on the object
 	if (PrimitiveToHold == Character->GetMovementBase())
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is being stood on"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as it is being stood on"), *UEstGameplayStatics::GetNameOrNull(ActorToHold))));
 		return false;
 	}
 
@@ -704,23 +733,26 @@ bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * Ac
 
 	if (!(CarryableUserData != nullptr && CarryableUserData->bIgnoreMass) && PrimitiveToHold->GetMass() > MaxMass)
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is too heavy (max: %.2fkg, actual: %.2fkg)"), *ActorToHold->GetName(), MaxMass, PrimitiveToHold->GetMass());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as it is too heavy (max: %.2fkg, actual: %.2fkg)"), *UEstGameplayStatics::GetNameOrNull(ActorToHold), MaxMass, PrimitiveToHold->GetMass())));
 		return false;
 	}
 
 	if (!(CarryableUserData != nullptr && CarryableUserData->bIgnoreRadius) && PrimitiveToHold->Bounds.SphereRadius > MaxRadius)
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as it is too big (max: %.2f, actual: %.2f)"), *ActorToHold->GetName(), MaxRadius, PrimitiveToHold->Bounds.SphereRadius);
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as it is too big (max: %.2f, actual: %.2f)"), *UEstGameplayStatics::GetNameOrNull(ActorToHold), MaxRadius, PrimitiveToHold->Bounds.SphereRadius)));
 		return false;
 	}
 
 	if (CarryableUserData != nullptr && !CarryableUserData->bCanPlayerPickUp)
 	{
-		UE_LOG(LogEstGameplayStatics, Warning, TEXT("Can't pick up actor %s as asset contains carryable user data stating it cannot be picked up"), *ActorToHold->GetName());
+		UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Can't pick up actor %s as asset contains carryable user data stating it cannot be picked up"), *UEstGameplayStatics::GetNameOrNull(ActorToHold))));
 		return false;
 	}
 
-	UE_LOG(LogEstGameplayStatics, Display, TEXT("Picking up actor %s"), *ActorToHold->GetName());
+	UEstGameplayStatics::GetEstGameInstance(Character)->LogMessage(FEstLoggerMessage(Character, EEstLoggerLevel::Trace, FString::Printf(TEXT("Picking up actor %s"), *UEstGameplayStatics::GetNameOrNull(ActorToHold))));
 	return true;
 }
 

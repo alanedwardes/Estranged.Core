@@ -8,6 +8,8 @@
 #include "Gameplay/EstCharacterMovementComponent.h"
 #include "Volumes/EstCapabilityVolume.h"
 #include "Gameplay/EstHealthComponent.h"
+#include "Gameplay/EstGameInstance.h"
+#include "Gameplay/EstGameplayStatics.h"
 
 AEstBaseCharacter::AEstBaseCharacter(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UEstCharacterMovementComponent>(CharacterMovementComponentName))
@@ -105,7 +107,7 @@ void AEstBaseCharacter::OnPostRestore_Implementation()
 
 void AEstBaseCharacter::OnDeath_Implementation()
 {
-	UE_LOG(LogClass, Log, TEXT("Character %s just died"), *GetName());
+	UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Normal, TEXT("Character just died")));
 	Tags.Add(TAG_DEAD);
 
 	if (HasWeapon())

@@ -12,4 +12,3 @@ public:
 };
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEstGeneral, Log, All);
-DECLARE_LOG_CATEGORY_EXTERN(LogEstPhysicsImpacts, Log, All);

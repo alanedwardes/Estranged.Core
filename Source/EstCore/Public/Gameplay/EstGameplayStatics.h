@@ -133,6 +133,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static class UEstGameInstance* GetEstGameInstance(UObject* WorldContextObject);
 
+	static class UEstGameInstance* GetEstGameInstance();
+
+	static FString GetNameOrNull(const UObject* Object);
+
+	static FString GetNameOrNull(const UActorComponent* Component);
+
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static bool CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass = 100.f, float MaxRadius = 100.f);
 

@@ -7,6 +7,8 @@
 #include "PBDRigidsSolver.h"
 #include "Physics/Experimental/PhysScene_Chaos.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Gameplay/EstGameplayStatics.h"
+#include "Gameplay/EstGameInstance.h"
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
 
@@ -25,7 +27,7 @@ void UEstPhysicsEffectsComponent::OnRegister()
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Parent actor is null"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("Parent actor is null")));
 		return;
 	}
 
@@ -53,7 +55,7 @@ void UEstPhysicsEffectsComponent::OnChaosPhysicsCollision(const FChaosPhysicsCol
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("Physics collision handler is null (or not the correct type)")));
 		return;
 	}
 
@@ -65,7 +67,7 @@ void UEstPhysicsEffectsComponent::OnChaosBreak(const FChaosBreakEvent& BreakEven
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("Physics collision handler is null (or not the correct type)")));
 		return;
 	}
 
@@ -79,7 +81,7 @@ void UEstPhysicsEffectsComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Parent actor is null"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("Parent actor is null")));
 		return;
 	}
 
@@ -96,7 +98,7 @@ void UEstPhysicsEffectsComponent::OnComponentHit(UPrimitiveComponent* HitCompone
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Physics collision handler is null (or not the correct type)"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("Physics collision handler is null (or not the correct type)")));
 		return;
 	}
 

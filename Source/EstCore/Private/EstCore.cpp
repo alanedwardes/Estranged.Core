@@ -12,6 +12,5 @@ void FEstCoreModule::ShutdownModule()
 }
 
 DEFINE_LOG_CATEGORY(LogEstGeneral);
-DEFINE_LOG_CATEGORY(LogEstPhysicsImpacts);
 
 ESTCORE_API const FEstImpactEffect FEstImpactEffect::None = FEstImpactEffect();

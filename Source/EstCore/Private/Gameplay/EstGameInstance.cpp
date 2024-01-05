@@ -31,6 +31,11 @@ void UEstGameInstance::Init()
 	TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
 
 	Super::Init();
+
+#if WITH_EDITOR
+	bCheatsEnabled = true;
+	bLoggerEnabled = true;
+#endif
 }
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)

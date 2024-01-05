@@ -406,7 +406,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	// Drop if the camera is no longer centered around the player
 	if (!IsViewTarget())
 	{
-		UE_LOG(LogEstPlayer, Warning, TEXT("Dropping held actor %s because the player is no longer the camera target"), *HeldActor->GetName());
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FString::Printf(TEXT("Dropping held actor %s because the player is no longer the camera target"), *UEstGameplayStatics::GetNameOrNull(HeldActor.Get()))));
 		DropHeldActor();
 		return;
 	}
@@ -415,7 +415,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	const float HeldObjectDistance = GetDistanceTo(HeldActor.Get());
 	if (HeldObjectDistance > 200.f)
 	{
-		UE_LOG(LogEstPlayer, Warning, TEXT("Dropping held actor %s because it is too far away (%.2fcm)"), *HeldActor->GetName(), HeldObjectDistance);
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FString::Printf(TEXT("Dropping held actor %s because it is too far away (%.2fcm)"), *UEstGameplayStatics::GetNameOrNull(HeldActor.Get()), HeldObjectDistance)));
 		DropHeldActor();
 		return;
 	}
@@ -424,7 +424,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	const AActor* MovementBase = GetMovementBaseActor(this);
 	if (MovementBase != nullptr && HeldActor == MovementBase)
 	{
-		UE_LOG(LogEstPlayer, Warning, TEXT("Dropping held actor %s because it is being stood on"), *HeldActor->GetName(), HeldObjectDistance);
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FString::Printf(TEXT("Dropping held actor %s because it is being stood on"), *UEstGameplayStatics::GetNameOrNull(HeldActor.Get()), HeldObjectDistance)));
 		DropHeldActor();
 		return;
 	}
@@ -724,7 +724,7 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 		const float Exceeded = GetVelocity().GetAbsMax() - VelocityDamageThreshold;
 		const float Damage = Exceeded / 10.f;
 
-		UE_LOG(LogEstPlayer, Log, TEXT("Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage"), VelocityDamageThreshold, Exceeded, Damage);
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Normal, FString::Printf(TEXT("Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage"), VelocityDamageThreshold, Exceeded, Damage)));
 		UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.GetActor(), FallDamageType);
 		EstCharacterMovement->DoFootstep(5.f);
 	}

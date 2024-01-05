@@ -124,39 +124,50 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 
 	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it impacted too soon after the world came up (currently %.2fs, need to wait until %.2fs)"), *Component->GetName(), GetWorld()->GetRealTimeSeconds(), WorldUpDelay);
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Not deploying impact effect for %s because it impacted too soon after the world came up (currently %.2fs, need to wait until %.2fs)"), *UEstGameplayStatics::GetNameOrNull(Component.Get()), GetWorld()->GetRealTimeSeconds(), WorldUpDelay)));
 		return;
 	}
 
 	if (!Component.IsValid())
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Can't deploy impact effect as component is not a live UObject"));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			TEXT("Can't deploy impact effect as component is not a live UObject")));
+		return;
+	}
+
+	if (!Component->IsVisible())
+	{
 		return;
 	}
 
 	if (Component->Mobility != EComponentMobility::Movable)
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it is not movable"), *Component->GetName());
+		//UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+		//	FString::Printf(TEXT("Not deploying impact effect for %s because it is not movable"), *Component->GetName())));
 		return;
 	}
 
 	if (Component->GetOwner()->ActorHasTag(TAG_NOIMPACTS))
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it has the tag NOIMPACTS"), *Component->GetName());
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Not deploying impact effect for %s because it has the tag NOIMPACTS"), *UEstGameplayStatics::GetNameOrNull(Component.Get()))));
 		return;
 	}
 
 	UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterialFromComponent(Component);
-	if (PhysicalMaterial == nullptr)
+	if (PhysicalMaterial == nullptr || PhysicalMaterial->GetFName() == "DefaultPhysicalMaterial")
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because it doesn't have a physical material"), *Component->GetName());
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Not deploying impact effect for %s because it doesn't have a physical material"), *UEstGameplayStatics::GetNameOrNull(Component.Get()))));
 		return;
 	}
 
 	FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(Manifest, PhysicalMaterial);
 	if (ImpactEffect == FEstImpactEffect::None)
 	{
-		UE_LOG(LogEstPhysicsImpacts, Warning, TEXT("Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s"), *Component->GetName(), *PhysicalMaterial->GetName(), *Manifest->GetName());
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			FString::Printf(TEXT("Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s"), *UEstGameplayStatics::GetNameOrNull(Component.Get()), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(Manifest))));
 		return;
 	}
 
