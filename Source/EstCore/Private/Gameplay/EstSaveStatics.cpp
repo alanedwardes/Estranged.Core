@@ -370,7 +370,11 @@ UEstGameSettingsSave* UEstSaveStatics::LoadGameSettings()
 void UEstSaveStatics::SaveGameSettings(UEstGameSettingsSave* GameSettings)
 {
 	UGameplayStatics::SaveGameToSlot(GameSettings, SAVE_SLOT_GAME_SETTINGS, 0);
-	UEstGameplayStatics::GetEstGameInstance()->LogMessage(FEstLoggerMessage(GameSettings, EEstLoggerLevel::Normal, TEXT("Game Settings Saved")));
+
+	if (UEstGameplayStatics::GetEstGameInstance()->GetLoggerEnabled())
+	{
+		UEstGameplayStatics::GetEstGameInstance()->LogMessage(FEstLoggerMessage(GameSettings, EEstLoggerLevel::Normal, TEXT("Game Settings Saved")));
+	}
 }
 
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()

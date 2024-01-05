@@ -26,7 +26,10 @@ void AEstPlayerCheckpoint::NotifyActorBeginOverlap(AActor* OtherActor)
 	NewCheckpoint.PlayerStartTag = PlayerStartTag;
 	UEstSaveStatics::AddCheckpoint(this, NewCheckpoint);
 
-	UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Normal, FString::Printf(TEXT("AEstPlayerCheckpoint::NotifyActorBeginOverlap() - Checkpoint %s Saved"), *PlayerStartTag.ToString())));
+	if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
+	{
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Normal, FString::Printf(TEXT("AEstPlayerCheckpoint::NotifyActorBeginOverlap() - Checkpoint %s Saved"), *PlayerStartTag.ToString())));
+	}
 }
 
 #if	WITH_EDITOR

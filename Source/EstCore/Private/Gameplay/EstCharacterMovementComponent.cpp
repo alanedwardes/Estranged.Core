@@ -118,7 +118,10 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 {
 	if (FootstepManifest == nullptr)
 	{
-		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null")));
+		if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
+		{
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null")));
+		}
 		return;
 	}
 
@@ -150,13 +153,19 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	{
 		if (PhysicalMaterial == nullptr || PhysicalMaterial->GetFName() == "DefaultPhysicalMaterial")
 		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
-				FString::Printf(TEXT("Blocking hit on %s but no physical material"), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()))));
+			if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
+			{
+				UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+					FString::Printf(TEXT("Blocking hit on %s but no physical material"), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()))));
+			}
 		}
 		else
 		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
-				FString::Printf(TEXT("Blocking hit on %s in actor %s but no impact effect in manifest %s"), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest))));
+			if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
+			{
+				UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+					FString::Printf(TEXT("Blocking hit on %s in actor %s but no impact effect in manifest %s"), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest))));
+			}
 		}
 	}
 
