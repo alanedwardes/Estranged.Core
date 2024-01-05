@@ -64,23 +64,12 @@ public:
 			AmmoRemaining = FMath::Min(AmmoMax, AmmoRemaining + NewAmmo);
 			return;
 		}
-
-		if (ClipRemaining < ClipMax)
-		{
-			ClipRemaining = FMath::Min(ClipMax, ClipRemaining + NewAmmo);
-			return;
-		}
 	}
 
 	UFUNCTION(BlueprintPure, Category = Ammo)
 	bool CanAddAmmo()
 	{
 		if (AmmoRemaining < AmmoMax)
-		{
-			return true;
-		}
-
-		if (ClipRemaining < ClipMax)
 		{
 			return true;
 		}
