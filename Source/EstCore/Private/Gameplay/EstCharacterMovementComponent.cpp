@@ -7,6 +7,7 @@
 #include "Physics/EstImpactManifest.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Physics/EstImpactEffect.h"
+#include "Kismet/GameplayStatics.h"
 
 UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
@@ -117,7 +118,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 {
 	if (FootstepManifest == nullptr)
 	{
-		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null"))));
+		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null")));
 		return;
 	}
 
@@ -147,14 +148,15 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	}
 	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
 	{
-		if (PhysicalMaterial == nullptr)
+		if (PhysicalMaterial == nullptr || PhysicalMaterial->GetFName() == "DefaultPhysicalMaterial")
 		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(FString::Printf(TEXT("Blocking hit on %s but no physical material"), *OutHit.GetActor()->GetName()))));
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+				FString::Printf(TEXT("Blocking hit on %s but no physical material"), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()))));
 		}
 		else
 		{
-			FString ActorName = OutHit.GetActor() == nullptr ? "null" : OutHit.GetActor()->GetName();
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, FText::FromString(FString::Printf(TEXT("Blocking hit on %s in actor %s but no impact effect"), *PhysicalMaterial->GetName(), *ActorName))));
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+				FString::Printf(TEXT("Blocking hit on %s in actor %s but no impact effect in manifest %s"), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest))));
 		}
 	}
 

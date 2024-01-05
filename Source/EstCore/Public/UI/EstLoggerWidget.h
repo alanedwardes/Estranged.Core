@@ -21,11 +21,11 @@ struct ESTCORE_API FEstLoggerMessage
 	GENERATED_BODY()
 
 public:
-	FEstLoggerMessage() : FEstLoggerMessage(nullptr, EEstLoggerLevel::Normal, FText())
+	FEstLoggerMessage() : FEstLoggerMessage(nullptr, EEstLoggerLevel::Normal, FString())
 	{
 	}
 
-	FEstLoggerMessage(UObject* InSource, EEstLoggerLevel InLevel, FText InText)
+	FEstLoggerMessage(UObject* InSource, EEstLoggerLevel InLevel, FString InText)
 	{
 		Source = InSource;
 		Level = InLevel;
@@ -39,7 +39,7 @@ public:
 	EEstLoggerLevel Level;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
-	FText Text;
+	FString Text;
 };
 
 UCLASS(abstract)

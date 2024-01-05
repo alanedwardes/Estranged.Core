@@ -8,6 +8,8 @@
 #include "EstConstants.h"
 #include "Kismet/GameplayStatics.h"
 #include "Saves/EstCheckpointSave.h"
+#include "Gameplay/EstGameplayStatics.h"
+#include "Gameplay/EstGameInstance.h"
 
 AEstPlayerCheckpoint::AEstPlayerCheckpoint(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
@@ -24,7 +26,7 @@ void AEstPlayerCheckpoint::NotifyActorBeginOverlap(AActor* OtherActor)
 	NewCheckpoint.PlayerStartTag = PlayerStartTag;
 	UEstSaveStatics::AddCheckpoint(this, NewCheckpoint);
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Checkpoint Saved"));
+	UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Normal, FString::Printf(TEXT("AEstPlayerCheckpoint::NotifyActorBeginOverlap() - Checkpoint %s Saved"), *PlayerStartTag.ToString())));
 }
 
 #if	WITH_EDITOR

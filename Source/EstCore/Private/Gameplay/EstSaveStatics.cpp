@@ -21,6 +21,7 @@
 #include "Saves/EstCheckpointSave.h"
 #include "Saves/EstGameSettingsSave.h"
 #include "AudioDevice.h"
+#include "Gameplay/EstGameInstance.h"
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {
@@ -366,10 +367,10 @@ UEstGameSettingsSave* UEstSaveStatics::LoadGameSettings()
 	return Save;
 }
 
-void UEstSaveStatics::SaveGameSettings(UEstGameSettingsSave* AudioSettings)
+void UEstSaveStatics::SaveGameSettings(UEstGameSettingsSave* GameSettings)
 {
-	UGameplayStatics::SaveGameToSlot(AudioSettings, SAVE_SLOT_GAME_SETTINGS, 0);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Game Settings Saved"));
+	UGameplayStatics::SaveGameToSlot(GameSettings, SAVE_SLOT_GAME_SETTINGS, 0);
+	UEstGameplayStatics::GetEstGameInstance()->LogMessage(FEstLoggerMessage(GameSettings, EEstLoggerLevel::Normal, TEXT("Game Settings Saved")));
 }
 
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()
