@@ -51,14 +51,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = General)
 	void OnSettingsUpdated();
 
-	// Begin stats
-	UFUNCTION(BlueprintCallable)
-	const FString GetStatsForNerds() const;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = General)
-	bool bEnableStatsForNerds;
-	// End stats
-
 	// Begin weapon
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstFirearmWeapon> Firearm;

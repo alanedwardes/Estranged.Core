@@ -39,6 +39,9 @@
 #include "GameFramework/PhysicsVolume.h"
 #include "Volumes/EstWaterVolume.h"
 
+extern ENGINE_API float GAverageFPS;
+extern ENGINE_API float GAverageMS;
+
 DEFINE_LOG_CATEGORY(LogEstGameplayStatics);
 
 FRotator UEstGameplayStatics::RandomProjectileSpread(FRotator InRot, float MaxSpread)
@@ -690,6 +693,11 @@ FString UEstGameplayStatics::GetNameOrNull(const UActorComponent* Component)
 	}
 
 	return FString::Printf(TEXT("%s(%s)"), *GetNameOrNull(Component->GetOwner()), *Component->GetName());
+}
+
+const FString UEstGameplayStatics::GetStatsForNerds()
+{
+	return FString::Printf(TEXT("%5.2f FPS / %5.2f ms"), GAverageFPS, GAverageMS);
 }
 
 bool UEstGameplayStatics::CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass, float MaxRadius)

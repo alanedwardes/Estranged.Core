@@ -8,12 +8,6 @@
 #include "Gameplay/EstFirearmAmunition.h"
 #include "EstCore.h"
 
-extern ENGINE_API float GAverageFPS;
-extern ENGINE_API float GAverageMS;
-
-#define STATS_TEXT "%i (short) / %i (long)"
-#define STATS_TEXT_CHEATS "%i (short) / %i (long) / cheats"
-
 void UEstHUDWidget::NativeConstruct()
 {
 	Player = Cast<AEstPlayer>(GetOwningPlayerPawn());
@@ -124,11 +118,6 @@ const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 	}
 
 	return Keys;
-}
-
-const FString UEstHUDWidget::GetStatsForNerds() const
-{
-	return FString::Printf(TEXT("%5.2f FPS / %5.2f ms"), GAverageFPS, GAverageMS);
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)

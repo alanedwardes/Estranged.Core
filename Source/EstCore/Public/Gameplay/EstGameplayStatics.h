@@ -139,6 +139,9 @@ public:
 
 	static FString GetNameOrNull(const UActorComponent* Component);
 
+	UFUNCTION(BlueprintPure, Category = "Statistics")
+	static const FString GetStatsForNerds();
+
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	static bool CanHumanPickUpActor(ACharacter* Character, AActor * ActorToHold, float MaxMass = 100.f, float MaxRadius = 100.f);
 

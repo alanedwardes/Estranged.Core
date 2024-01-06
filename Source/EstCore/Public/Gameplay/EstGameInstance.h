@@ -93,7 +93,7 @@ public:
 	virtual void RefreshLoggerState();
 
 	UFUNCTION(BlueprintCallable, Category = Logging)
-	virtual void SetLoggerEnabled(bool NewIsEnabled);
+	virtual void SetLoggerEnabled(bool bNewLoggerEnabled);
 
 	UFUNCTION(BlueprintPure, Category = Logging)
 	virtual bool GetLoggerEnabled();
@@ -102,7 +102,7 @@ public:
 	TSubclassOf<class UUserWidget> LoggerWidgetType;
 
 	UFUNCTION(BlueprintCallable, Category = Cheats)
-	virtual void SetCheatsEnabled(bool NewCheatsEnabled);
+	virtual void SetCheatsEnabled(bool bNewCheatsEnabled);
 
 	UFUNCTION(BlueprintPure, Category = Cheats)
 	virtual bool GetCheatsEnabled();
@@ -128,7 +128,6 @@ private:
 
 	virtual float GetPlayPosition();
 	virtual void PlayMusicInternal(FEstMusic Music);
-	virtual void SetLoggerVisible(bool NewIsVisible);
 	virtual bool Tick(float DeltaTime);
 	bool LazilyCreateAudioComponent();
 
@@ -139,9 +138,8 @@ private:
 	float MusicFadeCompleteTime;
 	bool bWasFadingOut;
 
-	TSharedPtr<SWidget> LoggerSlateWidget;
-	class UEstLoggerWidget* LoggerUserWidget;
-	bool bLoggerVisible;
+	UPROPERTY()
+	TWeakObjectPtr<class UEstLoggerWidget> LoggerUserWidget;
 	bool bLoggerEnabled;
 	bool bCheatsEnabled;
 

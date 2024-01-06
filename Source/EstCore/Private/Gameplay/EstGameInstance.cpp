@@ -19,9 +19,6 @@ void UEstGameInstance::Init()
 	{
 		MenuUserWidget = CreateWidget<UEstMenuWidget>(this, MenuWidgetType);
 		MenuSlateWidget = MenuUserWidget->TakeWidget();
-
-		LoggerUserWidget = CreateWidget<UEstLoggerWidget>(this, LoggerWidgetType);
-		LoggerSlateWidget = LoggerUserWidget->TakeWidget();
 	}
 
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UEstGameInstance::PreLoadMap);
@@ -31,23 +28,36 @@ void UEstGameInstance::Init()
 	TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
 
 	Super::Init();
-
-#if WITH_EDITOR
-	bCheatsEnabled = true;
-	bLoggerEnabled = true;
-#endif
 }
 
 void UEstGameInstance::PreLoadMap(const FString & InMapName)
 {
 	FadeMusic();
-	SetLoggerVisible(false);
 	SetMenuVisibility(FEstMenuVisibilityContext(false, false));
 }
 
 void UEstGameInstance::RefreshLoggerState()
 {
-	SetLoggerVisible(bLoggerEnabled);
+	if (bLoggerEnabled)
+	{
+		if (!LoggerUserWidget.IsValid())
+		{
+			LoggerUserWidget = CreateWidget<UEstLoggerWidget>(this, LoggerWidgetType);
+		}
+
+		if (!LoggerUserWidget->IsInViewport())
+		{
+			LoggerUserWidget->AddToViewport();
+		}
+	}
+	else
+	{
+		if (LoggerUserWidget.IsValid() && LoggerUserWidget->IsInViewport())
+		{
+			LoggerUserWidget->RemoveFromParent();
+			LoggerUserWidget.Reset();
+		}
+	}
 }
 
 void UEstGameInstance::PostLoadMapWithWorld(UWorld* World)
@@ -55,18 +65,10 @@ void UEstGameInstance::PostLoadMapWithWorld(UWorld* World)
 	RefreshLoggerState();
 }
 
-void UEstGameInstance::SetLoggerEnabled(bool NewIsEnabled)
+void UEstGameInstance::SetLoggerEnabled(bool bNewLoggerEnabled)
 {
-	if (NewIsEnabled)
-	{
-		bLoggerEnabled = true;
-		RefreshLoggerState();
-	}
-	else
-	{
-		bLoggerEnabled = false;
-		RefreshLoggerState();
-	}
+	bLoggerEnabled = bNewLoggerEnabled;
+	RefreshLoggerState();
 }
 
 bool UEstGameInstance::GetLoggerEnabled()
@@ -74,9 +76,9 @@ bool UEstGameInstance::GetLoggerEnabled()
 	return bLoggerEnabled;
 }
 
-void UEstGameInstance::SetCheatsEnabled(bool NewCheatsEnabled)
+void UEstGameInstance::SetCheatsEnabled(bool bNewCheatsEnabled)
 {
-	bCheatsEnabled = NewCheatsEnabled;
+	bCheatsEnabled = bNewCheatsEnabled;
 }
 
 bool UEstGameInstance::GetCheatsEnabled()
@@ -84,33 +86,18 @@ bool UEstGameInstance::GetCheatsEnabled()
 	return bCheatsEnabled;
 }
 
-void UEstGameInstance::SetLoggerVisible(bool NewIsVisible)
-{
-	if (NewIsVisible == bLoggerVisible)
-	{
-		return;
-	}
-
-	bLoggerVisible = NewIsVisible;
-	if (bLoggerVisible)
-	{
-		LoggerUserWidget->AddToViewport();
-	}
-	else
-	{
-		LoggerUserWidget->RemoveFromParent();
-	}
-}
-
 void UEstGameInstance::OnStart()
 {
-	SetLoggerVisible(true);
+#if WITH_EDITOR
+	SetCheatsEnabled(true);
+	SetLoggerEnabled(true);
+#endif
 	ApplyAudioSettings(UEstSaveStatics::LoadGameSettings());
 }
 
 void UEstGameInstance::LogMessage(FEstLoggerMessage Message)
 {
-	if (LoggerUserWidget != nullptr && bLoggerEnabled)
+	if (LoggerUserWidget.IsValid() && bLoggerEnabled)
 	{
 		LoggerUserWidget->OnLogMessage(Message);
 	}
@@ -166,7 +153,6 @@ void UEstGameInstance::Shutdown()
 	FTSTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
 
 	MenuSlateWidget = nullptr;
-	LoggerSlateWidget = nullptr;
 
 	Super::Shutdown();
 }
