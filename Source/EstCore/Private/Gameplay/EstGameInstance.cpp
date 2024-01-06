@@ -63,6 +63,7 @@ void UEstGameInstance::RefreshLoggerState()
 void UEstGameInstance::PostLoadMapWithWorld(UWorld* World)
 {
 	RefreshLoggerState();
+	UGameplayStatics::GetPlayerCameraManager(World, 0)->StartCameraFade(1.f, 0.f, 1.f, FLinearColor::Black, false, false);
 }
 
 void UEstGameInstance::SetLoggerEnabled(bool bNewLoggerEnabled)
