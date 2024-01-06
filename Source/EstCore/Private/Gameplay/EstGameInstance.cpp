@@ -169,14 +169,14 @@ void UEstGameInstance::SetMenuVisibility(FEstMenuVisibilityContext InVisibilityC
 	{
 		MenuUserWidget->SetOwningPlayer(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 		MenuUserWidget->AddToViewport();
-		MenuUserWidget->ShowMenu(InVisibilityContext.MenuSection);
+		MenuUserWidget->OnShowMenu(InVisibilityContext.MenuSection);
 
 		// Forcefully enable the mouse cursor at the platform level. This works around a bug in the Ansel plugin
 		UEstGameplayStatics::SetPlatformMouseCursorState(true);
 	}
 	else if (!VisibilityContext.bIsMenuVisibleForever)
 	{
-		MenuUserWidget->HideMenu();
+		MenuUserWidget->OnHideMenu();
 		MenuUserWidget->RemoveFromParent();
 	}
 }

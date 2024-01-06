@@ -3,6 +3,7 @@
 #pragma once
 
 #include "UI/EstMenuBase.h"
+#include "Saves/EstCheckpointSave.h"
 #include "EstMenuSection.generated.h"
 
 UENUM(BlueprintType)
@@ -10,7 +11,9 @@ enum EEstMenuAction
 {
 	ExitGame,
 	TransitionToLevel,
-	ResumeGame
+	ResumeGame,
+	TransitionToCheckpoint,
+	ReloadCurrentLevel
 };
 
 USTRUCT(BlueprintType)
@@ -23,6 +26,9 @@ struct FEstMenuAction
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UWorld> Level;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FEstCheckpoint Checkpoint;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnModal, TSoftClassPtr<UEstMenuModal>, Modal, FName, Context);

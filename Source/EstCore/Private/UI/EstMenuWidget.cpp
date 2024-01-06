@@ -11,38 +11,30 @@
 #include "Framework/Application/SlateApplication.h"
 #include "EstCore.h"
 
-void UEstMenuWidget::ShowMenu_Implementation(FName RedirectToMenu)
+void UEstMenuWidget::Action(FEstMenuAction MenuAction)
 {
-}
-
-void UEstMenuWidget::HideMenu_Implementation()
-{
-}
-
-void UEstMenuWidget::LoadLevel_Implementation(FName LevelName)
-{
-}
-
-void UEstMenuWidget::LoadLevelByReference_Implementation(const TSoftObjectPtr<UWorld>& Level)
-{
-}
-
-void UEstMenuWidget::MenuLoadingStateChanged_Implementation(bool bIsLoading)
-{
-}
-
-void UEstMenuWidget::Action(FEstMenuAction Action)
-{
-	switch (Action.Action)
+	switch (MenuAction.Action)
 	{
 	case EEstMenuAction::ResumeGame:
-		ResumeGame();
+		OnResumeGame();
 		break;
 	case EEstMenuAction::ExitGame:
 		FGenericPlatformMisc::RequestExit(false);
 		break;
 	case EEstMenuAction::TransitionToLevel:
-		LoadLevelByReference(Action.Level);
+		OnLoadLevelByReference(MenuAction.Level);
+		break;
+	case EEstMenuAction::TransitionToCheckpoint:
+		OnLoadCheckpoint(MenuAction.Checkpoint);
+		break;
+	case EEstMenuAction::ReloadCurrentLevel:
+		if (UWorld* World = GEngine->GetWorldFromContextObject(this, EGetWorldErrorMode::LogAndReturnNull))
+		{
+			FEstMenuAction NewMenuAction;
+			NewMenuAction.Action = EEstMenuAction::TransitionToLevel;
+			NewMenuAction.Level = World;
+			Action(NewMenuAction);
+		}
 		break;
 	}
 }
@@ -90,7 +82,7 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 		FocusMenu();
 	}
 
-	MenuLoadingStateChanged(false);
+	OnMenuLoadingStateChanged(false);
 }
 
 void UEstMenuWidget::RemoveMenu()
@@ -104,7 +96,7 @@ void UEstMenuWidget::RemoveMenu()
 		MenuSectionContainer->RemoveChild(CurrentMenuSection);
 		CurrentMenuSection = nullptr;
 
-		MenuLoadingStateChanged(true);
+		OnMenuLoadingStateChanged(true);
 	}
 }
 

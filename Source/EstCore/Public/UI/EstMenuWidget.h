@@ -18,23 +18,26 @@ class ESTCORE_API UEstMenuWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintNativeEvent)
-	void ShowMenu(FName RedirectToMenu);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnShowMenu(FName RedirectToMenu);
 
-	UFUNCTION(BlueprintNativeEvent)
-	void HideMenu();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHideMenu();
 
-	UFUNCTION(BlueprintNativeEvent)
-	void LoadLevel(FName LevelName);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLoadLevelByReference(const TSoftObjectPtr<UWorld> &Level);
 
-	UFUNCTION(BlueprintNativeEvent)
-	void LoadLevelByReference(const TSoftObjectPtr<UWorld> &Level);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLoadCheckpoint(struct FEstCheckpoint Checkpoint);
 
-	UFUNCTION(BlueprintNativeEvent)
-	void MenuLoadingStateChanged(bool bIsLoading);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnMenuLoadingStateChanged(bool bIsLoading);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnResumeGame();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void Action(FEstMenuAction Action);
+	virtual void Action(FEstMenuAction MenuAction);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AsyncNavigate(TSoftClassPtr<UEstMenuSection> MenuSection, FName Context);
@@ -69,6 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void RemoveExtra();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void ResumeGame();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPanelWidget* MenuSectionContainer;
 
@@ -92,7 +98,4 @@ public:
 
 protected:
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
-
-protected:
-	virtual void ResumeGame();
 };
