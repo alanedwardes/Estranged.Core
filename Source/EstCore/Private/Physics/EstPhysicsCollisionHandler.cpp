@@ -117,18 +117,13 @@ void UEstPhysicsCollisionHandler::CustomHandleCollision_AssumesLocked(const FRig
 
 void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* Manifest, TWeakObjectPtr<UPrimitiveComponent> Component, FVector Location, FVector Normal, float Velocity)
 {
-	if (Velocity < ImpactThreshold)
+	if (!Component->IsVisible() || Component->Mobility != EComponentMobility::Movable)
 	{
 		return;
 	}
 
-	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
+	if (Velocity < ImpactThreshold)
 	{
-		if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
-		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
-				FString::Printf(TEXT("Not deploying impact effect for %s because it impacted too soon after the world came up (currently %.2fs, need to wait until %.2fs)"), *UEstGameplayStatics::GetNameOrNull(Component.Get()), GetWorld()->GetRealTimeSeconds(), WorldUpDelay)));
-		}
 		return;
 	}
 
@@ -142,15 +137,13 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 		return;
 	}
 
-	if (!Component->IsVisible())
+	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
 	{
-		return;
-	}
-
-	if (Component->Mobility != EComponentMobility::Movable)
-	{
-		//UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
-		//	FString::Printf(TEXT("Not deploying impact effect for %s because it is not movable"), *Component->GetName())));
+		if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
+		{
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+				FString::Printf(TEXT("Not deploying impact effect because it impacted too soon after the world came up (need to wait until %.2fs)"), WorldUpDelay)));
+		}
 		return;
 	}
 
