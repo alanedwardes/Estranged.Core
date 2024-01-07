@@ -165,11 +165,11 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 	}
 
 	UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterialFromComponent(Component);
-	if (PhysicalMaterial == nullptr || PhysicalMaterial->GetFName() == "DefaultPhysicalMaterial")
+	if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
 	{
 		if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
 		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Error,
 				FString::Printf(TEXT("Not deploying impact effect for %s because it doesn't have a physical material"), *UEstGameplayStatics::GetNameOrNull(Component.Get()))));
 		}
 		return;
@@ -180,7 +180,7 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 	{
 		if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
 		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Error,
 				FString::Printf(TEXT("Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s"), *UEstGameplayStatics::GetNameOrNull(Component.Get()), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(Manifest))));
 		}
 		return;

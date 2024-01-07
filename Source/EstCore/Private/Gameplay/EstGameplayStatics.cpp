@@ -1282,6 +1282,11 @@ void UEstGameplayStatics::UpdateCameraManager(APlayerController* Controller, flo
 	}
 }
 
+bool UEstGameplayStatics::IsDefaultPhysicalMaterial(const UPhysicalMaterial* PhysicalMaterial)
+{
+	return PhysicalMaterial == nullptr || PhysicalMaterial->GetFName() == "DefaultPhysicalMaterial";
+}
+
 bool UEstGameplayStatics::IsActorInWater(AActor* Actor)
 {
 	if (!IsValid(Actor))

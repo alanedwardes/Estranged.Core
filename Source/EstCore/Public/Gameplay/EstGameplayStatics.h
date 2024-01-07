@@ -289,4 +289,7 @@ public:
 		const float Y = FMath::Sin(AngleRadians) * Radius;
 		return FVector2D(X, Y);
 	};
+
+	UFUNCTION(BlueprintPure, Category = Materials)
+	static bool IsDefaultPhysicalMaterial(const class UPhysicalMaterial* PhysicalMaterial);
 };

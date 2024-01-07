@@ -120,7 +120,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	{
 		if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
 		{
-			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning, TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null")));
+			UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Error, TEXT("UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null")));
 		}
 		return;
 	}
@@ -151,11 +151,11 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	}
 	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
 	{
-		if (PhysicalMaterial == nullptr || PhysicalMaterial->GetFName() == "DefaultPhysicalMaterial")
+		if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
 		{
 			if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
 			{
-				UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+				UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Error,
 					FString::Printf(TEXT("Blocking hit on %s but no physical material"), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()))));
 			}
 		}
@@ -163,7 +163,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 		{
 			if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
 			{
-				UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Warning,
+				UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Error,
 					FString::Printf(TEXT("Blocking hit on %s in actor %s but no impact effect in manifest %s"), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest))));
 			}
 		}
