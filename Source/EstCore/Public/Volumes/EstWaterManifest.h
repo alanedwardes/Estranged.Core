@@ -44,4 +44,12 @@ public:
 	/** If pain causing, time between damage applications. */
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	float PainInterval;
+
+	/** If pain causing, the depth at which pain starts (zero is any depth) */
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	float PainStartDepth;
+
+	/** The radius at which to start the pain (zero is any radius) */
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	float PainStartRadius;
 };

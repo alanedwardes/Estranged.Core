@@ -88,8 +88,7 @@ void AEstWaterVolume::SetPlayerImmersed(bool bEnabled)
 	{
 		if (!bPlayerImmersed)
 		{
-			FBoxSphereBounds Bounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
-			UKismetMaterialLibrary::SetScalarParameterValue(this, Manifest->ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, (Bounds.Origin + Bounds.BoxExtent).Z);
+			UKismetMaterialLibrary::SetScalarParameterValue(this, Manifest->ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, GetSurface().Z);
 			UGameplayStatics::PushSoundMixModifier(this, Manifest->SoundMixOverride);
 			UGameplayStatics::ActivateReverbEffect(this, Manifest->ReverbOverride, REVERB_TAG_UNDERWATER);
 			if (IsValid(OverlappingPlayer) && IsValid(OverlappingPlayer->PlayerCameraManager) && IsValid(Manifest->CameraModifierOverride))
@@ -174,11 +173,34 @@ void AEstWaterVolume::PainTimer()
 	}
 }
 
+FVector AEstWaterVolume::GetSurface()
+{
+	FBoxSphereBounds Bounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
+	return Bounds.Origin + Bounds.BoxExtent;
+}
+
 void AEstWaterVolume::CausePainTo(AActor* Other)
 {
-	if (Manifest->DamagePerSec > 0.f)
+	// Check if damage is really enabled
+	if (FMath::IsNearlyZero(Manifest->DamagePerSec))
 	{
-		TSubclassOf<UDamageType> DmgTypeClass = Manifest->DamageType ? *Manifest->DamageType : UDamageType::StaticClass();
-		Other->TakeDamage(Manifest->DamagePerSec * Manifest->PainInterval, FDamageEvent(DmgTypeClass), nullptr, this);
+		return;
 	}
+
+	const FVector OtherActorLocation = Other->GetActorLocation();
+
+	// Check if we're too shallow to apply pain
+	if (!FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z > GetSurface().Z - Manifest->PainStartDepth)
+	{
+		return;
+	}
+
+	// Check if we're too close to the origin to start to apply pain
+	if (!FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() < Manifest->PainStartRadius)
+	{
+		return;
+	}
+
+	TSubclassOf<UDamageType> DmgTypeClass = Manifest->DamageType ? *Manifest->DamageType : UDamageType::StaticClass();
+	Other->TakeDamage(Manifest->DamagePerSec * Manifest->PainInterval, FDamageEvent(DmgTypeClass), nullptr, this);
 }

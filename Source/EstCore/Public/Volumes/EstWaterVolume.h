@@ -28,6 +28,9 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UEstWaterManifest* Manifest;
 
+	UFUNCTION(BlueprintPure, Category = "Water")
+	virtual FVector GetSurface();
+
 protected:
 	virtual void CausePainTo(class AActor* Other);
 	virtual void PainTimer();
