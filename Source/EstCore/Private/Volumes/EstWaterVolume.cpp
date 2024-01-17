@@ -176,7 +176,7 @@ void AEstWaterVolume::PainTimer()
 FVector AEstWaterVolume::GetSurface()
 {
 	FBoxSphereBounds Bounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
-	return Bounds.Origin + Bounds.BoxExtent;
+	return Bounds.Origin + FVector(0.f, 0.f, Bounds.BoxExtent.Z);
 }
 
 void AEstWaterVolume::CausePainTo(AActor* Other)
@@ -189,18 +189,15 @@ void AEstWaterVolume::CausePainTo(AActor* Other)
 
 	const FVector OtherActorLocation = Other->GetActorLocation();
 
-	// Check if we're too shallow to apply pain
-	if (!FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z > GetSurface().Z - Manifest->PainStartDepth)
-	{
-		return;
-	}
+	// Have we gone too far from the origin?
+	bool bTooFarAway = !FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
 
-	// Check if we're too close to the origin to start to apply pain
-	if (!FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() < Manifest->PainStartRadius)
-	{
-		return;
-	}
+	// Are we too deep?
+	bool bTooDeep = !FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z < GetSurface().Z - Manifest->PainStartDepth;
 
-	TSubclassOf<UDamageType> DmgTypeClass = Manifest->DamageType ? *Manifest->DamageType : UDamageType::StaticClass();
-	Other->TakeDamage(Manifest->DamagePerSec * Manifest->PainInterval, FDamageEvent(DmgTypeClass), nullptr, this);
+	if (bTooFarAway || bTooDeep)
+	{
+		TSubclassOf<UDamageType> DmgTypeClass = Manifest->DamageType ? *Manifest->DamageType : UDamageType::StaticClass();
+		Other->TakeDamage(Manifest->DamagePerSec * Manifest->PainInterval, FDamageEvent(DmgTypeClass), nullptr, this);
+	}
 }
