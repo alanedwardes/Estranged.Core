@@ -22,10 +22,12 @@ public:
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetPlayerImmersed(bool bEnabled);
 	virtual void SetPlayerPaddling(bool bEnabled);
+	virtual void SetPlayerImmersed(bool bEnabled);
 
-	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadOnly)
+	virtual void ManifestChanged();
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UEstWaterManifest* Manifest;
 
 	UFUNCTION(BlueprintPure, Category = "Water")
@@ -45,4 +47,7 @@ protected:
 
 	UPROPERTY()
 	float LastPainTime;
+
+	UPROPERTY()
+	class UEstWaterManifest* LastManifest;
 };

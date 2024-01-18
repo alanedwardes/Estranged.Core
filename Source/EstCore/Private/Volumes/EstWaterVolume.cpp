@@ -1,20 +1,10 @@
 // Estranged is a trade mark of Alan Edwardes.
 
-
 #include "Volumes/EstWaterVolume.h"
 #include "EstCore.h"
 #include "Components/BrushComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Sound/ReverbEffect.h"
 #include "Gameplay/EstPlayer.h"
-#include "Gameplay/EstCharacterMovementComponent.h"
-#include "Camera/CameraModifier.h"
 #include "Engine/DamageEvents.h"
-#include "Materials/MaterialParameterCollection.h"
-#include "Kismet/KismetMaterialLibrary.h"
-
-#define REVERB_TAG_UNDERWATER "Underwater"
-#define WATER_SURFACE_MATERIAL_PARAMETER "WaterSurface"
 
 AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -64,7 +54,13 @@ void AEstWaterVolume::Tick(float DeltaTime)
 		return;
 	}
 
-	if (LastPainTime < GetWorld()->GetTimeSeconds() - Manifest->PainInterval)
+	if (Manifest != LastManifest)
+	{
+		ManifestChanged();
+		LastManifest = Manifest;
+	}
+
+	if (IsValid(Manifest) && LastPainTime < GetWorld()->GetTimeSeconds() - Manifest->PainInterval)
 	{
 		CausePainTo(OverlappingPlayer);
 		LastPainTime = GetWorld()->GetTimeSeconds();
@@ -86,12 +82,9 @@ void AEstWaterVolume::SetPlayerImmersed(bool bEnabled)
 	{
 		if (!bPlayerImmersed)
 		{
-			UKismetMaterialLibrary::SetScalarParameterValue(this, Manifest->ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, GetSurface().Z);
-			UGameplayStatics::PushSoundMixModifier(this, Manifest->SoundMixOverride);
-			UGameplayStatics::ActivateReverbEffect(this, Manifest->ReverbOverride, REVERB_TAG_UNDERWATER);
-			if (IsValid(OverlappingPlayer) && IsValid(OverlappingPlayer->PlayerCameraManager) && IsValid(Manifest->CameraModifierOverride))
+			if (IsValid(Manifest))
 			{
-				OverlappingPlayer->PlayerCameraManager->AddNewCameraModifier(Manifest->CameraModifierOverride);
+				Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurface().Z);
 			}
 			bPlayerImmersed = true;
 		}
@@ -100,12 +93,9 @@ void AEstWaterVolume::SetPlayerImmersed(bool bEnabled)
 	{
 		if (bPlayerImmersed)
 		{
-			UGameplayStatics::PopSoundMixModifier(this, Manifest->SoundMixOverride);
-			UGameplayStatics::DeactivateReverbEffect(this, REVERB_TAG_UNDERWATER);
-			if (IsValid(OverlappingPlayer) && IsValid(OverlappingPlayer->PlayerCameraManager) && IsValid(Manifest->CameraModifierOverride))
+			if (IsValid(Manifest))
 			{
-				UCameraModifier* CameraModifier = OverlappingPlayer->PlayerCameraManager->FindCameraModifierByClass(Manifest->CameraModifierOverride);
-				OverlappingPlayer->PlayerCameraManager->RemoveCameraModifier(CameraModifier);
+				Manifest->DeactivateImmersionEffects(OverlappingPlayer);
 			}
 			bPlayerImmersed = false;
 		}
@@ -118,9 +108,9 @@ void AEstWaterVolume::SetPlayerPaddling(bool bEnabled)
 	{
 		if (!bPlayerPaddling)
 		{
-			if (IsValid(OverlappingPlayer) && IsValid(OverlappingPlayer->EstCharacterMovement))
+			if (IsValid(Manifest))
 			{
-				OverlappingPlayer->EstCharacterMovement->FootstepMaterialOverride = Manifest->PhysicalMaterialOverride;
+				Manifest->ActivatePaddlingEffects(OverlappingPlayer);
 			}
 			bPlayerPaddling = true;
 		}
@@ -129,11 +119,40 @@ void AEstWaterVolume::SetPlayerPaddling(bool bEnabled)
 	{
 		if (bPlayerPaddling)
 		{
-			if (IsValid(OverlappingPlayer) && IsValid(OverlappingPlayer->EstCharacterMovement))
+			if (IsValid(Manifest))
 			{
-				OverlappingPlayer->EstCharacterMovement->FootstepMaterialOverride = nullptr;
+				Manifest->DeactivatePaddlingEffects(OverlappingPlayer);
 			}
 			bPlayerPaddling = false;
+		}
+	}
+}
+
+void AEstWaterVolume::ManifestChanged()
+{
+	if (bPlayerPaddling)
+	{
+		if (IsValid(LastManifest))
+		{
+			LastManifest->DeactivatePaddlingEffects(OverlappingPlayer);
+		}
+
+		if (IsValid(Manifest))
+		{
+			Manifest->ActivatePaddlingEffects(OverlappingPlayer);
+		}
+	}
+
+	if (bPlayerImmersed)
+	{
+		if (IsValid(LastManifest))
+		{
+			LastManifest->DeactivateImmersionEffects(OverlappingPlayer);
+		}
+
+		if (IsValid(Manifest))
+		{
+			Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurface().Z);
 		}
 	}
 }

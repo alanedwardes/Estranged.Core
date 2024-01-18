@@ -52,4 +52,16 @@ public:
 	/** The radius at which to start the pain (zero is any radius) */
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	float PainStartRadius;
+
+	UFUNCTION()
+	void ActivatePaddlingEffects(class AEstPlayer* Player);
+
+	UFUNCTION()
+	void DeactivatePaddlingEffects(class AEstPlayer* Player);
+
+	UFUNCTION()
+	void ActivateImmersionEffects(class AEstPlayer* Player, float WaterSurfaceZ);
+
+	UFUNCTION()
+	void DeactivateImmersionEffects(class AEstPlayer* Player);
 };
