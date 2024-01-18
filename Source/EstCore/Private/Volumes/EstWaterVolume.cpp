@@ -26,8 +26,6 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	FluidFriction = 0.35f;
 	bWaterVolume = true;
 	bPhysicsOnContact = false;
-
-	Manifest = ObjectInitializer.CreateDefaultSubobject<UEstWaterManifest>(this, "WaterManifest");
 }
 
 void AEstWaterVolume::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -41,12 +39,6 @@ void AEstWaterVolume::NotifyActorBeginOverlap(AActor* OtherActor)
 
 		SetActorTickEnabled(true);
 		SetPlayerPaddling(true);
-	}
-
-	// Start timer if none is active
-	if (!GetWorldTimerManager().IsTimerActive(TimerHandle_PainTimer))
-	{
-		GetWorldTimerManager().SetTimer(TimerHandle_PainTimer, this, &AEstWaterVolume::PainTimer, Manifest->PainInterval, true);
 	}
 }
 
@@ -70,6 +62,12 @@ void AEstWaterVolume::Tick(float DeltaTime)
 	if (!IsValid(OverlappingPlayer))
 	{
 		return;
+	}
+
+	if (LastPainTime < GetWorld()->GetTimeSeconds() - Manifest->PainInterval)
+	{
+		CausePainTo(OverlappingPlayer);
+		LastPainTime = GetWorld()->GetTimeSeconds();
 	}
 
 	if (UEstGameplayStatics::AreActorsEyesInWater(OverlappingPlayer))
@@ -150,29 +148,6 @@ void AEstWaterVolume::ActorLeavingVolume(AActor* Other)
 	Super::ActorLeavingVolume(Other);
 }
 
-void AEstWaterVolume::PainTimer()
-{
-	if (Manifest->bPainCausing)
-	{
-		TSet<AActor*> TouchingActors;
-		GetOverlappingActors(TouchingActors);
-
-		for (AActor* const A : TouchingActors)
-		{
-			if (IsValid(A) && A->CanBeDamaged() && A->GetPhysicsVolume() == this)
-			{
-				CausePainTo(A);
-			}
-		}
-
-		// Stop timer if nothing is overlapping us
-		if (TouchingActors.Num() == 0)
-		{
-			GetWorldTimerManager().ClearTimer(TimerHandle_PainTimer);
-		}
-	}
-}
-
 FVector AEstWaterVolume::GetSurface()
 {
 	FBoxSphereBounds Bounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
@@ -190,10 +165,10 @@ void AEstWaterVolume::CausePainTo(AActor* Other)
 	const FVector OtherActorLocation = Other->GetActorLocation();
 
 	// Have we gone too far from the origin?
-	bool bTooFarAway = !FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
+	bool bTooFarAway = FMath::IsNearlyZero(Manifest->PainStartRadius) || (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
 
 	// Are we too deep?
-	bool bTooDeep = !FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z < GetSurface().Z - Manifest->PainStartDepth;
+	bool bTooDeep = FMath::IsNearlyZero(Manifest->PainStartDepth) || OtherActorLocation.Z < GetSurface().Z - Manifest->PainStartDepth;
 
 	if (bTooFarAway || bTooDeep)
 	{

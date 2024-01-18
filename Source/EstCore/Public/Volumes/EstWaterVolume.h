@@ -25,7 +25,7 @@ public:
 	virtual void SetPlayerImmersed(bool bEnabled);
 	virtual void SetPlayerPaddling(bool bEnabled);
 
-	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadOnly)
 	class UEstWaterManifest* Manifest;
 
 	UFUNCTION(BlueprintPure, Category = "Water")
@@ -33,7 +33,6 @@ public:
 
 protected:
 	virtual void CausePainTo(class AActor* Other);
-	virtual void PainTimer();
 
 	UPROPERTY()
 	class AEstPlayer* OverlappingPlayer;
@@ -45,5 +44,5 @@ protected:
 	bool bPlayerPaddling;
 
 	UPROPERTY()
-	FTimerHandle TimerHandle_PainTimer;
+	float LastPainTime;
 };
