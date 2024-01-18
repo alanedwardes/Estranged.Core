@@ -27,6 +27,19 @@ public:
 
 	virtual void ManifestChanged();
 
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	bool bUpdateDebugOverlays;
+
+	class USphereComponent* PainRadius;
+
+	void OnSelectionChanged(UObject* NewSelection);
+
+	void UpdateSelectionState();
+
+	bool bSelectedInEditor;
+#endif
+
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UEstWaterManifest* Manifest;
 

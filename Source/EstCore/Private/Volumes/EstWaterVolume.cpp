@@ -5,6 +5,8 @@
 #include "Components/BrushComponent.h"
 #include "Gameplay/EstPlayer.h"
 #include "Engine/DamageEvents.h"
+#include "Components/SphereComponent.h"
+#include "Engine/Selection.h"
 
 AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -16,6 +18,14 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	FluidFriction = 0.35f;
 	bWaterVolume = true;
 	bPhysicsOnContact = false;
+
+#if WITH_EDITORONLY_DATA
+	PainRadius = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("PainRadius"));
+	PainRadius->SetVisibility(false);
+	PainRadius->SetupAttachment(GetRootComponent());
+	PainRadius->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	USelection::SelectionChangedEvent.AddUObject(this, &AEstWaterVolume::OnSelectionChanged);
+#endif
 }
 
 void AEstWaterVolume::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -156,6 +166,55 @@ void AEstWaterVolume::ManifestChanged()
 		}
 	}
 }
+
+#if WITH_EDITORONLY_DATA
+void AEstWaterVolume::OnSelectionChanged(UObject* NewSelection)
+{
+	// https://forums.unrealengine.com/t/event-when-actor-selected-in-editor/358904/5
+
+	TArray<AEstWaterVolume*> SelectedExampleActors;
+
+	// Get ExampleActors from the selection
+	USelection* Selection = Cast<USelection>(NewSelection);
+	if (Selection != nullptr)
+	{
+		Selection->GetSelectedObjects<AEstWaterVolume>(SelectedExampleActors);
+	}
+
+	// Search the selection for this actor
+	for (AEstWaterVolume* SelectedExampleActor : SelectedExampleActors)
+	{
+		// If our actor is in the selection and was not previously
+		// selected, then this selection change marks the actor
+		// being selected
+		if (SelectedExampleActor == this && !bSelectedInEditor)
+		{
+			// Respond to this actor being selected
+			bSelectedInEditor = true;
+			UpdateSelectionState();
+		}
+	}
+
+	// If our record shows our actor is selected, but IsSelected() is false,
+	// this selection change marks the actor being deselected
+	if (bSelectedInEditor && !IsSelected())
+	{
+		// Respond to this actor being deselected
+		bSelectedInEditor = false;
+		UpdateSelectionState();
+	}
+}
+void AEstWaterVolume::UpdateSelectionState()
+{
+	if (IsValid(Manifest))
+	{
+		PainRadius->SetSphereRadius(Manifest->PainStartRadius);
+	}
+
+	PainRadius->SetWorldLocation(GetSurface());
+	PainRadius->SetVisibility(bSelectedInEditor);
+}
+#endif
 
 void AEstWaterVolume::ActorEnteredVolume(AActor* Other)
 {

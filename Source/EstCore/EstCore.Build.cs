@@ -31,6 +31,11 @@ namespace UnrealBuildTool.Rules
                     "GeometryCollectionEngine",
                     "EnhancedInput"
             });
+
+            if (Target.Type == TargetType.Editor)
+            {
+                PublicDependencyModuleNames.Add("UnrealEd");
+            }
         }
     }
 }
