@@ -21,7 +21,10 @@ public:
 	class UReverbEffect* ReverbOverride;
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
-	class TSubclassOf<UCameraModifier> CameraModifierOverride;
+	class TSubclassOf<UCameraModifier> PaddlingCameraModifier;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class TSubclassOf<UCameraModifier> ImmersionCameraModifier;
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UPhysicalMaterial* PhysicalMaterialOverride;
@@ -54,13 +57,13 @@ public:
 	float PainStartRadius;
 
 	UFUNCTION()
-	void ActivatePaddlingEffects(class AEstPlayer* Player);
+	void ActivatePaddlingEffects(class AEstPlayer* Player, FVector WaterSurface);
 
 	UFUNCTION()
 	void DeactivatePaddlingEffects(class AEstPlayer* Player);
 
 	UFUNCTION()
-	void ActivateImmersionEffects(class AEstPlayer* Player, float WaterSurfaceZ);
+	void ActivateImmersionEffects(class AEstPlayer* Player, FVector WaterSurface);
 
 	UFUNCTION()
 	void DeactivateImmersionEffects(class AEstPlayer* Player);

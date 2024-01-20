@@ -8,11 +8,17 @@
 #define REVERB_TAG_UNDERWATER "Underwater"
 #define WATER_SURFACE_MATERIAL_PARAMETER "WaterSurface"
 
-void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player)
+void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player, FVector WaterSurface)
 {
 	if (IsValid(Player) && IsValid(Player->EstCharacterMovement))
 	{
 		Player->EstCharacterMovement->FootstepMaterialOverride = PhysicalMaterialOverride;
+	}
+
+	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, WaterSurface.Z);
+	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(PaddlingCameraModifier))
+	{
+		Player->PlayerCameraManager->AddNewCameraModifier(PaddlingCameraModifier);
 	}
 }
 
@@ -22,16 +28,22 @@ void UEstWaterManifest::DeactivatePaddlingEffects(AEstPlayer* Player)
 	{
 		Player->EstCharacterMovement->FootstepMaterialOverride = nullptr;
 	}
+
+	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(PaddlingCameraModifier))
+	{
+		UCameraModifier* CameraModifier = Player->PlayerCameraManager->FindCameraModifierByClass(PaddlingCameraModifier);
+		Player->PlayerCameraManager->RemoveCameraModifier(CameraModifier);
+	}
 }
 
-void UEstWaterManifest::ActivateImmersionEffects(AEstPlayer* Player, float WaterSurfaceZ)
+void UEstWaterManifest::ActivateImmersionEffects(AEstPlayer* Player, FVector WaterSurface)
 {
-	UKismetMaterialLibrary::SetScalarParameterValue(this, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, WaterSurfaceZ);
 	UGameplayStatics::PushSoundMixModifier(this, SoundMixOverride);
 	UGameplayStatics::ActivateReverbEffect(this, ReverbOverride, REVERB_TAG_UNDERWATER);
-	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(CameraModifierOverride))
+
+	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(ImmersionCameraModifier))
 	{
-		Player->PlayerCameraManager->AddNewCameraModifier(CameraModifierOverride);
+		Player->PlayerCameraManager->AddNewCameraModifier(ImmersionCameraModifier);
 	}
 }
 
@@ -39,9 +51,10 @@ void UEstWaterManifest::DeactivateImmersionEffects(AEstPlayer* Player)
 {
 	UGameplayStatics::PopSoundMixModifier(this, SoundMixOverride);
 	UGameplayStatics::DeactivateReverbEffect(this, REVERB_TAG_UNDERWATER);
-	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(CameraModifierOverride))
+
+	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(ImmersionCameraModifier))
 	{
-		UCameraModifier* CameraModifier = Player->PlayerCameraManager->FindCameraModifierByClass(CameraModifierOverride);
+		UCameraModifier* CameraModifier = Player->PlayerCameraManager->FindCameraModifierByClass(ImmersionCameraModifier);
 		Player->PlayerCameraManager->RemoveCameraModifier(CameraModifier);
 	}
 }

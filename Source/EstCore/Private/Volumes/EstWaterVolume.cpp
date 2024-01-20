@@ -30,7 +30,7 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 
 void AEstWaterVolume::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	Super::NotifyActorBeginOverlap(OtherActor);
+ 	Super::NotifyActorBeginOverlap(OtherActor);
 
 	AEstPlayer* Player = Cast<AEstPlayer>(OtherActor);
 	if (IsValid(Player))
@@ -94,7 +94,7 @@ void AEstWaterVolume::SetPlayerImmersed(bool bEnabled)
 		{
 			if (IsValid(Manifest))
 			{
-				Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurface().Z);
+				Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurface());
 			}
 			bPlayerImmersed = true;
 		}
@@ -120,7 +120,7 @@ void AEstWaterVolume::SetPlayerPaddling(bool bEnabled)
 		{
 			if (IsValid(Manifest))
 			{
-				Manifest->ActivatePaddlingEffects(OverlappingPlayer);
+				Manifest->ActivatePaddlingEffects(OverlappingPlayer, GetSurface());
 			}
 			bPlayerPaddling = true;
 		}
@@ -149,7 +149,7 @@ void AEstWaterVolume::ManifestChanged()
 
 		if (IsValid(Manifest))
 		{
-			Manifest->ActivatePaddlingEffects(OverlappingPlayer);
+			Manifest->ActivatePaddlingEffects(OverlappingPlayer, GetSurface());
 		}
 	}
 
@@ -162,7 +162,7 @@ void AEstWaterVolume::ManifestChanged()
 
 		if (IsValid(Manifest))
 		{
-			Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurface().Z);
+			Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurface());
 		}
 	}
 }
@@ -215,6 +215,13 @@ void AEstWaterVolume::UpdateSelectionState()
 	PainRadius->SetVisibility(bSelectedInEditor);
 }
 #endif
+
+void AEstWaterVolume::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	LastManifest = Manifest;
+}
 
 void AEstWaterVolume::ActorEnteredVolume(AActor* Other)
 {

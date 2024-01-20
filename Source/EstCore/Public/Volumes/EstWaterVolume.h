@@ -16,6 +16,8 @@ class ESTCORE_API AEstWaterVolume : public APhysicsVolume
 	GENERATED_UCLASS_BODY()
 
 public:
+	virtual void PostInitializeComponents() override;
+
 	virtual void ActorEnteredVolume(class AActor* Other) override;
 	virtual void ActorLeavingVolume(class AActor* Other) override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
