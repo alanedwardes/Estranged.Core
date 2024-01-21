@@ -27,6 +27,15 @@ public:
 	class TSubclassOf<UCameraModifier> ImmersionCameraModifier;
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class USoundBase* ImmersionLoop;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class USoundBase* ImmersionStart;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class USoundBase* ImmersionEnd;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UPhysicalMaterial* PhysicalMaterialOverride;
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
