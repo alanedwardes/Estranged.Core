@@ -38,8 +38,8 @@ void UEstWaterManifest::DeactivatePaddlingEffects(AEstPlayer* Player)
 
 void UEstWaterManifest::ActivateImmersionEffects(AEstPlayer* Player, FVector WaterSurface)
 {
-	UGameplayStatics::PushSoundMixModifier(this, SoundMixOverride);
-	UGameplayStatics::ActivateReverbEffect(this, ReverbOverride, REVERB_TAG_UNDERWATER);
+	UGameplayStatics::PushSoundMixModifier(Player, SoundMixOverride);
+	UGameplayStatics::ActivateReverbEffect(Player, ReverbOverride, REVERB_TAG_UNDERWATER);
 
 	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(ImmersionCameraModifier))
 	{
@@ -49,8 +49,8 @@ void UEstWaterManifest::ActivateImmersionEffects(AEstPlayer* Player, FVector Wat
 
 void UEstWaterManifest::DeactivateImmersionEffects(AEstPlayer* Player)
 {
-	UGameplayStatics::PopSoundMixModifier(this, SoundMixOverride);
-	UGameplayStatics::DeactivateReverbEffect(this, REVERB_TAG_UNDERWATER);
+	UGameplayStatics::PopSoundMixModifier(Player, SoundMixOverride);
+	UGameplayStatics::DeactivateReverbEffect(Player, REVERB_TAG_UNDERWATER);
 
 	if (IsValid(Player) && IsValid(Player->PlayerCameraManager) && IsValid(ImmersionCameraModifier))
 	{
