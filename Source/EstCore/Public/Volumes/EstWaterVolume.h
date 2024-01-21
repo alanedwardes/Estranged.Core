@@ -42,7 +42,7 @@ public:
 	bool bSelectedInEditor;
 #endif
 
-	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp)
 	class UEstWaterManifest* Manifest;
 
 	UFUNCTION(BlueprintPure, Category = "Water")
