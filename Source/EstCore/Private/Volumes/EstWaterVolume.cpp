@@ -250,10 +250,10 @@ void AEstWaterVolume::CausePainTo(AActor* Other)
 	const FVector OtherActorLocation = Other->GetActorLocation();
 
 	// Have we gone too far from the origin?
-	bool bTooFarAway = FMath::IsNearlyZero(Manifest->PainStartRadius) || (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
+	bool bTooFarAway = !FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
 
 	// Are we too deep?
-	bool bTooDeep = FMath::IsNearlyZero(Manifest->PainStartDepth) || OtherActorLocation.Z < GetSurface().Z - Manifest->PainStartDepth;
+	bool bTooDeep = !FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z < GetSurface().Z - Manifest->PainStartDepth;
 
 	if (bTooFarAway || bTooDeep)
 	{
