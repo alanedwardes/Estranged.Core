@@ -15,7 +15,7 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	GetBrushComponent()->SetCollisionProfileName(PROFILE_WATER);
-	FluidFriction = 0.35f;
+	FluidFriction = 2.f;
 	bWaterVolume = true;
 	bPhysicsOnContact = false;
 
