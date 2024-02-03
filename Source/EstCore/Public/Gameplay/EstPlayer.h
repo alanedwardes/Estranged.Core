@@ -5,7 +5,7 @@
 #include "EstPlayer.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEstPlayer, Log, All);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowHintDelegate, TArray<FName>, Bindings, FText, Label, float, ShowTime, FVector, WorldLocation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnShowHintDelegate, class UInputMappingContext*, InputMappingContext, TArray<class UInputAction*>, Bindings, FText, Label, float, ShowTime, FVector, WorldLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLandedDelegate, FHitResult, HitResult, float, SmoothZVelocity);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideHintDelegate);
 
@@ -235,7 +235,7 @@ public:
 	FOnShowHintDelegate OnShowHint;
 
 	UFUNCTION(BlueprintCallable, Category = Hint)
-	virtual void ShowHint(TArray<FName> Bindings, FText Label, float ShowTime, FVector WorldLocation) { OnShowHint.Broadcast(Bindings, Label, ShowTime, WorldLocation); };
+	virtual void ShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation) { OnShowHint.Broadcast(FirstPersonMappingContext, Bindings, Label, ShowTime, WorldLocation); };
 
 	UPROPERTY(BlueprintAssignable, Category = Hint)
 	FOnHideHintDelegate OnHideHint;

@@ -6,6 +6,8 @@
 #include "Gameplay/EstPlayerController.h"
 #include "Gameplay/EstFirearmWeapon.h"
 #include "Gameplay/EstFirearmAmunition.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 #include "EstCore.h"
 
 void UEstHUDWidget::NativeConstruct()
@@ -85,8 +87,9 @@ void UEstHUDWidget::HandleSetSubtitleText(const FText &SubtitleText)
 	}
 }
 
-void UEstHUDWidget::HandleShowHint(TArray<FName> Bindings, FText Label, float ShowTime, FVector WorldLocation)
+void UEstHUDWidget::HandleShowHint(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation)
 {
+	HintInputMappingContext = InputMappingContext;
 	HintBindings = Bindings;
 	HintLabel = Label;
 	HintWorldLocation = WorldLocation;
@@ -101,19 +104,25 @@ void UEstHUDWidget::HandleHideHint()
 const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
 	TSet<FKey> Keys;
-	for (const FName &Binding : HintBindings)
+	if (HintInputMappingContext == nullptr)
 	{
-		const FKey AxisKey = UEstGameplayStatics::FindBestKeyForAxis(Controller.Get(), Binding, Controller->bIsUsingGamepad);
-		const FKey ActionKey = UEstGameplayStatics::FindBestKeyForAction(Controller.Get(), Binding, Controller->bIsUsingGamepad);
+		return Keys;
+	}
 
-		if (AxisKey != EKeys::Invalid)
-		{
-			Keys.Add(AxisKey);
-		}
+	TArray<FEnhancedActionKeyMapping> Mappings = HintInputMappingContext->GetMappings();
+	const bool bIsUsingGamepad = Controller->bIsUsingGamepad;
 
-		if (ActionKey != EKeys::Invalid)
+	for (const UInputAction* Binding : HintBindings)
+	{
+		// Find the mapping which pertains to this input action
+		FEnhancedActionKeyMapping* Found = Mappings.FindByPredicate([Binding, bIsUsingGamepad](FEnhancedActionKeyMapping Mapping)
 		{
-			Keys.Add(ActionKey);
+			return Mapping.Action == Binding && Mapping.Key.IsGamepadKey() == bIsUsingGamepad;
+		});
+
+		if (Found != nullptr && Found->Key != EKeys::Invalid)
+		{
+			Keys.Add(Found->Key);
 		}
 	}
 
