@@ -19,6 +19,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCurveFloat* Curve;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Style;
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void InitializeComponent() override;
@@ -28,8 +31,6 @@ public:
 
 protected:
 	UPROPERTY()
-	class ULightComponent* Light;
-
-	float LightIntensity;
+	TMap<ULightComponent*, float> Lights;
 	float RandomOffset;
 };
