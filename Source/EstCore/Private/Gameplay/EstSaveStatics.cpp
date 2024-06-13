@@ -109,7 +109,7 @@ void UEstSaveStatics::SerializeLevel(ULevel* Level, FEstLevelState &LevelState)
 		if (Actor->GetClass()->IsChildOf(ALevelSequenceActor::StaticClass()))
 		{
 			ALevelSequenceActor* LevelSequenceActor = Cast<ALevelSequenceActor>(Actor);
-			if (LevelSequenceActor->SequencePlayer == nullptr)
+			if (LevelSequenceActor->GetSequencePlayer() == nullptr)
 			{
 				continue;
 			}
@@ -187,9 +187,9 @@ FEstSequenceState UEstSaveStatics::SerializeSequence(ALevelSequenceActor* LevelS
 {
 	FEstSequenceState SequenceState;
 	SequenceState.ActorName = LevelSequenceActor->GetFName();
-	SequenceState.FrameNumber = LevelSequenceActor->SequencePlayer->GetCurrentTime().Time.FrameNumber.Value;
-	SequenceState.PlayRate = LevelSequenceActor->SequencePlayer->GetPlayRate();
-	SequenceState.bIsPlaying = LevelSequenceActor->SequencePlayer->IsPlaying();
+	SequenceState.FrameNumber = LevelSequenceActor->GetSequencePlayer()->GetCurrentTime().Time.FrameNumber.Value;
+	SequenceState.PlayRate = LevelSequenceActor->GetSequencePlayer()->GetPlayRate();
+	SequenceState.bIsPlaying = LevelSequenceActor->GetSequencePlayer()->IsPlaying();
 	return SequenceState;
 }
 
@@ -310,12 +310,12 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 		if (LevelSequenceActor->GetFName() == SequenceState.ActorName)
 		{
 			// There have been crash reports from this area of the code, do some sanity checks
-			check(LevelSequenceActor->SequencePlayer != nullptr);
+			check(LevelSequenceActor->GetSequencePlayer() != nullptr);
 
 			const bool bIsAtStart = SequenceState.FrameNumber == 0;
-			const bool bIsAtEnd = SequenceState.FrameNumber >= LevelSequenceActor->SequencePlayer->GetEndTime().Time.FrameNumber.Value;
+			const bool bIsAtEnd = SequenceState.FrameNumber >= LevelSequenceActor->GetSequencePlayer()->GetEndTime().Time.FrameNumber.Value;
 
-			LevelSequenceActor->SequencePlayer->SetPlayRate(SequenceState.PlayRate);
+			LevelSequenceActor->GetSequencePlayer()->SetPlayRate(SequenceState.PlayRate);
 
 			// Don't explicitly set the position if at start
 			// this can cause frames to get dropped (and events on frame 0 skipped)
@@ -323,14 +323,14 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 			{
 				FMovieSceneSequencePlaybackParams PlaybackParams;
 				PlaybackParams.Frame = FFrameTime(SequenceState.FrameNumber);
-				LevelSequenceActor->SequencePlayer->SetPlaybackPosition(PlaybackParams);
+				LevelSequenceActor->GetSequencePlayer()->SetPlaybackPosition(PlaybackParams);
 			}
 
 			// Start playing if at end of sequence too, this
 			// causes any events on the final frame to be fired
 			if (SequenceState.bIsPlaying || bIsAtEnd)
 			{
-				LevelSequenceActor->SequencePlayer->Play();
+				LevelSequenceActor->GetSequencePlayer()->Play();
 			}
 
 			return *LevelSequenceActor;
