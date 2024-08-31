@@ -165,6 +165,16 @@ void UEstSaveStatics::RestoreLevel(const ULevel* Level, FEstLevelState LevelStat
 			FoundActor = SpawnMovedActor(Level->GetWorld(), ActorState);
 		}
 
+		if (FoundActor->ActorHasTag(TAG_NOSAVERESTORE))
+		{
+			continue;
+		}
+
+		if (FoundActor->IsPendingKill())
+		{
+			continue;
+		}
+
 		RestoreActor(FoundActor, ActorState);
 
 		// Restore all components
@@ -308,6 +318,11 @@ ALevelSequenceActor* UEstSaveStatics::RestoreSequence(UWorld* World, const FEstS
 		}
 
 		if (LevelSequenceActor->IsPendingKill())
+		{
+			continue;
+		}
+
+		if (LevelSequenceActor->ActorHasTag(TAG_NOSAVERESTORE))
 		{
 			continue;
 		}
