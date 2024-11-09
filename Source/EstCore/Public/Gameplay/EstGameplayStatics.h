@@ -292,4 +292,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Materials)
 	static bool IsDefaultPhysicalMaterial(const class UPhysicalMaterial* PhysicalMaterial);
+
+	UFUNCTION(BlueprintCallable, Category = Input)
+	static const TSet<FKey> GetHintKeys(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, class AEstPlayerController* Controller);
 };

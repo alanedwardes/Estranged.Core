@@ -38,6 +38,8 @@
 #include "Perception/AISense_Damage.h"
 #include "GameFramework/PhysicsVolume.h"
 #include "Volumes/EstWaterVolume.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 
 extern ENGINE_API float GAverageFPS;
 extern ENGINE_API float GAverageMS;
@@ -1313,4 +1315,33 @@ bool UEstGameplayStatics::AreActorsEyesInWater(AActor* Actor)
 	const bool bIsWaterVolume = CurrentPhysicsVolume->bWaterVolume || CurrentPhysicsVolume->IsA<AEstWaterVolume>();
 
 	return IsValid(CurrentPhysicsVolume) && bIsWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
+}
+
+const TSet<FKey> UEstGameplayStatics::GetHintKeys(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, AEstPlayerController* Controller)
+{
+	TSet<FKey> Keys;
+	if (InputMappingContext == nullptr)
+	{
+		return Keys;
+	}
+
+	TArray<FEnhancedActionKeyMapping> Mappings = InputMappingContext->GetMappings();
+
+	const bool bIsUsingGamepad = Controller == nullptr ? false : Controller->bIsUsingGamepad;
+
+	for (const UInputAction* Binding : Bindings)
+	{
+		// Find the mapping which pertains to this input action
+		FEnhancedActionKeyMapping* Found = Mappings.FindByPredicate([Binding, bIsUsingGamepad](FEnhancedActionKeyMapping Mapping)
+		{
+			return Mapping.Action == Binding && Mapping.Key.IsGamepadKey() == bIsUsingGamepad;
+		});
+
+		if (Found != nullptr && Found->Key != EKeys::Invalid)
+		{
+			Keys.Add(Found->Key);
+		}
+	}
+
+	return Keys;
 }

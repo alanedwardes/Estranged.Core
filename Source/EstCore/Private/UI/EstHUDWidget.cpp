@@ -103,30 +103,7 @@ void UEstHUDWidget::HandleHideHint()
 
 const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
-	TSet<FKey> Keys;
-	if (HintInputMappingContext == nullptr)
-	{
-		return Keys;
-	}
-
-	TArray<FEnhancedActionKeyMapping> Mappings = HintInputMappingContext->GetMappings();
-	const bool bIsUsingGamepad = Controller->bIsUsingGamepad;
-
-	for (const UInputAction* Binding : HintBindings)
-	{
-		// Find the mapping which pertains to this input action
-		FEnhancedActionKeyMapping* Found = Mappings.FindByPredicate([Binding, bIsUsingGamepad](FEnhancedActionKeyMapping Mapping)
-		{
-			return Mapping.Action == Binding && Mapping.Key.IsGamepadKey() == bIsUsingGamepad;
-		});
-
-		if (Found != nullptr && Found->Key != EKeys::Invalid)
-		{
-			Keys.Add(Found->Key);
-		}
-	}
-
-	return Keys;
+	return UEstGameplayStatics::GetHintKeys(HintInputMappingContext, HintBindings, Controller.Get());
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)
