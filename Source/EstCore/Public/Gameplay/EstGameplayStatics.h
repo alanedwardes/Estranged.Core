@@ -295,4 +295,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Input)
 	static const TSet<FKey> GetHintKeys(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, class AEstPlayerController* Controller);
+	
+	UFUNCTION(BlueprintPure, Category = Game)
+	static void GetActorBoundingSphere(AActor* Actor, FVector& Origin, float& Radius);
+
+	UFUNCTION(BlueprintPure, Category = Game)
+	static bool IsActorInFrustum(AActor* Actor);
+
+	UFUNCTION(BlueprintPure, Category = Game, meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	static bool IsSphereInFrustum(UObject* WorldContextObject, FVector Origin, float Radius);
 };

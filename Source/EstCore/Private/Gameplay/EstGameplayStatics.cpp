@@ -40,6 +40,8 @@
 #include "Volumes/EstWaterVolume.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "Engine/GameViewportClient.h"
+#include "SceneView.h"
 
 extern ENGINE_API float GAverageFPS;
 extern ENGINE_API float GAverageMS;
@@ -1344,4 +1346,48 @@ const TSet<FKey> UEstGameplayStatics::GetHintKeys(class UInputMappingContext* In
 	}
 
 	return Keys;
+}
+
+void UEstGameplayStatics::GetActorBoundingSphere(AActor* Actor, FVector& Origin, float& Radius)
+{
+	UPrimitiveComponent* PrimitiveToHold = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
+	if (PrimitiveToHold != nullptr)
+	{
+		Origin = PrimitiveToHold->Bounds.Origin;
+		Radius = PrimitiveToHold->Bounds.SphereRadius;
+	}	
+}
+
+bool UEstGameplayStatics::IsActorInFrustum(AActor* Actor)
+{
+	return IsSphereInFrustum(Actor->GetWorld(), Actor->GetActorLocation(), Actor->GetSimpleCollisionRadius());
+}
+
+bool UEstGameplayStatics::IsSphereInFrustum(UObject* WorldContextObject, FVector Origin, float Radius)
+{
+	if (WorldContextObject == nullptr || WorldContextObject->GetWorld() == nullptr)
+	{
+		return false;
+	}
+
+	UWorld* World = WorldContextObject->GetWorld();
+	ULocalPlayer* LocalPlayer = World->GetFirstLocalPlayerFromController();
+	if (LocalPlayer != nullptr && LocalPlayer->ViewportClient != nullptr && LocalPlayer->ViewportClient->Viewport)
+	{
+		FSceneViewFamily::ConstructionValues Viewport = FSceneViewFamily::ConstructionValues(LocalPlayer->ViewportClient->Viewport, World->Scene, LocalPlayer->ViewportClient->EngineShowFlags);
+
+		// Create a view family for the game viewport
+		FSceneViewFamilyContext ViewFamily(Viewport.SetRealtimeUpdate(true));
+
+		// Calculate a view where the player is to update the streaming from the players start location
+		FVector ViewLocation;
+		FRotator ViewRotation;
+		FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, ViewLocation, ViewRotation, LocalPlayer->ViewportClient->Viewport);
+		if (SceneView != nullptr)
+		{
+			return SceneView->ViewFrustum.IntersectSphere(Origin, Radius);
+		}
+	}
+
+	return false;
 }
