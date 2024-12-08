@@ -23,6 +23,10 @@ public:
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void WorldBeginPlay();
+
 private:
 	TMap<class APawn*, class AEstPlayerStart*> StartedPawns;
 };

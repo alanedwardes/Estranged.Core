@@ -94,12 +94,30 @@ void AEstGameMode::RestartPlayer(AController* NewPlayer)
 			}
 		}
 	}
+}
 
-	AEstPlayerStart* Start;
-	if (StartedPawns.RemoveAndCopyValue(NewPawn, Start) && Start)
+void AEstGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetWorld()->OnWorldBeginPlay.AddUObject(this, &ThisClass::WorldBeginPlay);
+}
+
+void AEstGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GetWorld()->OnWorldBeginPlay.RemoveAll(this);
+}
+
+void AEstGameMode::WorldBeginPlay()
+{
+	for (TPair<APawn*, AEstPlayerStart*> StartedPawn : StartedPawns)
 	{
-		Start->OnPlayerStart.Broadcast(Start, NewPlayer, NewPawn);
+		StartedPawn.Value->OnPlayerStart.Broadcast(StartedPawn.Value, StartedPawn.Key->Controller, StartedPawn.Key);
 	}
+
+	StartedPawns.Empty();
 }
 
 APawn* AEstGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
