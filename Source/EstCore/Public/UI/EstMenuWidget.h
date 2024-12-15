@@ -28,7 +28,7 @@ public:
 	void OnLoadLevelByReference(const TSoftObjectPtr<UWorld> &Level);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnLoadCheckpoint(struct FEstCheckpoint Checkpoint);
+	void OnLoadWaypoint(TSubclassOf<class UEstLevelWaypoint> Waypoint);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMenuLoadingStateChanged(bool bIsLoading);

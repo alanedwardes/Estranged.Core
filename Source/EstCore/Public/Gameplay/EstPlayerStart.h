@@ -19,4 +19,11 @@ class ESTCORE_API AEstPlayerStart : public APlayerStart
 public:
 	UPROPERTY(BlueprintAssignable)
 	FPlayerStartSignature OnPlayerStart;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	TSubclassOf<class UEstLevelWaypoint> Waypoint;
+
+#if WITH_EDITOR
+	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 };

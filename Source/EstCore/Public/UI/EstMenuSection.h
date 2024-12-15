@@ -12,8 +12,8 @@ enum EEstMenuAction
 	ExitGame,
 	TransitionToLevel,
 	ResumeGame,
-	TransitionToCheckpoint,
-	ReloadCurrentLevel
+	ReloadCurrentLevel,
+	TransitionToWaypoint,
 };
 
 USTRUCT(BlueprintType)
@@ -28,7 +28,7 @@ struct FEstMenuAction
 	TSoftObjectPtr<UWorld> Level;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FEstCheckpoint Checkpoint;
+	TSubclassOf<class UEstLevelWaypoint> Waypoint;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnModal, TSoftClassPtr<UEstMenuModal>, Modal, FName, Context);

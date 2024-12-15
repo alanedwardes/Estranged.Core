@@ -24,8 +24,8 @@ void UEstMenuWidget::Action(FEstMenuAction MenuAction)
 	case EEstMenuAction::TransitionToLevel:
 		OnLoadLevelByReference(MenuAction.Level);
 		break;
-	case EEstMenuAction::TransitionToCheckpoint:
-		OnLoadCheckpoint(MenuAction.Checkpoint);
+	case EEstMenuAction::TransitionToWaypoint:
+		OnLoadWaypoint(MenuAction.Waypoint);
 		break;
 	case EEstMenuAction::ReloadCurrentLevel:
 		if (UWorld* World = GEngine->GetWorldFromContextObject(this, EGetWorldErrorMode::LogAndReturnNull))

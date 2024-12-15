@@ -304,4 +304,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Game, meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static bool IsSphereInFrustum(UObject* WorldContextObject, FVector Origin, float Radius);
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", AdvancedDisplay = "2", DisplayName = "Open Level (by Waypoint)"), Category = "Game")
+	static void OpenLevelByWaypoint(const UObject* WorldContextObject, const TSubclassOf<class UEstLevelWaypoint> Waypoint);
 };

@@ -22,6 +22,7 @@
 #include "Saves/EstGameSettingsSave.h"
 #include "AudioDevice.h"
 #include "Gameplay/EstGameInstance.h"
+#include "Gameplay/EstLevelWaypoint.h"
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {
@@ -402,12 +403,12 @@ void UEstSaveStatics::AddCheckpoint(UObject* WorldContextObject, FEstCheckpoint 
 	// Replace this checkpoint
 	Save->Checkpoints = Save->Checkpoints.FilterByPredicate([&CurrentLevelName, &NewCheckpoint](const FEstCheckpoint& Checkpoint)
 	{
-		if (!CurrentLevelName.Equals(Checkpoint.Level))
-		{
-			return true;
-		}
+		//if (!CurrentLevelName.Equals(Checkpoint.Waypoint))
+		//{
+		//	return true;
+		//}
 
-		if (NewCheckpoint.PlayerStartTag != Checkpoint.PlayerStartTag)
+		if (NewCheckpoint.Waypoint != Checkpoint.Waypoint)
 		{
 			return true;
 		}
@@ -415,7 +416,7 @@ void UEstSaveStatics::AddCheckpoint(UObject* WorldContextObject, FEstCheckpoint 
 		return false;
 	});
 
-	NewCheckpoint.Level = CurrentLevelName;
+	//NewCheckpoint.Level = CurrentLevelName;
 	NewCheckpoint.CreatedOn = FDateTime::UtcNow();
 	Save->Checkpoints.Insert(NewCheckpoint, 0);
 	SaveCheckpoints(Save);
@@ -433,7 +434,7 @@ FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(UObject* WorldContextObject, b
 	{
 		Checkpoints = Checkpoints.FilterByPredicate([&CurrentLevelName](const FEstCheckpoint& Checkpoint)
 		{
-			return CurrentLevelName.Equals(Checkpoint.Level);
+			return true;
 		});
 	}
 
@@ -449,8 +450,7 @@ FEstCheckpoint UEstSaveStatics::GetLastCheckpoint(UObject* WorldContextObject, b
 
 void UEstSaveStatics::OpenCheckpoint(UObject* WorldContextObject, FEstCheckpoint NewCheckpoint)
 {
-	FString LevelString = FString::Printf(TEXT("%s#%s"), *NewCheckpoint.Level, *NewCheckpoint.PlayerStartTag.ToString());
-	UGameplayStatics::OpenLevel(WorldContextObject, FName(*LevelString));
+	UEstGameplayStatics::OpenLevelByWaypoint(WorldContextObject, NewCheckpoint.Waypoint->GetClass());
 }
 
 bool UEstSaveStatics::PersistSaveRaw(const TArray<uint8>& SrcData, const FString & SlotName, const int32 UserIndex)

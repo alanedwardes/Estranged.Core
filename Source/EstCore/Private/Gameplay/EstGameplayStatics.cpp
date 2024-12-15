@@ -42,6 +42,7 @@
 #include "InputMappingContext.h"
 #include "Engine/GameViewportClient.h"
 #include "SceneView.h"
+#include "Gameplay/EstLevelWaypoint.h"
 
 extern ENGINE_API float GAverageFPS;
 extern ENGINE_API float GAverageMS;
@@ -1390,4 +1391,15 @@ bool UEstGameplayStatics::IsSphereInFrustum(UObject* WorldContextObject, FVector
 	}
 
 	return false;
+}
+
+void UEstGameplayStatics::OpenLevelByWaypoint(const UObject* WorldContextObject, const TSubclassOf<class UEstLevelWaypoint> Waypoint)
+{
+	if (Waypoint == nullptr)
+	{
+		return;
+	}
+
+	UEstLevelWaypoint* ClassDefaultObject = Waypoint->GetDefaultObject<UEstLevelWaypoint>();
+	UGameplayStatics::OpenLevelBySoftObjectPtr(WorldContextObject, ClassDefaultObject->Level, true, FString("#") + ClassDefaultObject->Waypoint.ToString());
 }

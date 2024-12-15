@@ -13,13 +13,10 @@ struct FEstCheckpoint
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Level;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FDateTime CreatedOn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName PlayerStartTag;
+	class UEstLevelWaypoint* Waypoint;
 };
 
 /**

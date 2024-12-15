@@ -23,7 +23,7 @@ AEstPlayerCheckpoint::AEstPlayerCheckpoint(const class FObjectInitializer& PCIP)
 void AEstPlayerCheckpoint::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	FEstCheckpoint NewCheckpoint;
-	NewCheckpoint.PlayerStartTag = PlayerStartTag;
+	NewCheckpoint.Waypoint = Waypoint;
 	UEstSaveStatics::AddCheckpoint(this, NewCheckpoint);
 
 	if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
