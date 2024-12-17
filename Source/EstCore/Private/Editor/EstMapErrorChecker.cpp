@@ -81,7 +81,7 @@ void AEstMapErrorChecker::CheckForErrors()
 			if (MeshComponent != nullptr)
 			{
 				const UStaticMesh* StaticMesh = MeshComponent->GetStaticMesh();
-				if (StaticMesh != nullptr && !SeenMeshes.Contains(StaticMesh) && !StaticMesh->GetPathName().StartsWith("/Engine/"))
+				if (StaticMesh != nullptr && !SeenMeshes.Contains(StaticMesh) && !StaticMesh->GetPathName().StartsWith("/Engine/") && !StaticMesh->IsNaniteEnabled())
 				{
 					const int32 Lod1Tris = StaticMesh->GetRenderData()->LODResources[0].GetNumTriangles();
 
