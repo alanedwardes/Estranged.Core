@@ -114,7 +114,7 @@ void AEstDoor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEven
 		DoorOpenAmount = 1.f;
 	}
 
-	if (DoorState == EEstDoorState::Closed)
+	if (DoorState == EEstDoorState::Closed && FMath::IsNearlyZero(DoorOpenAmount))
 	{
 		DoorOpenAmount = 0.f;
 	}
