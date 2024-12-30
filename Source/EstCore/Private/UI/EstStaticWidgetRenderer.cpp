@@ -17,7 +17,8 @@ AEstStaticWidgetRenderer::AEstStaticWidgetRenderer(const class FObjectInitialize
 	: Super(PCIP)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	MaterialTextureParameterName = TEXT("Texture");
 	CanvasRenderTarget2DClass = UCanvasRenderTarget2D::StaticClass();
@@ -56,6 +57,8 @@ void AEstStaticWidgetRenderer::BeginPlay()
 	Super::BeginPlay();
 	
 	WidgetInstance = CreateWidget(GetWorld(), WidgetClass);
+	SlateWidgetInstance = WidgetInstance->TakeWidget();
+
 	RenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, CanvasRenderTarget2DClass, FMath::RoundToInt(WidgetSize.X), FMath::RoundToInt(WidgetSize.Y));
 
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
@@ -85,6 +88,7 @@ void AEstStaticWidgetRenderer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
+	SlateWidgetInstance = nullptr;
 	delete WidgetRenderer;
 }
 
@@ -100,13 +104,27 @@ void AEstStaticWidgetRenderer::RenderWidget()
 		return;
 	}
 
-	TSharedPtr<SWidget> SlateWidget(WidgetInstance->TakeWidget());
-
 	// First render once to force the layout to happen
-	WidgetRenderer->DrawWidget(RenderTarget, SlateWidget.ToSharedRef(), WidgetSize, 0.f, false);
+	WidgetRenderer->DrawWidget(RenderTarget, SlateWidgetInstance.ToSharedRef(), WidgetSize, 0.f, false);
 	// Then take the result
-	WidgetRenderer->DrawWidget(RenderTarget, SlateWidget.ToSharedRef(), WidgetSize, 0.f, false);
+	WidgetRenderer->DrawWidget(RenderTarget, SlateWidgetInstance.ToSharedRef(), WidgetSize, 0.f, false);
 
 	RenderTarget->UpdateResourceImmediate(false);
 
+}
+
+void AEstStaticWidgetRenderer::Tick(float DeltaTime)
+{
+	if (WidgetInstance == nullptr)
+	{
+		return;
+	}
+
+	if (RenderTarget == nullptr)
+	{
+		return;
+	}
+
+	WidgetRenderer->DrawWidget(RenderTarget, SlateWidgetInstance.ToSharedRef(), WidgetSize, 0.f, false);
+	RenderTarget->UpdateResourceImmediate(false);
 }

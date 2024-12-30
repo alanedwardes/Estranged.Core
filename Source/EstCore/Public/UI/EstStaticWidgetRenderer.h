@@ -14,13 +14,17 @@ class ESTCORE_API AEstStaticWidgetRenderer : public AActor
 public:	
 	AEstStaticWidgetRenderer(const class FObjectInitializer& PCIP);
 
+	UFUNCTION(BlueprintCallable)
+	virtual void RenderWidget();
+
+	/** Tick to check if primary/secondary attack is pressed */
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	virtual void RenderWidget();
 
 public:	
 
@@ -62,4 +66,6 @@ private:
 
 	UPROPERTY()
 	class UUserWidget* WidgetInstance;
+
+	TSharedPtr<SWidget> SlateWidgetInstance;
 };
