@@ -9,6 +9,7 @@
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Gameplay/EstGameInstance.h"
+#include "UserData/EstPhysicsUserData.h"
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
 
@@ -40,6 +41,17 @@ void UEstPhysicsEffectsComponent::OnRegister()
 	{
 		Primitive->SetNotifyRigidBodyCollision(true);
 		Primitive->OnComponentHit.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
+	}
+
+	TArray<UStaticMeshComponent*> StaticMeshComponents;
+	Owner->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
+	{
+		UEstPhysicsUserData* PhysicsData = StaticMeshComponent->GetStaticMesh()->GetAssetUserData<UEstPhysicsUserData>();
+		if (PhysicsData != nullptr)
+		{
+			StaticMeshComponent->SetMassOverrideInKg(NAME_None, PhysicsData->Mass);
+		}
 	}
 
 	TArray<UGeometryCollectionComponent*> GeometryCollectionComponents;
