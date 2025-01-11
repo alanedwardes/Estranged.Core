@@ -1391,3 +1391,17 @@ bool UEstGameplayStatics::IsSphereInFrustum(UObject* WorldContextObject, FVector
 
 	return false;
 }
+
+float UEstGameplayStatics::CalculateOverlappingMass(AActor* Actor)
+{
+	float OverlappingMass = 0;
+
+	TSet<UPrimitiveComponent*> PrimitiveComponents;
+	Actor->GetOverlappingComponents(PrimitiveComponents);
+	for (UPrimitiveComponent* PrimitiveComponent : PrimitiveComponents)
+	{
+		OverlappingMass += PrimitiveComponent->CalculateMass();
+	}
+
+	return OverlappingMass;
+}

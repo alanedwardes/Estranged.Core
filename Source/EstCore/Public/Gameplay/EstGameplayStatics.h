@@ -304,4 +304,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Game, meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static bool IsSphereInFrustum(UObject* WorldContextObject, FVector Origin, float Radius);
+
+	UFUNCTION(BlueprintPure, Category = Physics)
+	static float CalculateOverlappingMass(AActor* Actor);
 };
