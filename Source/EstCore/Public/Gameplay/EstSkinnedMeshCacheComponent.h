@@ -12,6 +12,8 @@ struct FEstSkinnedMeshBoneState
 {
 	GENERATED_BODY()
 
+	FEstSkinnedMeshBoneState() : bIsSimulatingPhysics(false) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName BoneName;
 
@@ -26,6 +28,8 @@ USTRUCT(BlueprintType)
 struct FEstSkinnedMeshComponentState
 {
 	GENERATED_BODY()
+
+	FEstSkinnedMeshComponentState() : bIsSimulatingPhysics(false) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	FName ComponentName;

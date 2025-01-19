@@ -8,6 +8,8 @@ struct ESTCORE_API FEstImpactEffect
 {
 	GENERATED_BODY()
 
+	FEstImpactEffect() : Sound(nullptr), ScrapeSound(nullptr), ParticleSystem(nullptr), ParticleSystemDebris(nullptr) {}
+
 	static const FEstImpactEffect None;
 
 	FORCEINLINE bool operator==(const FEstImpactEffect& Effect) const

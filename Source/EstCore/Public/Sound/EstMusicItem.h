@@ -8,6 +8,8 @@ struct ESTCORE_API FEstMusicItem
 {
 	GENERATED_BODY()
 
+	FEstMusicItem() : Music(nullptr) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	class USoundBase* Music;
 };

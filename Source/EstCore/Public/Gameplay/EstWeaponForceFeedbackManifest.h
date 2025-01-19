@@ -7,6 +7,8 @@ struct ESTCORE_API FEstWeaponForceFeedbackManifest
 {
 	GENERATED_BODY()
 
+	FEstWeaponForceFeedbackManifest() : PrimaryAttack(nullptr), SecondaryAttack(nullptr), Reload(nullptr) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	class UForceFeedbackEffect* PrimaryAttack;
 

@@ -11,6 +11,8 @@ struct ESTCORE_API FEstSubtitle
 {
 	GENERATED_BODY()
 
+	FEstSubtitle() : bIsClosedCaption(false), bUseSimpleSubtitleFont(false), SubtitleFontSizeMultiplier(1.f) {}
+
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGuid SubtitleId;

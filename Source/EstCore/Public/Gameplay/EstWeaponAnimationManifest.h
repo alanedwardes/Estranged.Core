@@ -7,6 +7,8 @@ struct ESTCORE_API FEstWeaponAnimationManifest
 {
 	GENERATED_BODY()
 
+	FEstWeaponAnimationManifest() : PrimaryAttack(nullptr), SecondaryAttack(nullptr), Reload(nullptr) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	class UAnimMontage* PrimaryAttack;
 

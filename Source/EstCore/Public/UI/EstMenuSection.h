@@ -21,6 +21,8 @@ struct FEstMenuAction
 {
 	GENERATED_BODY()
 
+	FEstMenuAction() : Action(EEstMenuAction::ExitGame) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<EEstMenuAction> Action;
 

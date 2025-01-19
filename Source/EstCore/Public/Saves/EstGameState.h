@@ -7,6 +7,8 @@ struct FEstComponentState
 {	
 	GENERATED_BODY()
 
+	FEstComponentState() : ComponentClass(nullptr) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<uint8> ComponentData;
 
@@ -24,6 +26,8 @@ USTRUCT(BlueprintType)
 struct FEstActorState
 {
 	GENERATED_BODY()
+
+	FEstActorState() : ActorClass(nullptr) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<uint8> ActorData;
@@ -51,6 +55,8 @@ USTRUCT(BlueprintType)
 struct FEstSequenceState
 {
 	GENERATED_BODY()
+
+	FEstSequenceState() : FrameNumber(0), PlayRate(0.f), bIsPlaying(false) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ActorName;

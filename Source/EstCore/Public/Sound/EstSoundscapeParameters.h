@@ -9,6 +9,8 @@ struct FEstSoundscapeParameters
 {
 	GENERATED_BODY()
 
+	FEstSoundscapeParameters() : Sound(nullptr), Reverb(nullptr) {}
+
 	UPROPERTY(EditAnywhere, SaveGame, BlueprintReadWrite, Category = "Soundscape")
 	USoundCue* Sound;
 

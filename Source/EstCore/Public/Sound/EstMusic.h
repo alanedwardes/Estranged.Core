@@ -7,6 +7,8 @@ struct ESTCORE_API FEstMusic
 {
 	GENERATED_BODY()
 
+	FEstMusic() : Sound(nullptr), bShouldFadeCurrent(false), bNoFadeIn(false), Position(0.f) {}
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame)
 	USoundBase* Sound;

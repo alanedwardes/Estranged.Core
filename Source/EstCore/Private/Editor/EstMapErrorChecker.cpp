@@ -203,6 +203,16 @@ void AEstMapErrorChecker::CheckForErrors()
 						->AddToken(FUObjectToken::Create(Actor))
 						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but has \"Receives Decals\" enabled (meaning it might look strange if it moves through decals)")));
 				}
+
+				const UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(PrimitiveComponent);
+				if (!StaticMeshComponent->bUseDefaultCollision)
+				{
+					MapCheck.Warning()
+						->AddToken(FUObjectToken::Create(this))
+						->AddToken(FTextToken::Create(FText::FromString("Actor")))
+						->AddToken(FUObjectToken::Create(Actor))
+						->AddToken(FTextToken::Create(FText::FromString("is not using default collision (will mean this mesh behaviour is inconsistent across levels)")));
+				}
 			}
 		}
 	}

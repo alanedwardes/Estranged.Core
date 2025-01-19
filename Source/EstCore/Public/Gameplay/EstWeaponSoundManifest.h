@@ -7,6 +7,8 @@ struct ESTCORE_API FEstWeaponSoundManifest
 {
 	GENERATED_BODY()
 
+	FEstWeaponSoundManifest() : PrimaryAttack(nullptr), SecondaryAttack(nullptr), Holster(nullptr), Unholster(nullptr), Reload(nullptr) {}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	class USoundBase* PrimaryAttack;
 
