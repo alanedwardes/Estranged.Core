@@ -29,7 +29,8 @@ namespace UnrealBuildTool.Rules
                     "Chaos",
                     "ChaosSolverEngine",
                     "GeometryCollectionEngine",
-                    "EnhancedInput"
+                    "EnhancedInput",
+                    "FieldSystemEngine"
             });
 
             if (Target.Type == TargetType.Editor)
