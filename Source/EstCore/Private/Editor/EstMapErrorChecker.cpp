@@ -171,7 +171,8 @@ void AEstMapErrorChecker::CheckForErrors()
 				}
 			}
 
-			if (PrimitiveComponent->IsAnySimulatingPhysics())
+			// If simulating and could be picked up
+			if (PrimitiveComponent->IsAnySimulatingPhysics() && PrimitiveComponent == Actor->GetRootComponent())
 			{
 				TArray<UEstPhysicsEffectsComponent*> PhysicsEffectsComponents;
 				Actor->GetComponents<UEstPhysicsEffectsComponent>(PhysicsEffectsComponents);
@@ -192,6 +193,15 @@ void AEstMapErrorChecker::CheckForErrors()
 						->AddToken(FTextToken::Create(FText::FromString("Actor")))
 						->AddToken(FUObjectToken::Create(Actor))
 						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but does not have \"Generate Overlap Events\" enabled (meaning it can't be affected by physics push volumes)")));
+				}
+
+				if (PrimitiveComponent->bReceivesDecals)
+				{
+					MapCheck.Warning()
+						->AddToken(FUObjectToken::Create(this))
+						->AddToken(FTextToken::Create(FText::FromString("Actor")))
+						->AddToken(FUObjectToken::Create(Actor))
+						->AddToken(FTextToken::Create(FText::FromString("is simulating pysics, but has \"Receives Decals\" enabled (meaning it might look strange if it moves through decals)")));
 				}
 			}
 		}
