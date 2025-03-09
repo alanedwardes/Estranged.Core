@@ -5,26 +5,8 @@
 
 UEstEnhancedInputUserSettings::UEstEnhancedInputUserSettings()
 {
-	SensitivityMouse = FVector::OneVector;
-	SensitivityGamepad = FVector::OneVector;
-}
-
-void UEstEnhancedInputUserSettings::SetSensitivtyMouse(FVector NewSensitivityMouse)
-{
-	SensitivityMouse = NewSensitivityMouse;
-}
-
-void UEstEnhancedInputUserSettings::SetSensitivtyGamepad(FVector NewSensitivityGamepad)
-{
-	SensitivityGamepad = NewSensitivityGamepad;
-}
-
-FVector UEstEnhancedInputUserSettings::GetSensitivityMouse() const
-{
-	return SensitivityMouse;
-}
-
-FVector UEstEnhancedInputUserSettings::GetSensitivityGamepad() const
-{
-	return SensitivityGamepad;
+	SensitivityMouse = 1.f;
+	SensitivityGamepad = 1.f;
+	InvertMouseY = false;
+	InvertGamepadY = true;
 }

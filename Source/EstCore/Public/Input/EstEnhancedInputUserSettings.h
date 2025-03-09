@@ -14,19 +14,15 @@ class ESTCORE_API UEstEnhancedInputUserSettings : public UEnhancedInputUserSetti
 public:
 	UEstEnhancedInputUserSettings();
 
-	UFUNCTION(BlueprintCallable)
-	void SetSensitivtyMouse(FVector NewSensitivityMouse);
+	UPROPERTY(SaveGame, BlueprintReadWrite, Category = "Sensitivity")
+	float SensitivityMouse;
 
-	UFUNCTION(BlueprintCallable)
-	void SetSensitivtyGamepad(FVector NewSensitivityGamepad);
+	UPROPERTY(SaveGame, BlueprintReadWrite, Category = "Sensitivity")
+	float SensitivityGamepad;
 
-	UFUNCTION(BlueprintPure)
-	FVector GetSensitivityMouse() const;
+	UPROPERTY(SaveGame, BlueprintReadWrite, Category = "Inversion")
+	bool InvertMouseY;
 
-	UFUNCTION(BlueprintPure)
-	FVector GetSensitivityGamepad() const;
-
-private:
-	FVector SensitivityMouse;
-	FVector SensitivityGamepad;
+	UPROPERTY(SaveGame, BlueprintReadWrite, Category = "Inversion")
+	bool InvertGamepadY;
 };

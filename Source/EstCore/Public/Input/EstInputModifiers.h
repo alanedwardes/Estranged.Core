@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "InputModifiers.h"
-#include "EstInputModifierSensitivity.generated.h"
+#include "EstInputModifiers.generated.h"
 
 UCLASS(NotBlueprintable, meta = (DisplayName = "Estranged Mouse Sensitivity"))
-class ESTCORE_API UEstInputModifierMouseSensitivity : public UInputModifier
+class ESTCORE_API UEstInputModifierMouse : public UInputModifier
 {
 	GENERATED_BODY()
 	
@@ -19,7 +19,7 @@ protected:
 };
 
 UCLASS(NotBlueprintable, meta = (DisplayName = "Estranged Gamepad Sensitivity"))
-class ESTCORE_API UEstInputModifierGamepadSensitivity : public UInputModifier
+class ESTCORE_API UEstInputModifierGamepad : public UInputModifier
 {
 	GENERATED_BODY()
 
