@@ -87,9 +87,8 @@ void UEstHUDWidget::HandleSetSubtitleText(const FText &SubtitleText)
 	}
 }
 
-void UEstHUDWidget::HandleShowHint(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation)
+void UEstHUDWidget::HandleShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation)
 {
-	HintInputMappingContext = InputMappingContext;
 	HintBindings = Bindings;
 	HintLabel = Label;
 	HintWorldLocation = WorldLocation;
@@ -103,7 +102,7 @@ void UEstHUDWidget::HandleHideHint()
 
 const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
-	return UEstGameplayStatics::GetHintKeys(HintInputMappingContext, HintBindings, Controller.Get());
+	return UEstGameplayStatics::GetHintKeys(Controller->FirstPersonMappingContext, HintBindings, Controller.Get());
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)

@@ -23,6 +23,14 @@ void AEstPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		FModifyContextOptions ModifyContextOptions;
+		ModifyContextOptions.bNotifyUserSettings = true;
+		Subsystem->AddMappingContext(FirstPersonMappingContext, 0, ModifyContextOptions);
+		Subsystem->AddMappingContext(MainMappingContext, INT32_MAX);
+	}
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		// Menu
@@ -43,11 +51,6 @@ void AEstPlayerController::ShowMenuSection(FName MenuSection)
 void AEstPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	{
-		Subsystem->AddMappingContext(MainMappingContext, INT32_MAX);
-	}
 }
 
 void AEstPlayerController::BeginDestroy()

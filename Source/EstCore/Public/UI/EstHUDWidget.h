@@ -113,13 +113,10 @@ public:
 	float HintDuration;
 
 	UFUNCTION()
-	virtual void HandleShowHint(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation);
+	virtual void HandleShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation);
 
 	UFUNCTION()
 	virtual void HandleHideHint();
-
-	UPROPERTY()
-	class UInputMappingContext* HintInputMappingContext;
 
 	UPROPERTY()
 	TArray<class UInputAction*> HintBindings;
