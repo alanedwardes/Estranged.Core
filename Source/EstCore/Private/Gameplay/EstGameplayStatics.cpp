@@ -1163,14 +1163,17 @@ const TSet<FKey> UEstGameplayStatics::GetHintKeys(class UInputMappingContext* In
 	for (const UInputAction* Binding : Bindings)
 	{
 		// Find the mapping which pertains to this input action
-		FEnhancedActionKeyMapping* Found = Mappings.FindByPredicate([Binding, bIsUsingGamepad](FEnhancedActionKeyMapping Mapping)
+		TArray<FEnhancedActionKeyMapping> Found = Mappings.FilterByPredicate([Binding, bIsUsingGamepad](FEnhancedActionKeyMapping Mapping)
 		{
 			return Mapping.Action == Binding && Mapping.Key.IsGamepadKey() == bIsUsingGamepad;
 		});
 
-		if (Found != nullptr && Found->Key != EKeys::Invalid)
+		for (const FEnhancedActionKeyMapping Mapping : Found)
 		{
-			Keys.Add(Found->Key);
+			if (Mapping.Key != EKeys::Invalid)
+			{
+				Keys.Add(Mapping.Key);
+			}
 		}
 	}
 
