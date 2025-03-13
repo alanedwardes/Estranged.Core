@@ -63,24 +63,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Game)
 	static AActor* MoveActorToLevel(AActor* Actor, ULevel* Level);
 
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void ListActionMappings(const APlayerController* PlayerController, TArray<FName> &SortedActionNames, TMap<FName, FInputChord> &Mappings, bool bForGamepad);
-
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void ListAxisMappings(const APlayerController* PlayerController, TArray<FName> &SortedAxisNames, TMap<FName, FKey> &Mappings, bool bForGamepad);
-
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static FKey FindBestKeyForAction(APlayerController* PlayerController, FName ActionName, bool bForGamepad);
-
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static FKey FindBestKeyForAxis(APlayerController* PlayerController, FName AxisNames, bool bForGamepad);
-
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void AddAxisMapping(APlayerController* PlayerController, FName AxisName, FKey InputKey, float Scale);
-
-	UFUNCTION(BlueprintCallable, Category = "Game", meta = (HidePin = "PlayerController", DefaultToSelf = "PlayerController"))
-	static void AddActionMapping(APlayerController* PlayerController, FName ActionName, FInputChord InputKey);
-
 	/** Get the Estranged player controller for a specified player index. */
 	UFUNCTION(BlueprintPure, Category = "Game", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static class AEstPlayerController* GetEstPlayerController(UObject* WorldContextObject, int32 PlayerIndex);
