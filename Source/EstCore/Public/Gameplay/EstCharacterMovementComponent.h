@@ -114,7 +114,7 @@ public:
 
 	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
 
-	virtual bool DoJump(bool bReplayingMoves) override;
+	virtual bool DoJump(bool bReplayingMoves, float DeltaTime) override;
 
 	FORCEINLINE bool CanEverSprint() const { return bCanSprint; }
 

@@ -5,7 +5,6 @@
 #include "Physics/EstImpactManifest.h"
 #include "PhysicsPublic.h"
 #include "Runtime/Engine/Classes/Engine/TextureStreamingTypes.h"
-#include "Runtime/Engine/Classes/Materials/MaterialInterface.h"
 #include "Runtime/Engine/Classes/PhysicsEngine/BodyInstance.h"
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"
 #include "Runtime/Engine/Classes/Components/SceneComponent.h"

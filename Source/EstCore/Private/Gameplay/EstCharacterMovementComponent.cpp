@@ -197,9 +197,9 @@ void UEstCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float 
 	DoFootstep(FootstepIntensityLand);
 }
 
-bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves)
+bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves, float DeltaTime)
 {
-	if (Super::DoJump(bReplayingMoves))
+	if (Super::DoJump(bReplayingMoves, DeltaTime))
 	{
 		Velocity = FVector(Velocity.X * JumpVelocityMultiplier, Velocity.Y * JumpVelocityMultiplier, Velocity.Z);
 		DoFootstep(FootstepIntensityJump);
