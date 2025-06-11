@@ -12,7 +12,7 @@ class ESTCORE_API AEstPlayerController : public APlayerController
 public:
 	AEstPlayerController(const class FObjectInitializer& PCIP);
 
-	virtual bool InputKey(const FInputKeyParams& Params) override;
+	virtual bool InputKey(const FInputKeyEventArgs& Params) override;
 
 	virtual void SetupInputComponent() override;
 

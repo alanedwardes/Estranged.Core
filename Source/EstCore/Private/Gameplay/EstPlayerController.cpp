@@ -13,7 +13,7 @@ AEstPlayerController::AEstPlayerController(const class FObjectInitializer& PCIP)
 	PlayerCameraManagerClass = AEstPlayerCameraManager::StaticClass();
 }
 
-bool AEstPlayerController::InputKey(const FInputKeyParams& Params)
+bool AEstPlayerController::InputKey(const FInputKeyEventArgs& Params)
 {
 	bIsUsingGamepad = Params.IsGamepad();
 	return Super::InputKey(Params);
