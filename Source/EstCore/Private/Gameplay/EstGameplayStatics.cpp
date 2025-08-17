@@ -41,6 +41,7 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "Engine/GameViewportClient.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 #include "SceneView.h"
 
 extern ENGINE_API float GAverageFPS;
@@ -1236,4 +1237,15 @@ float UEstGameplayStatics::CalculateOverlappingMass(AActor* Actor)
 	}
 
 	return OverlappingMass;
+}
+
+TMap<FString, UEnhancedPlayerMappableKeyProfile*> UEstGameplayStatics::GetAllKeyProfiles(UEnhancedInputUserSettings* UserSettings)
+{
+	const TMap<FString, TObjectPtr<UEnhancedPlayerMappableKeyProfile>>& Profiles = UserSettings->GetAllAvailableKeyProfiles();
+	TMap<FString, UEnhancedPlayerMappableKeyProfile*> Result;
+	for (const auto& Pair : Profiles)
+	{
+	    Result.Add(Pair.Key, Pair.Value.Get());
+	}
+	return Result;
 }

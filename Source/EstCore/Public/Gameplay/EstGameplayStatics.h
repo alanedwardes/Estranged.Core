@@ -289,4 +289,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Physics)
 	static float CalculateOverlappingMass(AActor* Actor);
+
+	UFUNCTION(BlueprintCallable, Category = "Enhanced Input")
+	static TMap<FString, class UEnhancedPlayerMappableKeyProfile*> GetAllKeyProfiles(class UEnhancedInputUserSettings* UserSettings);
 };
