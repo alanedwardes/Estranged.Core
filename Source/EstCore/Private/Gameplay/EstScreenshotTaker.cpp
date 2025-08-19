@@ -15,10 +15,7 @@ void UEstScreenshotTaker::RequestScreenshot()
 		return;
 	}
 
-	if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
-	{
-		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Trace, TEXT("Screenshot requested")));
-	}
+	EST_LOG(this, EEstLoggerLevel::Trace, "Screenshot requested");
 
 	bIsScreenshotRequested = true;
 	GEngine->GameViewport->OnScreenshotCaptured().AddUObject(this, &UEstScreenshotTaker::AcceptScreenshot);
@@ -30,10 +27,7 @@ void UEstScreenshotTaker::AcceptScreenshot(int32 InSizeX, int32 InSizeY, const T
 {
 	OnScreenshot.Broadcast(InImageData, InSizeX, InSizeY);
 	
-	if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
-	{
-		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Trace, TEXT("Screenshot delivered")));
-	}
+	EST_LOG(this, EEstLoggerLevel::Trace, "Screenshot delivered");
 
 	GEngine->GameViewport->OnScreenshotCaptured().RemoveAll(this);
 	bIsScreenshotRequested = false;

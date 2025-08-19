@@ -107,10 +107,7 @@ void AEstBaseCharacter::OnPostRestore_Implementation()
 
 void AEstBaseCharacter::OnDeath_Implementation()
 {
-	if (UEstGameplayStatics::GetEstGameInstance(this)->GetLoggerEnabled())
-	{
-		UEstGameplayStatics::GetEstGameInstance(this)->LogMessage(FEstLoggerMessage(this, EEstLoggerLevel::Normal, TEXT("Character just died")));
-	}
+	EST_LOG(this, EEstLoggerLevel::Normal, "Character just died");
 
 	Tags.Add(TAG_DEAD);
 
