@@ -5,6 +5,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "Physics/EstPhysicsCollisionHandler.h"
 #include "PBDRigidsSolver.h"
+#include "GameFramework/PhysicsVolume.h"
 #include "Physics/Experimental/PhysScene_Chaos.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Gameplay/EstGameplayStatics.h"
@@ -15,6 +16,7 @@ DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
 
 UEstPhysicsEffectsComponent::UEstPhysicsEffectsComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UEstPhysicsEffectsComponent::OnRegister()
@@ -24,6 +26,8 @@ void UEstPhysicsEffectsComponent::OnRegister()
 	// Use AddUniqueDynamic instead of AddDynamic for delegates.
 
 	Super::OnRegister();
+
+	bool bShouldTick = false;
 
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
@@ -47,7 +51,18 @@ void UEstPhysicsEffectsComponent::OnRegister()
 		UEstPhysicsUserData* PhysicsData = StaticMeshComponent->GetStaticMesh()->GetAssetUserData<UEstPhysicsUserData>();
 		if (PhysicsData != nullptr)
 		{
-			StaticMeshComponent->SetMassOverrideInKg(NAME_None, PhysicsData->Mass);
+			if (PhysicsData->Mass > 0.f)
+			{
+				StaticMeshComponent->SetMassOverrideInKg(NAME_None, PhysicsData->Mass);
+			}
+
+			if (PhysicsData->BuoyancyCoefficient > 0.f)
+			{
+				MaxBuoyancyCoefficient = FMath::Max(MaxBuoyancyCoefficient, PhysicsData->BuoyancyCoefficient);
+				StaticMeshComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentBeginOverlap);
+				StaticMeshComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentEndOverlap);
+				bShouldTick = true;
+			}
 		}
 	}
 
@@ -59,6 +74,107 @@ void UEstPhysicsEffectsComponent::OnRegister()
 		GeometryCollectionComponent->bNotifyBreaks = true;
 		GeometryCollectionComponent->OnChaosBreakEvent.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnChaosBreak);
 		GeometryCollectionComponent->OnChaosPhysicsCollision.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnChaosPhysicsCollision);
+	}
+
+	SetComponentTickEnabled(bShouldTick);
+}
+
+void UEstPhysicsEffectsComponent::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr)
+	{
+		EST_LOG(this, EEstLoggerLevel::Warning, "Other actor is null");
+		return;
+	}
+
+	CurrentPhysicsVolume = Cast<APhysicsVolume>(OtherActor);
+}
+
+void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == nullptr)
+	{
+		EST_LOG(this, EEstLoggerLevel::Warning, "Other actor is null");
+		return;
+	}
+
+	if (CurrentPhysicsVolume == OtherActor)
+	{
+		CurrentPhysicsVolume = nullptr;
+	}
+}
+
+void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	bool bIsInWater = CurrentPhysicsVolume == nullptr ? false : CurrentPhysicsVolume->bWaterVolume;
+
+	if (bIsInWater)
+	{
+		UPrimitiveComponent* Prim = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
+		if (!Prim || !Prim->IsSimulatingPhysics())
+			return;
+
+		// 1. Get water surface Z
+		FBoxSphereBounds WaterBounds = CurrentPhysicsVolume->GetBounds();
+		float WaterLevelZ = WaterBounds.Origin.Z + WaterBounds.BoxExtent.Z;
+
+		// 2. Get owner bounds and current velocity
+		FBoxSphereBounds ActorBounds = GetOwner()->GetRootComponent()->Bounds;
+		FVector BoxOrigin = ActorBounds.Origin;
+		FVector BoxExtent = ActorBounds.BoxExtent;
+		FVector CurrentVelocity = Prim->GetPhysicsLinearVelocity();
+
+		float BoxTopZ = BoxOrigin.Z + BoxExtent.Z;
+		float BoxBottomZ = BoxOrigin.Z - BoxExtent.Z;
+
+		// 3. Calculate submerged height (how much of the object is underwater)
+		float SubmergedHeight = FMath::Clamp(WaterLevelZ - BoxBottomZ, 0.0f, 2.0f * BoxExtent.Z);
+
+		if (SubmergedHeight <= 0.0f)
+			return;
+
+		// 4. Get object mass for force balancing
+		float ObjectMass = Prim->GetMass();
+		if (ObjectMass <= 0.0f)
+			return;
+
+		// 5. Calculate buoyant force based on submerged percentage and mass
+		float SubmergedPercentage = SubmergedHeight / (2.0f * BoxExtent.Z);
+		float Gravity = GetWorld()->GetGravityZ();
+		
+		// Apply buoyant force proportional to submerged percentage
+		float BuoyantForce = ObjectMass * -Gravity * SubmergedPercentage * MaxBuoyancyCoefficient * 1.5f;
+
+		// 6. Apply damping when near water surface (reduced force when close to surface)
+		float DistanceFromSurface = FMath::Abs(BoxTopZ - WaterLevelZ);
+		float DampingFactor = FMath::Clamp(DistanceFromSurface / (BoxExtent.Z * 0.2f), 0.2f, 1.0f);
+		
+		// 7. Apply water drag (resistance) to slow down movement
+		float DragCoefficient = 0.05f;
+		FVector DragForce = -CurrentVelocity * DragCoefficient * ObjectMass;
+
+		// 8. Apply forces with damping
+		FVector TotalForce = FVector(0, 0, BuoyantForce * DampingFactor) + DragForce;
+		Prim->AddForce(TotalForce);
+
+		// 9. Apply orientation correction when near surface
+		if (DistanceFromSurface < BoxExtent.Z * 0.5f)
+		{
+			// Get current rotation and target upright rotation
+			FRotator CurrentRotation = Prim->GetComponentRotation();
+			FRotator TargetRotation = FRotator(0, CurrentRotation.Yaw, 0); // Keep Yaw, zero Pitch and Roll
+			
+			// Calculate rotation difference
+			FRotator RotationDiff = TargetRotation - CurrentRotation;
+			RotationDiff.Normalize();
+			
+			// Apply torque to rotate towards upright orientation
+			float TorqueStrength = 1000.0f * ObjectMass; // Adjust strength as needed
+			FVector Torque = FVector(RotationDiff.Pitch, RotationDiff.Yaw, RotationDiff.Roll) * TorqueStrength;
+			Prim->AddTorqueInRadians(Torque);
+		}
 	}
 }
 
