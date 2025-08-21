@@ -88,6 +88,12 @@ void UEstPhysicsEffectsComponent::OnComponentBeginOverlap(UPrimitiveComponent* O
 	}
 
 	CurrentPhysicsVolume = Cast<APhysicsVolume>(OtherActor);
+
+	if (CurrentPhysicsVolume->bWaterVolume)
+	{
+		OverlappedComponent->SetLinearDamping(1.0f);
+		OverlappedComponent->SetAngularDamping(4.0f);
+	}
 }
 
 void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -100,6 +106,8 @@ void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* Ove
 
 	if (CurrentPhysicsVolume == OtherActor)
 	{
+		OverlappedComponent->SetLinearDamping(0.01f);
+		OverlappedComponent->SetAngularDamping(0.0f);
 		CurrentPhysicsVolume = nullptr;
 	}
 }
@@ -133,12 +141,16 @@ void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick
 		float SubmergedHeight = FMath::Clamp(WaterLevelZ - BoxBottomZ, 0.0f, 2.0f * BoxExtent.Z);
 
 		if (SubmergedHeight <= 0.0f)
+		{
 			return;
+		}
 
 		// 4. Get object mass for force balancing
 		float ObjectMass = Prim->GetMass();
 		if (ObjectMass <= 0.0f)
+		{
 			return;
+		}
 
 		// 5. Calculate buoyant force based on submerged percentage and mass
 		float SubmergedPercentage = SubmergedHeight / (2.0f * BoxExtent.Z);
@@ -159,21 +171,37 @@ void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick
 		FVector TotalForce = FVector(0, 0, BuoyantForce * DampingFactor) + DragForce;
 		Prim->AddForce(TotalForce);
 
-		// 9. Apply orientation correction when near surface
-		if (DistanceFromSurface < BoxExtent.Z * 0.5f)
+		// Self-righting mechanism using quaternions to avoid gimbal lock
+		FRotator CurrentRotation = Prim->GetComponentRotation();
+		
+		// Get current and target orientations as quaternions
+		FQuat CurrentQuat = Prim->GetComponentQuat();
+		FQuat TargetQuat = FQuat::MakeFromEuler(FVector(0.0f, CurrentRotation.Yaw, 0.0f));
+		
+		// Calculate the shortest rotation between current and target
+		FQuat ErrorQuat = TargetQuat * CurrentQuat.Inverse();
+		
+		// Convert to axis-angle representation for torque calculation
+		FVector RotationAxis;
+		float RotationAngle;
+		ErrorQuat.ToAxisAndAngle(RotationAxis, RotationAngle);
+		
+		// Normalize the rotation angle to [-π, π] range
+		if (RotationAngle > PI)
 		{
-			// Get current rotation and target upright rotation
-			FRotator CurrentRotation = Prim->GetComponentRotation();
-			FRotator TargetRotation = FRotator(0, CurrentRotation.Yaw, 0); // Keep Yaw, zero Pitch and Roll
+			RotationAngle -= 2.0f * PI;
+		}
+		
+		// Only apply self-righting if tilted beyond a threshold (5 degrees)
+		float TiltThreshold = FMath::DegreesToRadians(5.0f);
+		if (FMath::Abs(RotationAngle) > TiltThreshold)
+		{
+			// Calculate restoring torque proportional to rotation error
+			float RestoreStrength = 10000.f * ObjectMass;
+			FVector RestoreTorque = RotationAxis * RotationAngle * RestoreStrength;
 			
-			// Calculate rotation difference
-			FRotator RotationDiff = TargetRotation - CurrentRotation;
-			RotationDiff.Normalize();
-			
-			// Apply torque to rotate towards upright orientation
-			float TorqueStrength = 1000.0f * ObjectMass; // Adjust strength as needed
-			FVector Torque = FVector(RotationDiff.Pitch, RotationDiff.Yaw, RotationDiff.Roll) * TorqueStrength;
-			Prim->AddTorqueInRadians(Torque);
+			// Apply torque directly in world space
+			Prim->AddTorqueInRadians(RestoreTorque);
 		}
 	}
 }
