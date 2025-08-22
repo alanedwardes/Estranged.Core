@@ -169,14 +169,14 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 
 	// 6. Apply damping when near water surface (reduced force when close to surface)
 	float DistanceFromSurface = FMath::Abs(BoxTopZ - WaterLevelZ);
-	float DampingFactor = FMath::Clamp(DistanceFromSurface / (BoxExtent.Z * 0.2f), 0.2f, 1.0f);
+	//float DampingFactor = FMath::Clamp(DistanceFromSurface / (BoxExtent.Z * 0.2f), 0.2f, 1.0f);
 
 	// 7. Apply water drag (resistance) to slow down movement
 	float DragCoefficient = 0.05f;
 	FVector DragForce = -CurrentVelocity * DragCoefficient * ObjectMass;
 
 	// 8. Apply forces with damping
-	FVector TotalForce = FVector(0, 0, BuoyantForce * DampingFactor) + DragForce;
+	FVector TotalForce = FVector(0, 0, BuoyantForce/* * DampingFactor*/) + DragForce;
 	PrimitiveComponent->AddForce(TotalForce);
 
 	// Self-righting mechanism using quaternions to avoid gimbal lock
@@ -194,11 +194,7 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	float RotationAngle;
 	ErrorQuat.ToAxisAndAngle(RotationAxis, RotationAngle);
 
-	// Normalize the rotation angle to [-π, π] range
-	if (RotationAngle > PI)
-	{
-		RotationAngle -= 2.0f * PI;
-	}
+	RotationAngle = FMath::UnwindRadians(RotationAngle);
 
 	// Only apply self-righting if tilted beyond a threshold (5 degrees)
 	float TiltThreshold = FMath::DegreesToRadians(5.0f);
