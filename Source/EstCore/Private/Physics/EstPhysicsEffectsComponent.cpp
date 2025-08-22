@@ -58,7 +58,7 @@ void UEstPhysicsEffectsComponent::OnRegister()
 
 			if (PhysicsData->BuoyancyCoefficient > 0.f)
 			{
-				MaxBuoyancyCoefficient = FMath::Max(MaxBuoyancyCoefficient, PhysicsData->BuoyancyCoefficient);
+				ComponentUserData.Add(StaticMeshComponent, PhysicsData);
 				StaticMeshComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentBeginOverlap);
 				StaticMeshComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentEndOverlap);
 				bShouldTick = true;
@@ -87,12 +87,16 @@ void UEstPhysicsEffectsComponent::OnComponentBeginOverlap(UPrimitiveComponent* O
 		return;
 	}
 
-	CurrentPhysicsVolume = Cast<APhysicsVolume>(OtherActor);
-
-	if (CurrentPhysicsVolume->bWaterVolume)
+	APhysicsVolume* PhysicsVolume = Cast<APhysicsVolume>(OtherActor);
+	if (PhysicsVolume != nullptr)
 	{
-		OverlappedComponent->SetLinearDamping(1.0f);
-		OverlappedComponent->SetAngularDamping(4.0f);
+		if (PhysicsVolume->bWaterVolume)
+		{
+			OverlappedComponent->SetLinearDamping(1.0f);
+			OverlappedComponent->SetAngularDamping(4.0f);
+		}
+
+		ComponentPhysicsVolumes.Add(OverlappedComponent, PhysicsVolume);
 	}
 }
 
@@ -104,11 +108,108 @@ void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* Ove
 		return;
 	}
 
-	if (CurrentPhysicsVolume == OtherActor)
+	APhysicsVolume* PhysicsVolume = Cast<APhysicsVolume>(OtherActor);
+	if (PhysicsVolume != nullptr)
 	{
-		OverlappedComponent->SetLinearDamping(0.01f);
-		OverlappedComponent->SetAngularDamping(0.0f);
-		CurrentPhysicsVolume = nullptr;
+		if (PhysicsVolume->bWaterVolume)
+		{
+			OverlappedComponent->SetLinearDamping(0.01f);
+			OverlappedComponent->SetAngularDamping(0.0f);
+		}
+
+		ComponentPhysicsVolumes.Remove(OverlappedComponent);
+	}
+}
+
+void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, UEstPhysicsUserData* PhysicsUserData)
+{
+	if (PrimitiveComponent == nullptr || PhysicsVolume == nullptr || PhysicsUserData == nullptr)
+	{
+		return;
+	}
+
+	if (!PrimitiveComponent->IsSimulatingPhysics() || FMath::IsNearlyZero(PhysicsUserData->BuoyancyCoefficient))
+	{
+		return;
+	}
+
+	// 1. Get water surface Z
+	FBoxSphereBounds WaterBounds = PhysicsVolume->GetBounds();
+	float WaterLevelZ = WaterBounds.Origin.Z + WaterBounds.BoxExtent.Z;
+
+	// 2. Get bounds and current velocity
+	FBoxSphereBounds ActorBounds = PrimitiveComponent->Bounds;
+	FVector BoxOrigin = ActorBounds.Origin;
+	FVector BoxExtent = ActorBounds.BoxExtent;
+	FVector CurrentVelocity = PrimitiveComponent->GetPhysicsLinearVelocity();
+
+	float BoxTopZ = BoxOrigin.Z + BoxExtent.Z;
+	float BoxBottomZ = BoxOrigin.Z - BoxExtent.Z;
+
+	// 3. Calculate submerged height (how much of the object is underwater)
+	float SubmergedHeight = FMath::Clamp(WaterLevelZ - BoxBottomZ, 0.0f, 2.0f * BoxExtent.Z);
+	if (SubmergedHeight <= 0.0f)
+	{
+		return;
+	}
+
+	// 4. Get object mass for force balancing
+	float ObjectMass = PrimitiveComponent->GetMass();
+	if (ObjectMass <= 0.0f)
+	{
+		return;
+	}
+
+	// 5. Calculate buoyant force based on submerged percentage and mass
+	float SubmergedPercentage = SubmergedHeight / (2.0f * BoxExtent.Z);
+	float Gravity = GetWorld()->GetGravityZ();
+
+	// Apply buoyant force proportional to submerged percentage
+	float BuoyantForce = ObjectMass * -Gravity * SubmergedPercentage * PhysicsUserData->BuoyancyCoefficient * 1.5f;
+
+	// 6. Apply damping when near water surface (reduced force when close to surface)
+	float DistanceFromSurface = FMath::Abs(BoxTopZ - WaterLevelZ);
+	float DampingFactor = FMath::Clamp(DistanceFromSurface / (BoxExtent.Z * 0.2f), 0.2f, 1.0f);
+
+	// 7. Apply water drag (resistance) to slow down movement
+	float DragCoefficient = 0.05f;
+	FVector DragForce = -CurrentVelocity * DragCoefficient * ObjectMass;
+
+	// 8. Apply forces with damping
+	FVector TotalForce = FVector(0, 0, BuoyantForce * DampingFactor) + DragForce;
+	PrimitiveComponent->AddForce(TotalForce);
+
+	// Self-righting mechanism using quaternions to avoid gimbal lock
+	FRotator CurrentRotation = PrimitiveComponent->GetComponentRotation();
+
+	// Get current and target orientations as quaternions
+	FQuat CurrentQuat = PrimitiveComponent->GetComponentQuat();
+	FQuat TargetQuat = FQuat::MakeFromEuler(FVector(0.0f, CurrentRotation.Yaw, 0.0f));
+
+	// Calculate the shortest rotation between current and target
+	FQuat ErrorQuat = TargetQuat * CurrentQuat.Inverse();
+
+	// Convert to axis-angle representation for torque calculation
+	FVector RotationAxis;
+	float RotationAngle;
+	ErrorQuat.ToAxisAndAngle(RotationAxis, RotationAngle);
+
+	// Normalize the rotation angle to [-π, π] range
+	if (RotationAngle > PI)
+	{
+		RotationAngle -= 2.0f * PI;
+	}
+
+	// Only apply self-righting if tilted beyond a threshold (5 degrees)
+	float TiltThreshold = FMath::DegreesToRadians(5.0f);
+	if (FMath::Abs(RotationAngle) > TiltThreshold)
+	{
+		// Calculate restoring torque proportional to rotation error
+		float RestoreStrength = 10000.f * ObjectMass;
+		FVector RestoreTorque = RotationAxis * RotationAngle * RestoreStrength;
+
+		// Apply torque directly in world space
+		PrimitiveComponent->AddTorqueInRadians(RestoreTorque);
 	}
 }
 
@@ -116,93 +217,13 @@ void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	bool bIsInWater = CurrentPhysicsVolume == nullptr ? false : CurrentPhysicsVolume->bWaterVolume;
-
-	if (bIsInWater)
+	for (TPair<UPrimitiveComponent*, APhysicsVolume*> PrimitiveComponentPhysicsVolume : ComponentPhysicsVolumes)
 	{
-		UPrimitiveComponent* Prim = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
-		if (!Prim || !Prim->IsSimulatingPhysics())
-			return;
+		UPrimitiveComponent* PrimitiveComponent = PrimitiveComponentPhysicsVolume.Key;
+		APhysicsVolume* PhysicsVolume = PrimitiveComponentPhysicsVolume.Value;
+		UEstPhysicsUserData** UserDataPtr = ComponentUserData.Find(PrimitiveComponent);
 
-		// 1. Get water surface Z
-		FBoxSphereBounds WaterBounds = CurrentPhysicsVolume->GetBounds();
-		float WaterLevelZ = WaterBounds.Origin.Z + WaterBounds.BoxExtent.Z;
-
-		// 2. Get owner bounds and current velocity
-		FBoxSphereBounds ActorBounds = GetOwner()->GetRootComponent()->Bounds;
-		FVector BoxOrigin = ActorBounds.Origin;
-		FVector BoxExtent = ActorBounds.BoxExtent;
-		FVector CurrentVelocity = Prim->GetPhysicsLinearVelocity();
-
-		float BoxTopZ = BoxOrigin.Z + BoxExtent.Z;
-		float BoxBottomZ = BoxOrigin.Z - BoxExtent.Z;
-
-		// 3. Calculate submerged height (how much of the object is underwater)
-		float SubmergedHeight = FMath::Clamp(WaterLevelZ - BoxBottomZ, 0.0f, 2.0f * BoxExtent.Z);
-
-		if (SubmergedHeight <= 0.0f)
-		{
-			return;
-		}
-
-		// 4. Get object mass for force balancing
-		float ObjectMass = Prim->GetMass();
-		if (ObjectMass <= 0.0f)
-		{
-			return;
-		}
-
-		// 5. Calculate buoyant force based on submerged percentage and mass
-		float SubmergedPercentage = SubmergedHeight / (2.0f * BoxExtent.Z);
-		float Gravity = GetWorld()->GetGravityZ();
-		
-		// Apply buoyant force proportional to submerged percentage
-		float BuoyantForce = ObjectMass * -Gravity * SubmergedPercentage * MaxBuoyancyCoefficient * 1.5f;
-
-		// 6. Apply damping when near water surface (reduced force when close to surface)
-		float DistanceFromSurface = FMath::Abs(BoxTopZ - WaterLevelZ);
-		float DampingFactor = FMath::Clamp(DistanceFromSurface / (BoxExtent.Z * 0.2f), 0.2f, 1.0f);
-		
-		// 7. Apply water drag (resistance) to slow down movement
-		float DragCoefficient = 0.05f;
-		FVector DragForce = -CurrentVelocity * DragCoefficient * ObjectMass;
-
-		// 8. Apply forces with damping
-		FVector TotalForce = FVector(0, 0, BuoyantForce * DampingFactor) + DragForce;
-		Prim->AddForce(TotalForce);
-
-		// Self-righting mechanism using quaternions to avoid gimbal lock
-		FRotator CurrentRotation = Prim->GetComponentRotation();
-		
-		// Get current and target orientations as quaternions
-		FQuat CurrentQuat = Prim->GetComponentQuat();
-		FQuat TargetQuat = FQuat::MakeFromEuler(FVector(0.0f, CurrentRotation.Yaw, 0.0f));
-		
-		// Calculate the shortest rotation between current and target
-		FQuat ErrorQuat = TargetQuat * CurrentQuat.Inverse();
-		
-		// Convert to axis-angle representation for torque calculation
-		FVector RotationAxis;
-		float RotationAngle;
-		ErrorQuat.ToAxisAndAngle(RotationAxis, RotationAngle);
-		
-		// Normalize the rotation angle to [-π, π] range
-		if (RotationAngle > PI)
-		{
-			RotationAngle -= 2.0f * PI;
-		}
-		
-		// Only apply self-righting if tilted beyond a threshold (5 degrees)
-		float TiltThreshold = FMath::DegreesToRadians(5.0f);
-		if (FMath::Abs(RotationAngle) > TiltThreshold)
-		{
-			// Calculate restoring torque proportional to rotation error
-			float RestoreStrength = 10000.f * ObjectMass;
-			FVector RestoreTorque = RotationAxis * RotationAngle * RestoreStrength;
-			
-			// Apply torque directly in world space
-			Prim->AddTorqueInRadians(RestoreTorque);
-		}
+		ApplyBuoyancyForce(PrimitiveComponent, PhysicsVolume, *UserDataPtr);
 	}
 }
 

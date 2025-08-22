@@ -43,8 +43,10 @@ public:
 
 private:
 	UPROPERTY()
-	class APhysicsVolume* CurrentPhysicsVolume;
+	TMap<class UPrimitiveComponent*, class UEstPhysicsUserData*> ComponentUserData;
 
 	UPROPERTY()
-	float MaxBuoyancyCoefficient = 0.0f;
+	TMap<class UPrimitiveComponent*, class APhysicsVolume*> ComponentPhysicsVolumes;
+
+	virtual void ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, UEstPhysicsUserData* PhysicsUserData);
 };
