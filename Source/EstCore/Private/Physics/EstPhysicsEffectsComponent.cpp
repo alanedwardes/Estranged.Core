@@ -10,6 +10,7 @@
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Gameplay/EstGameInstance.h"
+#include "Volumes/EstWaterVolume.h"
 #include "UserData/EstPhysicsUserData.h"
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
@@ -96,7 +97,7 @@ void UEstPhysicsEffectsComponent::OnComponentBeginOverlap(UPrimitiveComponent* O
 			OverlappedComponent->SetAngularDamping(4.0f);
 		}
 
-		ComponentPhysicsVolumes.Add(OverlappedComponent, PhysicsVolume);
+		ComponentPhysicsVolumes.Add(OverlappedComponent, MakeTuple(PhysicsVolume, Cast<AEstWaterVolume>(PhysicsVolume)));
 	}
 }
 
@@ -121,7 +122,7 @@ void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* Ove
 	}
 }
 
-void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, UEstPhysicsUserData* PhysicsUserData)
+void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, AEstWaterVolume* WaterVolume, UEstPhysicsUserData* PhysicsUserData)
 {
 	if (PrimitiveComponent == nullptr || PhysicsVolume == nullptr || PhysicsUserData == nullptr)
 	{
@@ -136,6 +137,16 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	// Get water surface Z
 	FBoxSphereBounds WaterBounds = PhysicsVolume->GetBounds();
 	float WaterLevelZ = WaterBounds.Origin.Z + WaterBounds.BoxExtent.Z;
+	
+	// If we do have a "proper" water volume, get its config
+	if (WaterVolume != nullptr)
+	{
+		// Add bobbing effect with sine wave
+		float GameTime = GetWorld()->GetTimeSeconds();
+
+		float BobbingOffset = FMath::Sin(GameTime * WaterVolume->BuoyancyWaveFrequency) * WaterVolume->BuoyancyWaveAmplitude;
+		WaterLevelZ += BobbingOffset;
+	}
 
 	// Get bounds and current velocity
 	FBoxSphereBounds ActorBounds = PrimitiveComponent->Bounds;
@@ -216,13 +227,14 @@ void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	for (TPair<UPrimitiveComponent*, APhysicsVolume*> PrimitiveComponentPhysicsVolume : ComponentPhysicsVolumes)
+	for (TPair<UPrimitiveComponent*, TTuple<APhysicsVolume*, AEstWaterVolume*>> PrimitiveComponentPhysicsVolume : ComponentPhysicsVolumes)
 	{
 		UPrimitiveComponent* PrimitiveComponent = PrimitiveComponentPhysicsVolume.Key;
-		APhysicsVolume* PhysicsVolume = PrimitiveComponentPhysicsVolume.Value;
+		APhysicsVolume* PhysicsVolume = PrimitiveComponentPhysicsVolume.Value.Key;
+		AEstWaterVolume* WaterVolume = PrimitiveComponentPhysicsVolume.Value.Value;
 		UEstPhysicsUserData** UserDataPtr = ComponentUserData.Find(PrimitiveComponent);
 
-		ApplyBuoyancyForce(PrimitiveComponent, PhysicsVolume, *UserDataPtr);
+		ApplyBuoyancyForce(PrimitiveComponent, PhysicsVolume, WaterVolume, *UserDataPtr);
 	}
 }
 

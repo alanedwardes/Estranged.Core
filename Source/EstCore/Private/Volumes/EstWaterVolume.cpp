@@ -19,6 +19,9 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	bWaterVolume = true;
 	bPhysicsOnContact = false;
 
+	BuoyancyWaveFrequency = 1.5f;
+	BuoyancyWaveAmplitude = 3.0f;
+
 #if WITH_EDITORONLY_DATA
 	PainRadius = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("PainRadius"));
 	PainRadius->SetVisibility(false);

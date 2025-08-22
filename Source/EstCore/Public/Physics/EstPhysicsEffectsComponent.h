@@ -42,11 +42,9 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 
 private:
-	UPROPERTY()
 	TMap<class UPrimitiveComponent*, class UEstPhysicsUserData*> ComponentUserData;
 
-	UPROPERTY()
-	TMap<class UPrimitiveComponent*, class APhysicsVolume*> ComponentPhysicsVolumes;
+	TMap<class UPrimitiveComponent*, TTuple<class APhysicsVolume*, class AEstWaterVolume*>> ComponentPhysicsVolumes;
 
-	virtual void ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, UEstPhysicsUserData* PhysicsUserData);
+	virtual void ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, AEstWaterVolume* WaterVolume, UEstPhysicsUserData* PhysicsUserData);
 };
