@@ -42,6 +42,8 @@ void UEstPhysicsEffectsComponent::OnRegister()
 	for (UPrimitiveComponent* Primitive : Primitives)
 	{
 		Primitive->SetNotifyRigidBodyCollision(true);
+		Primitive->SetGenerateOverlapEvents(true);
+		Primitive->SetReceivesDecals(false);
 		Primitive->OnComponentHit.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
 	}
 
