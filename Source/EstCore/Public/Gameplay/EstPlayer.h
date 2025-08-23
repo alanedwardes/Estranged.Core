@@ -121,9 +121,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerInteractionDistance;
 
-	/** Maximum distance for held objects */
+	/** Distance for held objects */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerInteractionHeldDistance;
+
+	/** Maximum distance for held objects */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float PlayerInteractionMaxHeldObjectDistance;
+
+	/** Maximum pitch for held objects */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float PlayerInteractionMaxHeldPitch;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerThrowLinearVelocity;

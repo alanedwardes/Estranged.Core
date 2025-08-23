@@ -48,7 +48,9 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	ZoomFieldOfView = 40.f;
 
 	// Interaction
+	PlayerInteractionMaxHeldObjectDistance = 256.f;
 	PlayerInteractionHeldUpdateSpeed = 50.f;
+	PlayerInteractionMaxHeldPitch = -32.0f;
 	PlayerInteractionDistance = 150.f;
 	PlayerInteractionHeldDistance = 75.f;
 	PlayerThrowLinearVelocity = 1000.f;
@@ -405,7 +407,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 
 	// Drop if the object is too far away
 	const float HeldObjectDistance = GetDistanceTo(HeldActor.Get());
-	if (HeldObjectDistance > 200.f)
+	if (HeldObjectDistance > PlayerInteractionMaxHeldObjectDistance)
 	{
 		EST_LOG(this, EEstLoggerLevel::Warning, "Dropping held actor %s because it is too far away (%.2fcm)", *UEstGameplayStatics::GetNameOrNull(HeldActor.Get()), HeldObjectDistance);
 		DropHeldActor();
@@ -425,7 +427,20 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	FVector BoxExtent;
 	HeldActorBounds.GetCenterAndExtents(Origin, BoxExtent);
 
-	const FVector HeldLocation = Camera->GetComponentLocation() + (Camera->GetForwardVector() * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
+	// Get camera forward vector, but clamp pitch to prevent held object from clipping into player when looking down
+	FVector CameraForward = Camera->GetForwardVector();
+	const FRotator CameraRotation = Camera->GetComponentRotation();
+	
+	// If looking down too much, use a modified forward vector that maintains horizontal distance
+	// This is to prevent the held object from clipping into the player when looking down
+	if (CameraRotation.Pitch < PlayerInteractionMaxHeldPitch)
+	{
+		FRotator ClampedRotation = CameraRotation;
+		ClampedRotation.Pitch = PlayerInteractionMaxHeldPitch;
+		CameraForward = ClampedRotation.Vector();
+	}
+
+	const FVector HeldLocation = Camera->GetComponentLocation() + (CameraForward * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
 	const FVector DesiredLocation = HeldLocation - Origin - HeldPrimitiveTransform.GetLocation();
 	const FRotator DesiredRotation = (GetCapsuleComponent()->GetComponentRotation() + HeldPrimitiveTransform.Rotator());
 
