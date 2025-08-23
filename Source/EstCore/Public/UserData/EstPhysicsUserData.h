@@ -42,4 +42,10 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float BuoyancyCoefficient = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bSelfRighting;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Units = "cm"))
+	float HullOffset;
 };

@@ -154,11 +154,20 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	FVector BoxExtent = ActorBounds.BoxExtent;
 	FVector CurrentVelocity = PrimitiveComponent->GetPhysicsLinearVelocity();
 
-	float BoxTopZ = BoxOrigin.Z + BoxExtent.Z;
-	float BoxBottomZ = BoxOrigin.Z - BoxExtent.Z;
+	// Apply hull offset relative to the object's current orientation
+	// This allows boats to float with their hull at water surface instead of center
+	// The offset is applied in the object's local "down" direction
+	FRotator CurrentRotation = PrimitiveComponent->GetComponentRotation();
+	FVector LocalDown = CurrentRotation.RotateVector(-FVector::UpVector);
+	FVector HullOffsetVector = LocalDown * PhysicsUserData->HullOffset;
+	
+	// Calculate effective bounds with orientation-aware hull offset
+	float EffectiveBottomZ = BoxOrigin.Z - BoxExtent.Z + HullOffsetVector.Z;
+	float EffectiveTopZ = BoxOrigin.Z + BoxExtent.Z + HullOffsetVector.Z;
+	float EffectiveHeight = 2.0f * BoxExtent.Z;
 
-	// Calculate submerged height (how much of the object is underwater)
-	float SubmergedHeight = FMath::Clamp(WaterLevelZ - BoxBottomZ, 0.0f, 2.0f * BoxExtent.Z);
+	// Calculate submerged height based on the hull-adjusted bottom
+	float SubmergedHeight = FMath::Clamp(WaterLevelZ - EffectiveBottomZ, 0.0f, EffectiveHeight);
 	if (SubmergedHeight <= 0.0f)
 	{
 		return;
@@ -172,7 +181,7 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	}
 
 	// Calculate buoyant force based on submerged percentage and mass
-	float SubmergedPercentage = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 2.0f * BoxExtent.Z), FVector2D(0.0f, 1.0f), SubmergedHeight);
+	float SubmergedPercentage = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, EffectiveHeight), FVector2D(0.0f, 1.0f), SubmergedHeight);
 	float Gravity = GetWorld()->GetGravityZ();
 
 	// Apply buoyant force proportional to submerged percentage
@@ -184,42 +193,42 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	FVector TotalForce = FVector(0, 0, BuoyantForce) + DragForce;
 	PrimitiveComponent->AddForce(TotalForce);
 
-	// Self-righting mechanism - find shortest path to upright or upside down
-	FRotator CurrentRotation = PrimitiveComponent->GetComponentRotation();
-	
-	// Get current up vector
-	FVector CurrentUp = CurrentRotation.RotateVector(FVector::UpVector);
-	
-	// Calculate angles to both upright and upside down orientations
-	FVector WorldUp = FVector::UpVector;
-	FVector WorldDown = -FVector::UpVector;
-	
-	float AngleToUp = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, WorldUp), -1.0f, 1.0f));
-	float AngleToDown = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, WorldDown), -1.0f, 1.0f));
-	
-	// Choose the closest orientation
-	FVector DesiredUp = (AngleToUp < AngleToDown) ? WorldUp : WorldDown;
-	
-	// Calculate the cross product to get rotation axis and sine of angle
-	FVector RotationAxis = FVector::CrossProduct(CurrentUp, DesiredUp);
-	float SinAngle = RotationAxis.Size();
-	
-	// Only apply self-righting if tilted beyond a threshold (5 degrees)
-	float TiltThreshold = FMath::Sin(FMath::DegreesToRadians(5.0f));
-	if (SinAngle > TiltThreshold)
-	{
-		// Normalize the rotation axis
-		RotationAxis = RotationAxis.GetSafeNormal(0.0f);
+	if (PhysicsUserData->bSelfRighting)
+	{	
+		// Get current up vector
+		FVector CurrentUp = CurrentRotation.RotateVector(FVector::UpVector);
 		
-		// Calculate angle from sin
-		float RotationAngle = FMath::Asin(FMath::Clamp(SinAngle, 0.0f, 1.0f));
+		// Calculate angles to both upright and upside down orientations
+		FVector WorldUp = FVector::UpVector;
+		FVector WorldDown = -FVector::UpVector;
 		
-		// Calculate restoring torque proportional to rotation error
-		float RestoreStrength = 10000.f * ObjectMass;
-		FVector RestoreTorque = RotationAxis * RotationAngle * RestoreStrength;
+		float AngleToUp = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, WorldUp), -1.0f, 1.0f));
+		float AngleToDown = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, WorldDown), -1.0f, 1.0f));
+		
+		// Choose the closest orientation
+		FVector DesiredUp = (AngleToUp < AngleToDown) ? WorldUp : WorldDown;
+		
+		// Calculate the cross product to get rotation axis and sine of angle
+		FVector RotationAxis = FVector::CrossProduct(CurrentUp, DesiredUp);
+		float SinAngle = RotationAxis.Size();
+		
+		// Only apply self-righting if tilted beyond a threshold (5 degrees)
+		float TiltThreshold = FMath::Sin(FMath::DegreesToRadians(5.0f));
+		if (SinAngle > TiltThreshold)
+		{
+			// Normalize the rotation axis
+			RotationAxis = RotationAxis.GetSafeNormal(0.0f);
+			
+			// Calculate angle from sin
+			float RotationAngle = FMath::Asin(FMath::Clamp(SinAngle, 0.0f, 1.0f));
+			
+			// Calculate restoring torque proportional to rotation error
+			float RestoreStrength = 10000.f * ObjectMass;
+			FVector RestoreTorque = RotationAxis * RotationAngle * RestoreStrength;
 
-		// Apply torque directly in world space
-		PrimitiveComponent->AddTorqueInRadians(RestoreTorque);
+			// Apply torque directly in world space
+			PrimitiveComponent->AddTorqueInRadians(RestoreTorque);
+		}
 	}
 }
 
