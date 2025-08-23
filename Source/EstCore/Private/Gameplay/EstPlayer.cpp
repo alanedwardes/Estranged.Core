@@ -432,7 +432,6 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	const FRotator CameraRotation = Camera->GetComponentRotation();
 	
 	// If looking down too much, use a modified forward vector that maintains horizontal distance
-	// This is to prevent the held object from clipping into the player when looking down
 	if (CameraRotation.Pitch < PlayerInteractionMaxHeldPitch)
 	{
 		FRotator ClampedRotation = CameraRotation;
