@@ -10,7 +10,6 @@
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "Runtime/Engine/Classes/Components/SpotLightComponent.h"
-#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "Runtime/Engine/Classes/PhysicsEngine/PhysicsHandleComponent.h"
 #include "Gameplay/EstGameInstance.h"

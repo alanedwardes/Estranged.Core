@@ -10,7 +10,6 @@
 #include "Runtime/Engine/Classes/Components/SceneComponent.h"
 #include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/PhysicsVolume.h"
-#include "Runtime/Engine/Public/PhysicsPublic.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
