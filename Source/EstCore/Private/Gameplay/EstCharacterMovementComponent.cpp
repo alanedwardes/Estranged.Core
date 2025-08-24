@@ -118,7 +118,7 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 {
 	if (FootstepManifest == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Error, "UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null");
+		EST_LOG(this, Error, "UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null");
 		return;
 	}
 
@@ -150,11 +150,11 @@ void UEstCharacterMovementComponent::DoFootstep(float Intensity)
 	{
 		if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
 		{
-			EST_LOG(this, EEstLoggerLevel::Error, "Blocking hit on %s but no physical material", *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
+			EST_LOG(this, Error, "Blocking hit on %s but no physical material", *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
 		}
 		else
 		{
-			EST_LOG(this, EEstLoggerLevel::Error, "Blocking hit on %s in actor %s but no impact effect in manifest %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest));
+			EST_LOG(this, Error, "Blocking hit on %s in actor %s but no impact effect in manifest %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest));
 		}
 	}
 

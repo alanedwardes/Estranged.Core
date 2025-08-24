@@ -3,17 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EstLog.h"
 #include "Blueprint/UserWidget.h"
 #include "EstLoggerWidget.generated.h"
-
-UENUM(BlueprintType)
-enum class EEstLoggerLevel : uint8
-{
-	Trace,
-	Normal,
-	Warning,
-	Error
-};
 
 USTRUCT(BlueprintType)
 struct ESTCORE_API FEstLoggerMessage

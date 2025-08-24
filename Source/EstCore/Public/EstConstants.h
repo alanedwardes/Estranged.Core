@@ -31,10 +31,3 @@
 
 #define SAVE_SLOT_CHECKPOINTS "Checkpoints"
 #define SAVE_SLOT_GAME_SETTINGS "GameSettings"
-
-#define EST_LOG(Source, Level, Format, ...) \
-    if (UEstGameplayStatics::GetEstGameInstance(Source)->GetLoggerEnabled()) \
-    { \
-        UEstGameplayStatics::GetEstGameInstance(Source)->LogMessage(FEstLoggerMessage(Source, Level, \
-            FString::Printf(TEXT(Format), ##__VA_ARGS__))); \
-    }

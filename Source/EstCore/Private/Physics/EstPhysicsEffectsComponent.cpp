@@ -33,7 +33,7 @@ void UEstPhysicsEffectsComponent::OnRegister()
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Parent actor is null");
+		EST_LOG(this, Warning, "Parent actor is null");
 		return;
 	}
 
@@ -86,7 +86,7 @@ void UEstPhysicsEffectsComponent::OnComponentBeginOverlap(UPrimitiveComponent* O
 {
 	if (OtherActor == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Other actor is null");
+		EST_LOG(this, Warning, "Other actor is null");
 		return;
 	}
 
@@ -107,7 +107,7 @@ void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* Ove
 {
 	if (OtherActor == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Other actor is null");
+		EST_LOG(this, Warning, "Other actor is null");
 		return;
 	}
 
@@ -195,7 +195,7 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	FVector TotalForce = FVector(0, 0, BuoyantForce) + DragForce;
 	PrimitiveComponent->AddForce(TotalForce);
 
-	if (PhysicsUserData->bSelfRighting)
+	if (!FMath::IsNearlyZero(PhysicsUserData->SelfRightingDegrees))
 	{	
 		// Get current up vector
 		FVector CurrentUp = CurrentRotation.RotateVector(FVector::UpVector);
@@ -214,8 +214,8 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 		FVector RotationAxis = FVector::CrossProduct(CurrentUp, DesiredUp);
 		float SinAngle = RotationAxis.Size();
 		
-		// Only apply self-righting if tilted beyond a threshold (5 degrees)
-		float TiltThreshold = FMath::Sin(FMath::DegreesToRadians(5.0f));
+		// Only apply self-righting if tilted beyond a threshold
+		float TiltThreshold = FMath::Sin(FMath::DegreesToRadians(PhysicsUserData->SelfRightingDegrees));
 		if (SinAngle > TiltThreshold)
 		{
 			// Normalize the rotation axis
@@ -254,7 +254,7 @@ void UEstPhysicsEffectsComponent::OnChaosPhysicsCollision(const FChaosPhysicsCol
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Physics collision handler is null (or not the correct type)");
+		EST_LOG(this, Warning, "Physics collision handler is null (or not the correct type)");
 		return;
 	}
 
@@ -266,7 +266,7 @@ void UEstPhysicsEffectsComponent::OnChaosBreak(const FChaosBreakEvent& BreakEven
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Physics collision handler is null (or not the correct type)");
+		EST_LOG(this, Warning, "Physics collision handler is null (or not the correct type)");
 		return;
 	}
 
@@ -280,7 +280,7 @@ void UEstPhysicsEffectsComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 	AActor* Owner = GetOwner();
 	if (Owner == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Parent actor is null");
+		EST_LOG(this, Warning, "Parent actor is null");
 		return;
 	}
 
@@ -297,7 +297,7 @@ void UEstPhysicsEffectsComponent::OnComponentHit(UPrimitiveComponent* HitCompone
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Physics collision handler is null (or not the correct type)");
+		EST_LOG(this, Warning, "Physics collision handler is null (or not the correct type)");
 		return;
 	}
 

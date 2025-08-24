@@ -42,7 +42,7 @@ bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 
 	if (!IEstSaveRestore::Execute_GetSaveId(Actor).IsValid())
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Class %s does not implement GetSaveId(). This actor will be skipped in save games"), *Actor->GetClass()->GetName());
+		EST_LOG(Actor, Warning, "Actor %s has an invalid SaveId. This actor will be skipped in save games", *Actor->GetName());
 #if WITH_EDITOR
 		FMessageLog("PIE").Error()
 			->AddToken(FTextToken::Create(FText::FromString("Class")))
@@ -54,7 +54,7 @@ bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 
 	if (IEstSaveRestore::Execute_GetSaveId(Actor) != IEstSaveRestore::Execute_GetSaveId(Actor))
 	{
-		UE_LOG(LogEstGeneral, Warning, TEXT("Class %s does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games"), *Actor->GetClass()->GetName());
+		EST_LOG(Actor, Warning, "Class %s does have a deterministic implementation of GetSaveId(). This actor will be skipped in save games", *Actor->GetClass()->GetName());
 #if WITH_EDITOR
 		FMessageLog("PIE").Error()
 			->AddToken(FTextToken::Create(FText::FromString("Class")))
@@ -371,7 +371,7 @@ void UEstSaveStatics::SaveGameSettings(UEstGameSettingsSave* GameSettings)
 {
 	UGameplayStatics::SaveGameToSlot(GameSettings, SAVE_SLOT_GAME_SETTINGS, 0);
 
-	EST_LOG(GameSettings, EEstLoggerLevel::Normal, "Game Settings Saved");
+	EST_LOG(GameSettings, Normal, "Game Settings Saved");
 }
 
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()

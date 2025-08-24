@@ -107,7 +107,7 @@ void AEstBaseCharacter::OnPostRestore_Implementation()
 
 void AEstBaseCharacter::OnDeath_Implementation()
 {
-	EST_LOG(this, EEstLoggerLevel::Normal, "Character just died");
+	EST_LOG(this, Normal, "Character just died");
 
 	Tags.Add(TAG_DEAD);
 

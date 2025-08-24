@@ -40,11 +40,16 @@ public:
 	 *     - Iron: BuoyancyCoefficient = 0.1 (sinks)
 	 *     - Lead: BuoyancyCoefficient = 0.0 (sinks, no buoyancy)
 	 */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = "0.0"))
 	float BuoyancyCoefficient = 0.f;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	bool bSelfRighting;
+	/**
+	* If greater than zero, the number of degrees the object must be tilted
+	* to trigger self-righting. For example, a value of 20 means the object
+	* will self-right if tilted more than 20 degrees from upright.
+	*/
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Units = "deg", ClampMin = "0.0", ClampMax = "360.0"))
+	float SelfRightingDegrees = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (Units = "cm"))
 	float HullOffset;

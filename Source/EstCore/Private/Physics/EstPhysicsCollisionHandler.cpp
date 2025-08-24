@@ -128,33 +128,33 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 
 	if (!Component.IsValid())
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Can't deploy impact effect as component is not a live UObject");
+		EST_LOG(this, Warning, "Can't deploy impact effect as component is not a live UObject");
 		return;
 	}
 
 	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Not deploying impact effect because it impacted too soon after the world came up (need to wait until %.2fs)", WorldUpDelay);
+		EST_LOG(this, Warning, "Not deploying impact effect because it impacted too soon after the world came up (need to wait until %.2fs)", WorldUpDelay);
 		return;
 	}
 
 	if (Component->GetOwner()->ActorHasTag(TAG_NOIMPACTS))
 	{
-		EST_LOG(this, EEstLoggerLevel::Warning, "Not deploying impact effect for %s because it has the tag NOIMPACTS", *UEstGameplayStatics::GetNameOrNull(Component.Get()));
+		EST_LOG(this, Warning, "Not deploying impact effect for %s because it has the tag NOIMPACTS", *UEstGameplayStatics::GetNameOrNull(Component.Get()));
 		return;
 	}
 
 	UPhysicalMaterial* PhysicalMaterial = GetPhysicalMaterialFromComponent(Component);
 	if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
 	{
-		EST_LOG(this, EEstLoggerLevel::Error, "Not deploying impact effect for %s because it doesn't have a physical material", *UEstGameplayStatics::GetNameOrNull(Component.Get()));
+		EST_LOG(this, Error, "Not deploying impact effect for %s because it doesn't have a physical material", *UEstGameplayStatics::GetNameOrNull(Component.Get()));
 		return;
 	}
 
 	FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(Manifest, PhysicalMaterial);
 	if (ImpactEffect == FEstImpactEffect::None)
 	{
-		EST_LOG(this, EEstLoggerLevel::Error, "Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s", *UEstGameplayStatics::GetNameOrNull(Component.Get()), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(Manifest));
+		EST_LOG(this, Error, "Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s", *UEstGameplayStatics::GetNameOrNull(Component.Get()), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(Manifest));
 		return;
 	}
 
