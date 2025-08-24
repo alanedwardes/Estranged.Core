@@ -131,7 +131,7 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 		return;
 	}
 
-	if (!PrimitiveComponent->IsSimulatingPhysics() || FMath::IsNearlyZero(PhysicsUserData->BuoyancyCoefficient))
+	if (!PrimitiveComponent->IsSimulatingPhysics() || FMath::IsNearlyZero(PhysicsUserData->BuoyancyCoefficient) || !PhysicsVolume->bWaterVolume)
 	{
 		return;
 	}
@@ -244,8 +244,9 @@ void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick
 		APhysicsVolume* PhysicsVolume = PrimitiveComponentPhysicsVolume.Value.Key;
 		AEstWaterVolume* WaterVolume = PrimitiveComponentPhysicsVolume.Value.Value;
 		UEstPhysicsUserData** UserDataPtr = ComponentUserData.Find(PrimitiveComponent);
+		UEstPhysicsUserData* UserData = UserDataPtr == nullptr ? nullptr : *UserDataPtr;
 
-		ApplyBuoyancyForce(PrimitiveComponent, PhysicsVolume, WaterVolume, *UserDataPtr);
+		ApplyBuoyancyForce(PrimitiveComponent, PhysicsVolume, WaterVolume, UserData);
 	}
 }
 
