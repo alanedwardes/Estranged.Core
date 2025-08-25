@@ -187,7 +187,7 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	float Gravity = GetWorld()->GetGravityZ();
 
 	// Apply buoyant force proportional to submerged percentage
-	float BuoyantForce = ObjectMass * -Gravity * SubmergedPercentage * PhysicsUserData->BuoyancyCoefficient * 1.5f;
+	float BuoyantForce = ObjectMass * -Gravity * SubmergedPercentage * PhysicsUserData->BuoyancyCoefficient;
 
 	FVector DragForce = -CurrentVelocity * ObjectMass;
 
