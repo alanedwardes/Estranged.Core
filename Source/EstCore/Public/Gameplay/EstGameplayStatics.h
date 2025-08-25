@@ -177,6 +177,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Player)
 	static UEstCarryableUserData* GetCarryableUserDataFromMesh(class UPrimitiveComponent* PrimitiveComponent);
 
+	template<typename T>
+	static T* GetUserDataFromMesh(class UPrimitiveComponent* PrimitiveComponent)
+	{
+		UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(PrimitiveComponent);
+		if (StaticMeshComponent != nullptr && StaticMeshComponent->GetStaticMesh() != nullptr)
+		{
+			return StaticMeshComponent->GetStaticMesh()->GetAssetUserData<T>();
+		}
+
+		USkeletalMeshComponent* SkinnedMeshComponent = Cast<USkeletalMeshComponent>(PrimitiveComponent);
+		if (SkinnedMeshComponent != nullptr && SkinnedMeshComponent->GetSkeletalMeshAsset() != nullptr)
+		{
+			return SkinnedMeshComponent->GetSkeletalMeshAsset()->GetAssetUserData<T>();
+		}
+
+		return nullptr;
+	}
+
 	UFUNCTION(BlueprintCallable, Category = Rendering)
 	static void MarkRenderStateDirty(class UActorComponent* ActorComponent);
 

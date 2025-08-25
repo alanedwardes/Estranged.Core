@@ -813,19 +813,7 @@ float UEstGameplayStatics::GetCameraFadeAmount(APlayerCameraManager * PlayerCame
 
 UEstCarryableUserData* UEstGameplayStatics::GetCarryableUserDataFromMesh(UPrimitiveComponent* PrimitiveComponent)
 {
-	UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(PrimitiveComponent);
-	if (StaticMeshComponent != nullptr && StaticMeshComponent->GetStaticMesh() != nullptr)
-	{
-		return StaticMeshComponent->GetStaticMesh()->GetAssetUserData<UEstCarryableUserData>();
-	}
-
-	USkeletalMeshComponent* SkinnedMeshComponent = Cast<USkeletalMeshComponent>(PrimitiveComponent);
-	if (SkinnedMeshComponent != nullptr && SkinnedMeshComponent->GetSkeletalMeshAsset() != nullptr)
-	{
-		return SkinnedMeshComponent->GetSkeletalMeshAsset()->GetAssetUserData<UEstCarryableUserData>();
-	}
-
-	return nullptr;
+	return GetUserDataFromMesh<UEstCarryableUserData>(PrimitiveComponent);
 }
 
 void UEstGameplayStatics::MarkRenderStateDirty(UActorComponent* ActorComponent)

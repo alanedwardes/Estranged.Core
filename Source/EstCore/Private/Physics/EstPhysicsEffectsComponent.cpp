@@ -45,25 +45,21 @@ void UEstPhysicsEffectsComponent::OnRegister()
 		Primitive->SetGenerateOverlapEvents(true);
 		Primitive->SetReceivesDecals(false);
 		Primitive->OnComponentHit.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
-	}
 
-	TArray<UStaticMeshComponent*> StaticMeshComponents;
-	Owner->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
-	{
-		UEstPhysicsUserData* PhysicsData = StaticMeshComponent->GetStaticMesh()->GetAssetUserData<UEstPhysicsUserData>();
+		// This path looks for physics user data on the primitive component - could be a static mesh, skeletal mesh, etc
+		UEstPhysicsUserData* PhysicsData = UEstGameplayStatics::GetUserDataFromMesh<UEstPhysicsUserData>(Primitive);
 		if (PhysicsData != nullptr)
 		{
 			if (PhysicsData->Mass > 0.f)
 			{
-				StaticMeshComponent->SetMassOverrideInKg(NAME_None, PhysicsData->Mass);
+				Primitive->SetMassOverrideInKg(NAME_None, PhysicsData->Mass);
 			}
 
 			if (PhysicsData->BuoyancyCoefficient > 0.f)
 			{
-				ComponentUserData.Add(StaticMeshComponent, PhysicsData);
-				StaticMeshComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentBeginOverlap);
-				StaticMeshComponent->OnComponentEndOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentEndOverlap);
+				ComponentUserData.Add(Primitive, PhysicsData);
+				Primitive->OnComponentBeginOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentBeginOverlap);
+				Primitive->OnComponentEndOverlap.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentEndOverlap);
 				bShouldTick = true;
 			}
 		}
