@@ -1224,7 +1224,12 @@ void AEstPlayer::PrimaryAttackPressedInput()
 
 	if (IsHoldingActor())
 	{
-		DropHeldActor(Camera->GetForwardVector() * PlayerThrowLinearVelocity, PlayerThrowAngularVelocity);
+		const float VelocityScale = UKismetMathLibrary::MapRangeClamped(HeldPrimitive->GetMass(), 0.f, PlayerMaximumCarryMass, 1.f, 0.1f);
+		
+		const FVector ScaledLinearVelocity = Camera->GetForwardVector() * PlayerThrowLinearVelocity * VelocityScale;
+		const FVector ScaledAngularVelocity = PlayerThrowAngularVelocity * VelocityScale;
+		
+		DropHeldActor(ScaledLinearVelocity, ScaledAngularVelocity);
 		return;
 	}
 
