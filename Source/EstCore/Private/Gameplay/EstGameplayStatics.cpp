@@ -1206,3 +1206,48 @@ TMap<FString, UEnhancedPlayerMappableKeyProfile*> UEstGameplayStatics::GetAllKey
 	}
 	return Result;
 }
+
+FString UEstGameplayStatics::GetMassEquivalent(float Mass)
+{
+	static struct
+	{
+		float Mass;
+		FString Description;
+	} MassText[] =
+	{
+		{ 5e-6f,	TEXT("snowflake") },
+		{ 2.5e-3f,	TEXT("ping-pong ball") },
+		{ 5e-3f,	TEXT("penny") },
+		{ 0.05f,	TEXT("golf ball") },
+		{ 0.17f,	TEXT("billard ball") },
+		{ 2.f,		TEXT("bag of sugar") },
+		{ 7.f,		TEXT("male cat") },
+		{ 10.f,		TEXT("bowling ball") },
+		{ 30.f,		TEXT("dog") },
+		{ 60.f,		TEXT("cheetah") },
+		{ 90.f,		TEXT("adult male human") },
+		{ 250.f,	TEXT("refrigerator") },
+		{ 600.f,	TEXT("race horse") },
+		{ 1000.f,	TEXT("small car") },
+		{ 1650.f,	TEXT("medium car") },
+		{ 2500.f,	TEXT("large car") },
+		{ 6000.f,	TEXT("t-rex") },
+		{ 7200.f,	TEXT("elephant") },
+		{ 8e4f,		TEXT("space shuttle") },
+		{ 7e5f,		TEXT("locomotive") },
+		{ 9.2e6f,	TEXT("Eiffel tower") },
+		{ 6e24f,	TEXT("the Earth") },
+		{ 7e24f,	TEXT("really freaking heavy") },
+	};
+
+	const int32 ArraySize = sizeof(MassText) / sizeof(MassText[0]);
+	for (int32 i = 0; i < ArraySize - 1; i++)
+	{
+		if (Mass < MassText[i].Mass)
+		{
+			return MassText[i].Description;
+		}
+	}
+
+	return MassText[ArraySize - 1].Description;
+}

@@ -310,4 +310,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Enhanced Input")
 	static TMap<FString, class UEnhancedPlayerMappableKeyProfile*> GetAllKeyProfiles(class UEnhancedInputUserSettings* UserSettings);
+
+	UFUNCTION(BlueprintPure, Category = Physics)
+	static FString GetMassEquivalent(float Mass);
 };
