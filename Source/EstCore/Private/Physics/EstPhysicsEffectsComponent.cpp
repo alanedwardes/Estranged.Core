@@ -41,7 +41,18 @@ void UEstPhysicsEffectsComponent::OnRegister()
 	Owner->GetComponents<UPrimitiveComponent>(Primitives);
 	for (UPrimitiveComponent* Primitive : Primitives)
 	{
-		Primitive->SetNotifyRigidBodyCollision(true);
+		USkeletalMeshComponent* SkelMesh = Cast<USkeletalMeshComponent>(Primitive);
+		if (SkelMesh != nullptr)
+		{
+			// Skeletal meshes need collision notifications enabled on all bodies
+			SkelMesh->SetAllBodiesNotifyRigidBodyCollision(true);
+		}
+		else
+		{
+			// This works for static meshes and other primitive components
+			Primitive->SetNotifyRigidBodyCollision(true);
+		}
+
 		Primitive->SetGenerateOverlapEvents(true);
 		Primitive->SetReceivesDecals(false);
 		Primitive->OnComponentHit.AddUniqueDynamic(this, &UEstPhysicsEffectsComponent::OnComponentHit);
