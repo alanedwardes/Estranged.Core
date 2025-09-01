@@ -60,6 +60,12 @@ public:
 	UFUNCTION()
 	void HandleChangeWeapon(class AEstBaseWeapon *Weapon);
 
+	UFUNCTION(BlueprintNativeEvent, Category = General)
+	void OnChangePlayer(class AEstPlayer* OldPlayer, class AEstPlayer* NewPlayer);
+
+	UFUNCTION()
+	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
+
 	UFUNCTION(BlueprintCallable)
 	const FString GetClipLabel() const;
 	
@@ -112,11 +118,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hint)
 	float HintDuration;
 
-	UFUNCTION()
-	virtual void HandleShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation);
+	UFUNCTION(BlueprintCallable)
+	virtual void ShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation);
 
-	UFUNCTION()
-	virtual void HandleHideHint();
+	UFUNCTION(BlueprintCallable)
+	virtual void HideHint();
 
 	UPROPERTY()
 	TArray<class UInputAction*> HintBindings;

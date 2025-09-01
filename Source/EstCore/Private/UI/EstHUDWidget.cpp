@@ -12,15 +12,11 @@
 
 void UEstHUDWidget::NativeConstruct()
 {
-	Player = Cast<AEstPlayer>(GetOwningPlayerPawn());
-	if (Player.IsValid())
-	{
-		Player->OnChangeWeapon.AddDynamic(this, &UEstHUDWidget::HandleChangeWeapon);
-		Player->OnShowHint.AddDynamic(this, &UEstHUDWidget::HandleShowHint);
-		Player->OnHideHint.AddDynamic(this, &UEstHUDWidget::HandleHideHint);
-		Controller = Cast<AEstPlayerController>(Player->GetController());
-		Firearm = Cast<AEstFirearmWeapon>(Player->EquippedWeapon.Get());
-	}
+	Controller = GetOwningPlayer<AEstPlayerController>();
+
+	Controller->OnPossessedPawnChanged.AddUniqueDynamic(this, &UEstHUDWidget::OnPossessedPawnChanged);
+
+	OnPossessedPawnChanged(nullptr, Controller->GetPawn());
 
 	SubtitleFontSizeMultiplier = 1.0f;
 
@@ -29,16 +25,18 @@ void UEstHUDWidget::NativeConstruct()
 	Super::NativeConstruct();
 }
 
+void UEstHUDWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
+{
+	OnChangePlayer(Cast<AEstPlayer>(OldPawn), Cast<AEstPlayer>(NewPawn));
+}
+
 void UEstHUDWidget::NativeDestruct()
 {
 	FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().RemoveAll(this);
 
 	if (Player.IsValid())
 	{
-		Player->OnTakePointDamage.RemoveAll(this);
-		Player->OnChangeWeapon.RemoveAll(this);
-		Player->OnShowHint.RemoveAll(this);
-		Player->OnHideHint.RemoveAll(this);
+		OnPossessedPawnChanged(Player.Get(), nullptr);
 	}
 
 	Super::NativeDestruct();
@@ -87,7 +85,7 @@ void UEstHUDWidget::HandleSetSubtitleText(const FText &SubtitleText)
 	}
 }
 
-void UEstHUDWidget::HandleShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation)
+void UEstHUDWidget::ShowHint(TArray<class UInputAction*> Bindings, FText Label, float ShowTime, FVector WorldLocation)
 {
 	HintBindings = Bindings;
 	HintLabel = Label;
@@ -95,19 +93,49 @@ void UEstHUDWidget::HandleShowHint(TArray<class UInputAction*> Bindings, FText L
 	HintFinishTime = GetWorld()->TimeSeconds + (ShowTime > 0.f ? ShowTime : HintDuration);
 }
 
-void UEstHUDWidget::HandleHideHint()
+void UEstHUDWidget::HideHint()
 {
 	HintFinishTime = GetWorld()->TimeSeconds;
 }
 
 const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
-	return UEstGameplayStatics::GetHintKeys(Controller->FirstPersonMappingContext, HintBindings, Controller.Get());
+	if (Controller.IsValid())
+	{
+		return UEstGameplayStatics::GetHintKeys(Controller->FirstPersonMappingContext, HintBindings, Controller.Get());
+	}
+
+	return TSet<FKey>();
 }
 
 void UEstHUDWidget::HandleChangeWeapon(AEstBaseWeapon *Weapon)
 {
 	Firearm = Cast<AEstFirearmWeapon>(Weapon);
+}
+
+void UEstHUDWidget::OnChangePlayer_Implementation(AEstPlayer* OldPlayer, AEstPlayer* NewPlayer)
+{
+	if (OldPlayer != nullptr)
+	{
+		OldPlayer->OnTakePointDamage.RemoveAll(this);
+		OldPlayer->OnChangeWeapon.RemoveAll(this);
+		OldPlayer->OnShowHint.RemoveAll(this);
+		OldPlayer->OnHideHint.RemoveAll(this);
+	}
+
+	if (NewPlayer != nullptr)
+	{
+		Player = NewPlayer;
+		NewPlayer->OnChangeWeapon.AddUniqueDynamic(this, &UEstHUDWidget::HandleChangeWeapon);
+		NewPlayer->OnShowHint.AddUniqueDynamic(this, &UEstHUDWidget::ShowHint);
+		NewPlayer->OnHideHint.AddUniqueDynamic(this, &UEstHUDWidget::HideHint);
+		Firearm = Cast<AEstFirearmWeapon>(NewPlayer->EquippedWeapon.Get());
+	}
+	else
+	{
+		Player = nullptr;
+		Firearm = nullptr;
+	}
 }
 
 const FString UEstHUDWidget::GetClipLabel() const
