@@ -45,4 +45,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Input)
 	virtual void SetMenuFocusState(bool bNewIsFocussed);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	TSoftClassPtr<class UEstHUDWidget> HUDWidgetClass;
+
+	/** Holds a reference to the HUD widget */
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "HUD")
+	class UEstHUDWidget* HUDWidget;
 };

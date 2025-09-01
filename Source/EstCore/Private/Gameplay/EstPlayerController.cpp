@@ -1,5 +1,6 @@
 #include "Gameplay/EstPlayerController.h"
 #include "EstCore.h"
+#include "UI/EstHUDWidget.h"
 #include "Gameplay/EstSaveStatics.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Gameplay/EstPlayerCameraManager.h"
@@ -51,11 +52,23 @@ void AEstPlayerController::ShowMenuSection(FName MenuSection)
 void AEstPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!HUDWidgetClass.IsNull())
+	{
+		HUDWidget = CreateWidget<UEstHUDWidget>(this, HUDWidgetClass.LoadSynchronous());
+		HUDWidget->AddToViewport(0);
+	}
 }
 
 void AEstPlayerController::BeginDestroy()
 {
 	Super::BeginDestroy();
+
+	if (HUDWidget != nullptr)
+	{
+		HUDWidget->RemoveFromParent();
+		HUDWidget = nullptr;
+	}
 
 	SetMenuFocusState(false);
 }

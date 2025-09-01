@@ -15,7 +15,6 @@
 #include "Gameplay/EstGameInstance.h"
 #include "Gameplay/EstResourceComponent.h"
 #include "DrawDebugHelpers.h"
-#include "UI/EstHUDWidget.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/DamageEvents.h"
@@ -186,12 +185,6 @@ void AEstPlayer::PossessedBy(AController *NewController)
 	if (PlayerController)
 	{
 		PlayerCameraManager = PlayerController->PlayerCameraManager;
-
-		if (!HUDWidgetClass.IsNull())
-		{
-			HUDWidget = CreateWidget<UEstHUDWidget>(PlayerController, HUDWidgetClass.LoadSynchronous());
-			HUDWidget->AddToViewport(0);
-		}
 	}
 	else
 	{
@@ -203,12 +196,6 @@ void AEstPlayer::UnPossessed()
 {
 	Super::UnPossessed();
 	PlayerCameraManager = nullptr;
-
-	if (HUDWidget != nullptr)
-	{
-		HUDWidget->RemoveFromParent();
-		HUDWidget = nullptr;
-	}
 }
 
 float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
