@@ -6,6 +6,19 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFootstepDelegate);
 
+/** Custom movement modes for EstCharacterMovementComponent */
+UENUM(BlueprintType)
+enum class EEstCustomMovementMode : uint8
+{
+	/** Default/None */
+	MOVE_None		UMETA(DisplayName = "None"),
+	
+	/** Custom ladder climbing movement mode */
+	MOVE_Ladder		UMETA(DisplayName = "Ladder"),
+	
+	MOVE_MAX		UMETA(Hidden)
+};
+
 UCLASS()
 class UEstCharacterMovementComponent : public UCharacterMovementComponent, public IEstSaveRestore
 {
@@ -103,6 +116,9 @@ public:
 	UPROPERTY(Category = "Character Movement: Jumping / Falling", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
 	float JumpVelocityMultiplier;
 
+	UPROPERTY(Category = "Character Movement: Ladder", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
+	float LadderClimbSpeed;
+
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
 	virtual void SetSprinting(bool IsSprinting);
 
@@ -116,6 +132,33 @@ public:
 
 	virtual bool DoJump(bool bReplayingMoves, float DeltaTime) override;
 
+	/** Override PhysCustom to handle custom movement modes */
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+
+	/** Get the current custom movement mode */
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
+	EEstCustomMovementMode GetCustomMovementMode() const;
+
+	/** Set a custom movement mode */
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
+	void SetCustomMovementMode(EEstCustomMovementMode NewCustomMode);
+
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
+	void BeginLadderMovement(TScriptInterface<class IEstLadder> NewLadder);
+
+	/** Get the current ladder the character is climbing */
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
+	TScriptInterface<class IEstLadder> GetCurrentLadder();
+
+	/** Set the current ladder the character is climbing */
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
+	void SetCurrentLadder(TScriptInterface<class IEstLadder> NewLadder);
+
+protected:
+	/** Handle ladder climbing movement physics */
+	virtual void PhysLadder(float deltaTime, int32 Iterations);
+
+public:
 	FORCEINLINE bool CanEverSprint() const { return bCanSprint; }
 
 	UPROPERTY(SaveGame)
@@ -132,4 +175,8 @@ public:
 
 	UPROPERTY(SaveGame)
 	bool SAVE_bIsCrouching;
+
+private:
+	/** The ladder the character is currently climbing, if any */
+	TScriptInterface<class IEstLadder> CurrentLadder;
 };

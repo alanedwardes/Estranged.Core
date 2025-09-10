@@ -8,7 +8,7 @@
 #include "EstCheckpointSave.generated.h"
 
 USTRUCT(BlueprintType)
-struct FEstCheckpoint
+struct ESTCORE_API FEstCheckpoint
 {
 	GENERATED_BODY()
 

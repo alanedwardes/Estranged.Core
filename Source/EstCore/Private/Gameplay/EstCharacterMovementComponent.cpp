@@ -7,6 +7,7 @@
 #include "Physics/EstImpactManifest.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Physics/EstImpactEffect.h"
+#include "Interfaces/EstLadder.h"
 #include "Kismet/GameplayStatics.h"
 
 UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObjectInitializer& PCIP)
@@ -29,6 +30,8 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	FootstepIntensityCrouching = .5f;
 	FootstepIntensityLand = 1.f;
 	FootstepIntensityJump = 5.f;
+
+	LadderClimbSpeed = 200.f;
 }
 
 void UEstCharacterMovementComponent::OnPreSave_Implementation()
@@ -196,4 +199,82 @@ bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves, float DeltaTim
 	}
 
 	return false;
+}
+
+void UEstCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
+{
+	switch (static_cast<EEstCustomMovementMode>(CustomMovementMode))
+	{
+	case EEstCustomMovementMode::MOVE_Ladder:
+		PhysLadder(deltaTime, Iterations);
+		break;
+	case EEstCustomMovementMode::MOVE_None:
+	default:
+		Super::PhysCustom(deltaTime, Iterations);
+		break;
+	}
+}
+
+EEstCustomMovementMode UEstCharacterMovementComponent::GetCustomMovementMode() const
+{
+	return static_cast<EEstCustomMovementMode>(CustomMovementMode);
+}
+
+void UEstCharacterMovementComponent::SetCustomMovementMode(EEstCustomMovementMode NewCustomMode)
+{
+	SetMovementMode(MOVE_Custom, static_cast<uint8>(NewCustomMode));
+}
+
+void UEstCharacterMovementComponent::BeginLadderMovement(TScriptInterface<IEstLadder> NewLadder)
+{
+	SetCurrentLadder(NewLadder);
+	SetCustomMovementMode(EEstCustomMovementMode::MOVE_Ladder);
+}
+
+void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iterations)
+{
+	if (deltaTime < MIN_TICK_TIME)
+	{
+		return;
+	}
+
+	if (!CharacterOwner || (!CharacterOwner->GetController() && !bRunPhysicsWithNoController && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() && (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)))
+	{
+		Acceleration = FVector::ZeroVector;
+		Velocity = FVector::ZeroVector;
+		return;
+	}
+
+	UObject* Ladder = CurrentLadder.GetObject();
+	if (Ladder == nullptr)
+	{
+		EST_LOG(this, Warning, "UEstCharacterMovementComponent::PhysLadder() - Current ladder does not implement IEstLadder, stopping ladder movement");
+		SetMovementMode(MOVE_Walking);
+		return;
+	}
+
+	FLadderExtents LadderExtents = IEstLadder::Execute_GetLadderExtents(Ladder);
+
+	FVector LadderDirection = (LadderExtents.EndPosition - LadderExtents.StartPosition).GetSafeNormal();
+
+	FVector InputVector = GetLastInputVector();
+	FVector ViewDirection = CharacterOwner->GetControlRotation().Vector();
+	
+	FVector ViewAlignedInput = ViewDirection * InputVector.X;
+	float ClimbSpeed = FVector::DotProduct(ViewAlignedInput, LadderDirection) * LadderClimbSpeed;
+
+	FVector Delta = LadderDirection * ClimbSpeed * deltaTime;
+
+	FHitResult Hit;
+	SafeMoveUpdatedComponent(Delta, UpdatedComponent->GetComponentQuat(), true, Hit);
+}
+
+TScriptInterface<IEstLadder> UEstCharacterMovementComponent::GetCurrentLadder()
+{
+	return CurrentLadder;
+}
+
+void UEstCharacterMovementComponent::SetCurrentLadder(TScriptInterface<IEstLadder> NewLadder)
+{
+	CurrentLadder = NewLadder;
 }
