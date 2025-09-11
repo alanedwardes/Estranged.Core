@@ -27,6 +27,7 @@
 #include "EnhancedInputComponent.h"
 #include "Gameplay/EstSaveStatics.h"
 #include "Saves/EstGameSettingsSave.h"
+#include "Interfaces/EstLadder.h"
 
 DEFINE_LOG_CATEGORY(LogEstPlayer);
 #define DOF_DISTANCE_MAX 10000.f
@@ -742,6 +743,12 @@ void AEstPlayer::InteractPressedInput()
 		return;
 	}
 
+	if (EstCharacterMovement->IsClimbingLadder())
+	{
+		EstCharacterMovement->DismountLadder(EEstLadderDismountReason::UserEjected);
+		return;
+	}
+
 	FHitResult Result;
 	const float TraceRadii[] = {2.f, 16.f, 48.f};
 	for (float Radius : TraceRadii)
@@ -1034,6 +1041,12 @@ void AEstPlayer::JumpPressedInput()
 	if (ShouldShowLoadGameMenu())
 	{
 		ShowLoadGameMenu();
+		return;
+	}
+
+	if (EstCharacterMovement->IsClimbingLadder())
+	{
+		EstCharacterMovement->DismountLadder(EEstLadderDismountReason::UserEjected);
 		return;
 	}
 

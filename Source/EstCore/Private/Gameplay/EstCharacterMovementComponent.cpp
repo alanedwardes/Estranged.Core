@@ -225,10 +225,33 @@ void UEstCharacterMovementComponent::SetCustomMovementMode(EEstCustomMovementMod
 	SetMovementMode(MOVE_Custom, static_cast<uint8>(NewCustomMode));
 }
 
-void UEstCharacterMovementComponent::BeginLadderMovement(TScriptInterface<IEstLadder> NewLadder)
+void UEstCharacterMovementComponent::MountLadder(TScriptInterface<IEstLadder> NewLadder)
 {
 	SetCurrentLadder(NewLadder);
 	SetCustomMovementMode(EEstCustomMovementMode::MOVE_Ladder);
+
+	LadderMountLocation = CharacterOwner->GetActorLocation();
+
+	// Find the nearest point on the ladder and snap to it
+	FLadderExtents LadderExtents = IEstLadder::Execute_GetLadderExtents(NewLadder.GetObject());
+	FVector LadderDirection = (LadderExtents.EndPosition - LadderExtents.StartPosition).GetSafeNormal();
+	FVector PlayerPosition = CharacterOwner->GetActorLocation();
+	FVector ToStart = PlayerPosition - LadderExtents.StartPosition;
+	float Projection = FVector::DotProduct(ToStart, LadderDirection);
+	FVector NearestPoint = LadderExtents.StartPosition + (LadderDirection * Projection);
+	CharacterOwner->SetActorLocation(NearestPoint);
+	Velocity = FVector::ZeroVector;
+}
+
+void UEstCharacterMovementComponent::DismountLadder(EEstLadderDismountReason DismountReason)
+{
+	UObject* Ladder = CurrentLadder.GetObject();
+	if (Ladder != nullptr)
+	{
+		IEstLadder::Execute_OnDismount(Ladder, CharacterOwner, DismountReason);
+	}
+	SetMovementMode(MOVE_Walking);
+	SetCurrentLadder(nullptr);
 }
 
 void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iterations)
@@ -250,6 +273,7 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	{
 		EST_LOG(this, Warning, "UEstCharacterMovementComponent::PhysLadder() - Current ladder does not implement IEstLadder, stopping ladder movement");
 		SetMovementMode(MOVE_Walking);
+		SetCurrentLadder(nullptr);
 		return;
 	}
 
@@ -258,15 +282,49 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	FVector LadderDirection = (LadderExtents.EndPosition - LadderExtents.StartPosition).GetSafeNormal();
 
 	FVector InputVector = GetLastInputVector();
-	FVector ViewDirection = CharacterOwner->GetControlRotation().Vector();
+	FVector PlayerPosition = CharacterOwner->GetActorLocation();
+	FVector PlayerForward = CharacterOwner->GetActorForwardVector();
 	
-	FVector ViewAlignedInput = ViewDirection * InputVector.X;
-	float ClimbSpeed = FVector::DotProduct(ViewAlignedInput, LadderDirection) * LadderClimbSpeed;
+	// Check if player is off the ladder and needs to unmount
+	float DistanceFromStart = FVector::Dist(PlayerPosition, LadderExtents.StartPosition);
+	float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
+	float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
+
+	bool bShouldAutomaticallyDismount = FVector::Distance(LadderMountLocation, CharacterOwner->GetActorLocation()) > 64.f;
+	if (bShouldAutomaticallyDismount)
+	{
+		// If player is beyond the ladder extents, unmount
+		if (DistanceFromStart > LadderLength * 1.1f)
+		{
+			DismountLadder(EEstLadderDismountReason::ReachedEnd);
+			return;
+		}
+
+		if (DistanceFromEnd > LadderLength * 1.1f)
+		{
+			DismountLadder(EEstLadderDismountReason::ReachedStart);
+			return;
+		}
+
+		FFindFloorResult FloorResult;
+		FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
+		if (FloorResult.IsWalkableFloor())
+		{
+			DismountLadder(EEstLadderDismountReason::ReachedFloor);
+			return;
+		}
+	}
+
+	// Project the input vector onto the player's forward direction to get the intended movement
+	float ForwardInput = FVector::DotProduct(InputVector, PlayerForward);
+	float ClimbSpeed = ForwardInput * LadderClimbSpeed;
 
 	FVector Delta = LadderDirection * ClimbSpeed * deltaTime;
 
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(Delta, UpdatedComponent->GetComponentQuat(), true, Hit);
+
+	EST_LOG(this, Trace, "Component=%s", *UEstGameplayStatics::GetNameOrNull(Hit.GetComponent()));
 }
 
 TScriptInterface<IEstLadder> UEstCharacterMovementComponent::GetCurrentLadder()
@@ -277,4 +335,9 @@ TScriptInterface<IEstLadder> UEstCharacterMovementComponent::GetCurrentLadder()
 void UEstCharacterMovementComponent::SetCurrentLadder(TScriptInterface<IEstLadder> NewLadder)
 {
 	CurrentLadder = NewLadder;
+}
+
+bool UEstCharacterMovementComponent::IsClimbingLadder() const
+{
+	return GetCustomMovementMode() == EEstCustomMovementMode::MOVE_Ladder;
 }

@@ -144,7 +144,10 @@ public:
 	void SetCustomMovementMode(EEstCustomMovementMode NewCustomMode);
 
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
-	void BeginLadderMovement(TScriptInterface<class IEstLadder> NewLadder);
+	void MountLadder(TScriptInterface<class IEstLadder> NewLadder);
+
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
+	void DismountLadder(enum EEstLadderDismountReason DismountReason);
 
 	/** Get the current ladder the character is climbing */
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
@@ -153,6 +156,9 @@ public:
 	/** Set the current ladder the character is climbing */
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
 	void SetCurrentLadder(TScriptInterface<class IEstLadder> NewLadder);
+
+	UFUNCTION(BlueprintPure, Category = "Pawn|Components|CharacterMovement")
+	bool IsClimbingLadder() const;
 
 protected:
 	/** Handle ladder climbing movement physics */
@@ -179,4 +185,6 @@ public:
 private:
 	/** The ladder the character is currently climbing, if any */
 	TScriptInterface<class IEstLadder> CurrentLadder;
+
+	FVector LadderMountLocation;
 };

@@ -21,6 +21,15 @@ struct ESTCORE_API FLadderExtents
 	FVector EndPosition;
 };
 
+UENUM(BlueprintType)
+enum EEstLadderDismountReason
+{
+	ReachedStart,
+	ReachedEnd,
+	ReachedFloor,
+	UserEjected
+};
+
 UINTERFACE()
 class ESTCORE_API UEstLadder : public UInterface
 {
@@ -34,5 +43,9 @@ class ESTCORE_API IEstLadder
 	/** Get the extents of the ladder (start and end positions) */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	FLadderExtents GetLadderExtents();
+
+	/** The player wants to dismount from the ladder */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnDismount(ACharacter* Character, EEstLadderDismountReason DismountReason);
 };
 
