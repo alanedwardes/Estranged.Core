@@ -227,6 +227,11 @@ void UEstCharacterMovementComponent::SetCustomMovementMode(EEstCustomMovementMod
 
 void UEstCharacterMovementComponent::MountLadder(TScriptInterface<IEstLadder> NewLadder)
 {
+	if (NewLadder.GetObject() == nullptr)
+	{
+		return;
+	}
+
 	SetCurrentLadder(NewLadder);
 	SetCustomMovementMode(EEstCustomMovementMode::MOVE_Ladder);
 
@@ -248,6 +253,7 @@ void UEstCharacterMovementComponent::DismountLadder(EEstLadderDismountReason Dis
 	{
 		IEstLadder::Execute_OnDismount(Ladder, CharacterOwner, DismountReason);
 	}
+
 	SetMovementMode(MOVE_Walking);
 	SetCurrentLadder(nullptr);
 }
@@ -288,19 +294,17 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
 	float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
 
-	// Calculate movement direction along the ladder
-	float MovementAlongLadder = FVector::DotProduct(InputVector, LadderDirection);
+	bool bMovingTowardsEnd = FVector::DotProduct(InputVector, LadderDirection) > 0.0f;
+	bool bMovingTowardsStart = FVector::DotProduct(InputVector, -LadderDirection) > 0.0f;
 
-	EST_LOG(this, Trace, "MovementAlongLadder=%f", MovementAlongLadder);
-	
 	// If player is beyond the ladder extents, only unmount if they're moving further away
-	if (DistanceFromStart > LadderLength * 1.1f && MovementAlongLadder > 0.0f)
+	if (DistanceFromStart > LadderLength * 1.1f && bMovingTowardsEnd)
 	{
 		DismountLadder(EEstLadderDismountReason::ReachedEnd);
 		return;
 	}
 
-	if (DistanceFromEnd > LadderLength * 1.1f && MovementAlongLadder < 0.0f)
+	if (DistanceFromEnd > LadderLength * 1.1f && bMovingTowardsStart)
 	{
 		DismountLadder(EEstLadderDismountReason::ReachedStart);
 		return;
@@ -308,7 +312,7 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 
 	FFindFloorResult FloorResult;
 	FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
-	if (FloorResult.IsWalkableFloor() && MovementAlongLadder < 0.0f)
+	if (FloorResult.IsWalkableFloor() && bMovingTowardsStart)
 	{
 		DismountLadder(EEstLadderDismountReason::ReachedFloor);
 		return;
@@ -322,8 +326,6 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(Delta, UpdatedComponent->GetComponentQuat(), true, Hit);
-
-	EST_LOG(this, Trace, "Component=%s", *UEstGameplayStatics::GetNameOrNull(Hit.GetComponent()));
 }
 
 TScriptInterface<IEstLadder> UEstCharacterMovementComponent::GetCurrentLadder()
