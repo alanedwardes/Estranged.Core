@@ -230,8 +230,6 @@ void UEstCharacterMovementComponent::MountLadder(TScriptInterface<IEstLadder> Ne
 	SetCurrentLadder(NewLadder);
 	SetCustomMovementMode(EEstCustomMovementMode::MOVE_Ladder);
 
-	LadderMountLocation = CharacterOwner->GetActorLocation();
-
 	// Find the nearest point on the ladder and snap to it
 	FLadderExtents LadderExtents = IEstLadder::Execute_GetLadderExtents(NewLadder.GetObject());
 	FVector LadderDirection = (LadderExtents.EndPosition - LadderExtents.StartPosition).GetSafeNormal();
@@ -290,29 +288,30 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
 	float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
 
-	bool bShouldAutomaticallyDismount = FVector::Distance(LadderMountLocation, CharacterOwner->GetActorLocation()) > 64.f;
-	if (bShouldAutomaticallyDismount)
+	// Calculate movement direction along the ladder
+	float MovementAlongLadder = FVector::DotProduct(InputVector, LadderDirection);
+
+	EST_LOG(this, Trace, "MovementAlongLadder=%f", MovementAlongLadder);
+	
+	// If player is beyond the ladder extents, only unmount if they're moving further away
+	if (DistanceFromStart > LadderLength * 1.1f && MovementAlongLadder > 0.0f)
 	{
-		// If player is beyond the ladder extents, unmount
-		if (DistanceFromStart > LadderLength * 1.1f)
-		{
-			DismountLadder(EEstLadderDismountReason::ReachedEnd);
-			return;
-		}
+		DismountLadder(EEstLadderDismountReason::ReachedEnd);
+		return;
+	}
 
-		if (DistanceFromEnd > LadderLength * 1.1f)
-		{
-			DismountLadder(EEstLadderDismountReason::ReachedStart);
-			return;
-		}
+	if (DistanceFromEnd > LadderLength * 1.1f && MovementAlongLadder < 0.0f)
+	{
+		DismountLadder(EEstLadderDismountReason::ReachedStart);
+		return;
+	}
 
-		FFindFloorResult FloorResult;
-		FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
-		if (FloorResult.IsWalkableFloor())
-		{
-			DismountLadder(EEstLadderDismountReason::ReachedFloor);
-			return;
-		}
+	FFindFloorResult FloorResult;
+	FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
+	if (FloorResult.IsWalkableFloor() && MovementAlongLadder < 0.0f)
+	{
+		DismountLadder(EEstLadderDismountReason::ReachedFloor);
+		return;
 	}
 
 	// Project the input vector onto the player's forward direction to get the intended movement

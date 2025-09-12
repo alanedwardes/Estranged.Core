@@ -185,6 +185,4 @@ public:
 private:
 	/** The ladder the character is currently climbing, if any */
 	TScriptInterface<class IEstLadder> CurrentLadder;
-
-	FVector LadderMountLocation;
 };
