@@ -19,6 +19,11 @@ struct ESTCORE_API FLadderExtents
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FVector EndPosition;
+
+	FVector GetLadderDirection() const
+	{
+		return (EndPosition - StartPosition).GetSafeNormal();
+	}
 };
 
 UENUM(BlueprintType)

@@ -237,7 +237,7 @@ void UEstCharacterMovementComponent::MountLadder(TScriptInterface<IEstLadder> Ne
 
 	// Find the nearest point on the ladder and snap to it
 	FLadderExtents LadderExtents = IEstLadder::Execute_GetLadderExtents(NewLadder.GetObject());
-	FVector LadderDirection = (LadderExtents.EndPosition - LadderExtents.StartPosition).GetSafeNormal();
+	FVector LadderDirection = LadderExtents.GetLadderDirection();
 	FVector PlayerPosition = CharacterOwner->GetActorLocation();
 	FVector ToStart = PlayerPosition - LadderExtents.StartPosition;
 	float Projection = FVector::DotProduct(ToStart, LadderDirection);
@@ -283,7 +283,7 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 
 	FLadderExtents LadderExtents = IEstLadder::Execute_GetLadderExtents(Ladder);
 
-	FVector LadderDirection = (LadderExtents.EndPosition - LadderExtents.StartPosition).GetSafeNormal();
+	FVector LadderDirection = LadderExtents.GetLadderDirection();
 
 	FVector InputVector = GetLastInputVector();
 	FVector PlayerPosition = CharacterOwner->GetActorLocation();
@@ -298,13 +298,13 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	bool bMovingTowardsStart = FVector::DotProduct(InputVector, -LadderDirection) > 0.0f;
 
 	// If player is beyond the ladder extents, only unmount if they're moving further away
-	if (DistanceFromStart > LadderLength * 1.1f && bMovingTowardsEnd)
+	if (DistanceFromStart > LadderLength && bMovingTowardsEnd)
 	{
 		DismountLadder(EEstLadderDismountReason::ReachedEnd);
 		return;
 	}
 
-	if (DistanceFromEnd > LadderLength * 1.1f && bMovingTowardsStart)
+	if (DistanceFromEnd > LadderLength && bMovingTowardsStart)
 	{
 		DismountLadder(EEstLadderDismountReason::ReachedStart);
 		return;
