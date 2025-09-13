@@ -19,7 +19,6 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxJumpStepUpHeight = 85.f;
 	MaxJumpStepUpDistance = 34.f;
 	JumpStepUpBoost = 10.f;
-	JumpVelocityMultiplier = 1.25f;
 	bCanSprint = true;
 
 	LadderClimbSpeed = 200.f;
@@ -76,17 +75,6 @@ bool UEstCharacterMovementComponent::IsSprinting() const
 void UEstCharacterMovementComponent::SetSprinting(bool IsSprinting)
 {
 	bIsSprinting = IsSprinting;
-}
-
-bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves, float DeltaTime)
-{
-	if (Super::DoJump(bReplayingMoves, DeltaTime))
-	{
-		Velocity = FVector(Velocity.X * JumpVelocityMultiplier, Velocity.Y * JumpVelocityMultiplier, Velocity.Z);
-		return true;
-	}
-
-	return false;
 }
 
 void UEstCharacterMovementComponent::PhysCustom(float deltaTime, int32 Iterations)

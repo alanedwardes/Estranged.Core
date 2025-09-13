@@ -65,16 +65,11 @@ public:
 	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite)
 	bool bIsMovementPaused;
 
-	UPROPERTY(Category = "Character Movement: Jumping / Falling", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float JumpVelocityMultiplier;
-
 	UPROPERTY(Category = "Character Movement: Ladder", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
 	float LadderClimbSpeed;
 
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
 	virtual void SetSprinting(bool IsSprinting);
-
-	virtual bool DoJump(bool bReplayingMoves, float DeltaTime) override;
 
 	/** Override PhysCustom to handle custom movement modes */
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
