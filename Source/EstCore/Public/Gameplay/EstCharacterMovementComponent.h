@@ -44,18 +44,6 @@ public:
 	UPROPERTY(Category="Character Movement", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="0"))
 	float MaxSprintSpeed;
 
-	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float MinJumpStepUpHeight;
-
-	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float MaxJumpStepUpHeight;
-
-	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float MaxJumpStepUpDistance;
-
-	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float JumpStepUpBoost;
-
 	UPROPERTY(Category = "Character Movement", SaveGame, EditAnywhere, BlueprintReadWrite)
 	bool bCanSprint;
 

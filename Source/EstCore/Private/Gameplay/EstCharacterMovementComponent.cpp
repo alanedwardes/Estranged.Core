@@ -15,10 +15,6 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxSprintSpeed = 600.0f;
 	MaxWalkSpeed = 400.0f;
 	MaxWalkSpeedCrouched = 200.0f;
-	MinJumpStepUpHeight = 10.f;
-	MaxJumpStepUpHeight = 85.f;
-	MaxJumpStepUpDistance = 34.f;
-	JumpStepUpBoost = 10.f;
 	bCanSprint = true;
 
 	LadderClimbSpeed = 200.f;
