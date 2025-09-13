@@ -27,7 +27,7 @@ struct ESTCORE_API FLadderExtents
 };
 
 UENUM(BlueprintType)
-enum EEstLadderDismountReason
+enum EEstLadderDismountReason : uint8
 {
 	ReachedStart,
 	ReachedEnd,

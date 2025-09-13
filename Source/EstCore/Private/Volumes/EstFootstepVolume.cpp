@@ -3,7 +3,7 @@
 #include "Volumes/EstFootstepVolume.h"
 #include "EstCore.h"
 #include "Components/BrushComponent.h"
-#include "Gameplay/EstCharacterMovementComponent.h"
+#include "Gameplay/EstFootstepComponent.h"
 
 AEstFootstepVolume::AEstFootstepVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -15,30 +15,30 @@ void AEstFootstepVolume::NotifyActorBeginOverlap(AActor *OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	UEstCharacterMovementComponent* MovementComponent = OtherActor->FindComponentByClass<UEstCharacterMovementComponent>();
-	if (MovementComponent == nullptr)
+	UEstFootstepComponent* FootstepComponent = OtherActor->FindComponentByClass<UEstFootstepComponent>();
+	if (FootstepComponent == nullptr)
 	{
 		return;
 	}
 
-	MovementComponent->FootstepMaterialOverride = FootstepMaterialOverride;
+	FootstepComponent->FootstepMaterialOverride = FootstepMaterialOverride;
 }
 
 void AEstFootstepVolume::NotifyActorEndOverlap(AActor *OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	UEstCharacterMovementComponent* MovementComponent = OtherActor->FindComponentByClass<UEstCharacterMovementComponent>();
-	if (MovementComponent == nullptr)
+	UEstFootstepComponent* FootstepComponent = OtherActor->FindComponentByClass<UEstFootstepComponent>();
+	if (FootstepComponent == nullptr)
 	{
 		return;
 	}
 
-	if (MovementComponent->FootstepMaterialOverride != FootstepMaterialOverride)
+	if (FootstepComponent->FootstepMaterialOverride != FootstepMaterialOverride)
 	{
 		// Something else must have set this, let it unset.
 		return;
 	}
 
-	MovementComponent->FootstepMaterialOverride = nullptr;
+	FootstepComponent->FootstepMaterialOverride = nullptr;
 }

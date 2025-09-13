@@ -143,6 +143,9 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	VelocityDamageThreshold = 2048.0;
 
 	PlayerThrowAngularVelocity = FVector(0.f, 100.f, 500.f);
+
+	FootstepComponent = PCIP.CreateDefaultSubobject<UEstFootstepComponent>(this, TEXT("Footstep"));
+	FootstepComponent->Activate();
 }
 
 void AEstPlayer::OnPreSave_Implementation()
@@ -720,7 +723,6 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 		EST_LOG(this, Normal, "Player's velocity exceeded %.2f by %.2f before hit, dealing %.2f damage", VelocityDamageThreshold, Exceeded, Damage);
 
 		UGameplayStatics::ApplyPointDamage(this, Damage, Hit.Normal, Hit, GetController(), Hit.GetActor(), FallDamageType);
-		EstCharacterMovement->DoFootstep(5.f);
 	}
 }
 

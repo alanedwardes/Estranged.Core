@@ -1,0 +1,168 @@
+#include "Gameplay/EstFootstepComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "EstCore.h"
+#include "Gameplay/EstBaseCharacter.h"
+#include "Gameplay/EstCharacterMovementComponent.h"
+#include "Physics/EstImpactManifest.h"
+#include "Gameplay/EstGameInstance.h"
+#include "Physics/EstImpactEffect.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
+
+UEstFootstepComponent::UEstFootstepComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+
+	FootstepDistanceSpeedMultiplier = 0.4f;
+	FootstepAngle = 64.f;
+	FootstepTime = 0.25f;
+	FootstepIntensity = 1.f;
+	FootstepIntensityCrouching = 0.5f;
+	FootstepIntensityLand = 1.f;
+	FootstepIntensityJump = 5.f;
+}
+
+void UEstFootstepComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CharacterOwner = Cast<AEstBaseCharacter>(GetOwner());
+	if (CharacterOwner)
+	{
+		CharacterMovementComponent = Cast<UEstCharacterMovementComponent>(CharacterOwner->GetCharacterMovement());
+		
+		// Subscribe to the character's LandedDelegate
+		CharacterOwner->LandedDelegate.AddDynamic(this, &UEstFootstepComponent::OnLanded);
+		
+		// Subscribe to movement mode changed delegate to detect jumps
+		CharacterOwner->MovementModeChangedDelegate.AddDynamic(this, &UEstFootstepComponent::OnMovementModeChanged);
+	}
+
+	LastFootstepLocation = GetOwner()->GetActorLocation();
+	LastFootstepDirection = GetOwner()->GetActorForwardVector();
+	LastFootstepTime = GetWorld()->GetTimeSeconds();
+}
+
+void UEstFootstepComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (IsActive() && CharacterMovementComponent && CharacterMovementComponent->IsMovingOnGround() && ShouldFootstep())
+	{
+		float Intensity = CharacterMovementComponent->IsCrouching() ? FootstepIntensityCrouching : FootstepIntensity;
+		DoFootstep(Intensity);
+	}
+}
+
+bool UEstFootstepComponent::ShouldFootstep() const
+{
+	if (!CharacterMovementComponent)
+	{
+		return false;
+	}
+
+	if (FootstepManifest == nullptr)
+	{
+		return false;
+	}
+
+	if (LastFootstepTime > GetWorld()->GetTimeSeconds() - FootstepTime)
+	{
+		return false;
+	}
+
+	const float Distance = (CharacterMovementComponent->IsCrouching() ? CharacterMovementComponent->MaxWalkSpeedCrouched : CharacterMovementComponent->MaxWalkSpeed) * FootstepDistanceSpeedMultiplier;
+	if (FVector::Dist(LastFootstepLocation, GetOwner()->GetActorLocation()) > Distance)
+	{
+		return true;
+	}
+
+	if (!FVector::Coincident(LastFootstepDirection, GetOwner()->GetActorForwardVector(), FMath::Cos(FootstepAngle)))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void UEstFootstepComponent::DoFootstep(float Intensity)
+{
+	if (!IsActive())
+	{
+		return;
+	}
+
+	if (FootstepManifest == nullptr)
+	{
+		EST_LOG(this, Error, "UEstFootstepComponent::DoFootstep() - Footstep manifest is null");
+		return;
+	}
+
+	FCollisionQueryParams TraceParams(FName(TEXT("PlayerFootstepTrace")), true, GetOwner());
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	const FVector EndTraceLocation = GetOwner()->GetActorLocation() + (FVector(0, 0, -1.f) * 100.f);
+
+	FCollisionShape SweepCapsule = FCollisionShape::MakeCapsule(20.f, 0.f);
+
+	FHitResult OutHit;
+	GetWorld()->SweepSingleByProfile(OutHit, GetOwner()->GetActorLocation(), EndTraceLocation, FQuat::Identity, PROFILE_FOOTSTEPS, SweepCapsule, TraceParams);
+
+	const UPhysicalMaterial* PhysicalMaterial = FootstepMaterialOverride == nullptr ? UEstGameplayStatics::GetPhysicalMaterial(OutHit) : FootstepMaterialOverride;
+	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
+
+	OnFootstep.Broadcast();
+
+	for (USoundBase* ClothesSound : ClothesSounds)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ClothesSound, GetOwner()->GetActorLocation());
+	}
+
+	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
+	{
+		EST_LOG(this, Trace, "Playing footstep effect for physical material %s on component %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
+
+		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
+	}
+	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
+	{
+		if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
+		{
+			EST_LOG(this, Error, "Blocking hit on %s but no physical material", *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
+		}
+		else
+		{
+			EST_LOG(this, Error, "Blocking hit on %s in actor %s but no impact effect in manifest %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest));
+		}
+	}
+
+	LastFootstepLocation = GetOwner()->GetActorLocation();
+	LastFootstepDirection = GetOwner()->GetActorForwardVector();
+	LastFootstepTime = GetWorld()->GetTimeSeconds();
+}
+
+void UEstFootstepComponent::OnLanded(const FHitResult& Hit)
+{
+    DoFootstep(FootstepIntensityLand);
+}
+
+void UEstFootstepComponent::OnMovementModeChanged(ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	// Detect when character jumps (movement mode changes from Walking to Falling)
+	if (PrevMovementMode == MOVE_Walking && CharacterMovementComponent && CharacterMovementComponent->MovementMode == MOVE_Falling)
+	{
+		// Additional check: ensure character has upward velocity (indicating a jump, not just falling off a ledge)
+		FVector Velocity = CharacterMovementComponent->Velocity;
+		if (FMath::IsNearlyEqual(Velocity.Z, CharacterMovementComponent->JumpZVelocity, 32.f))
+		{
+			EST_LOG(this, Trace, "Jump detected! Velocity.Z: %.2f, JumpVelocity: %.2f", Velocity.Z, CharacterMovementComponent->JumpZVelocity);
+			DoFootstep(FootstepIntensityJump);
+		}
+		else
+		{
+			EST_LOG(this, Trace, "Movement mode changed to Falling but velocity too low (%.2f <= %.2f)", Velocity.Z, CharacterMovementComponent->JumpZVelocity);
+		}
+	}
+}
+

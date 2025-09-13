@@ -21,15 +21,7 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxJumpStepUpDistance = 34.f;
 	JumpStepUpBoost = 10.f;
 	JumpVelocityMultiplier = 1.25f;
-	FootstepDistanceSpeedMultiplier = 0.4f;
-	FootstepAngle = 64.f;
-	FootstepTime = .25f;
 	bCanSprint = true;
-
-	FootstepIntensity = 1.f;
-	FootstepIntensityCrouching = .5f;
-	FootstepIntensityLand = 1.f;
-	FootstepIntensityJump = 5.f;
 
 	LadderClimbSpeed = 200.f;
 }
@@ -87,94 +79,8 @@ void UEstCharacterMovementComponent::SetSprinting(bool IsSprinting)
 	bIsSprinting = IsSprinting;
 }
 
-bool UEstCharacterMovementComponent::ShouldFootstep() const
-{
-	// No manifest, no sounds
-	if (FootstepManifest == nullptr)
-	{
-		return false;
-	}
 
-	// If we recently played a footstep, we shouldn't play one again
-	if (LastFootstepTime > GetWorld()->GetTimeSeconds() - FootstepTime)
-	{
-		return false;
-	}
 
-	// If we've gone far enough, play
-	const float Distance = (IsCrouching() ? MaxWalkSpeedCrouched : MaxWalkSpeed) * FootstepDistanceSpeedMultiplier;
-	if (FVector::Dist(LastFootstepLocation, GetActorLocation()) > Distance)
-	{
-		return true;
-	}
-
-	// If we have turned far enough whilst moving, play
-	if (!FVector::Coincident(LastFootstepDirection, GetPawnOwner()->GetActorForwardVector(), FMath::Cos(FootstepAngle)))
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void UEstCharacterMovementComponent::DoFootstep(float Intensity)
-{
-	if (FootstepManifest == nullptr)
-	{
-		EST_LOG(this, Error, "UEstCharacterMovementComponent::DoFootstep() - Footstep manifest is null");
-		return;
-	}
-
-	FCollisionQueryParams TraceParams(FName(TEXT("PlayerFootstepTrace")), true, GetOwner());
-	TraceParams.bReturnPhysicalMaterial = true;
-
-	const FVector EndTraceLocation = GetActorFeetLocation() + (FVector(0, 0, -1.f) * 100.f);
-
-	FCollisionShape SweepCapsule = FCollisionShape::MakeCapsule(20.f, 0.f);
-
-	FHitResult OutHit;
-	GetWorld()->SweepSingleByProfile(OutHit, GetActorLocation(), EndTraceLocation, FQuat::Identity, PROFILE_FOOTSTEPS, SweepCapsule, TraceParams);
-
-	const UPhysicalMaterial* PhysicalMaterial = FootstepMaterialOverride == nullptr ? UEstGameplayStatics::GetPhysicalMaterial(OutHit) : FootstepMaterialOverride;
-	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
-
-	OnFootstep.Broadcast();
-
-	for (USoundBase* ClothesSound : ClothesSounds)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ClothesSound, GetActorLocation());
-	}
-
-	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
-	{
-		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
-	}
-	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
-	{
-		if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
-		{
-			EST_LOG(this, Error, "Blocking hit on %s but no physical material", *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
-		}
-		else
-		{
-			EST_LOG(this, Error, "Blocking hit on %s in actor %s but no impact effect in manifest %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest));
-		}
-	}
-
-	LastFootstepLocation = GetActorLocation();
-	LastFootstepDirection = GetPawnOwner()->GetActorForwardVector();
-	LastFootstepTime = GetWorld()->GetTimeSeconds();
-}
-
-void UEstCharacterMovementComponent::MoveAlongFloor(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult)
-{
-	Super::MoveAlongFloor(InVelocity, DeltaSeconds, OutStepDownResult);
-
-	if (ShouldFootstep())
-	{
-		DoFootstep(IsCrouching() ? FootstepIntensityCrouching : FootstepIntensity);
-	}
-}
 
 void UEstCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)
 {
@@ -186,7 +92,6 @@ void UEstCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float 
 		Player->bForceCameraInterpolation = false;
 	}
 
-	DoFootstep(FootstepIntensityLand);
 }
 
 bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves, float DeltaTime)
@@ -194,7 +99,6 @@ bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves, float DeltaTim
 	if (Super::DoJump(bReplayingMoves, DeltaTime))
 	{
 		Velocity = FVector(Velocity.X * JumpVelocityMultiplier, Velocity.Y * JumpVelocityMultiplier, Velocity.Z);
-		DoFootstep(FootstepIntensityJump);
 		return true;
 	}
 

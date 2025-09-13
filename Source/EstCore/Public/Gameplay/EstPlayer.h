@@ -107,6 +107,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fighting")
 	class USkeletalMeshComponent* ViewModelMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UEstFootstepComponent* FootstepComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fighting")
 	float AimInterpolationSpeed;
 

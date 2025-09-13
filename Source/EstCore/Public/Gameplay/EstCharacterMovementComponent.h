@@ -4,7 +4,7 @@
 #include "Interfaces/EstSaveRestore.h"
 #include "EstCharacterMovementComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFootstepDelegate);
+enum EEstLadderDismountReason : uint8;
 
 /** Custom movement modes for EstCharacterMovementComponent */
 UENUM(BlueprintType)
@@ -65,53 +65,6 @@ public:
 	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite)
 	bool bIsMovementPaused;
 
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
-	TArray<class USoundBase*> ClothesSounds;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
-	class UEstImpactManifest *FootstepManifest;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, SaveGame)
-	class UPhysicalMaterial* FootstepMaterialOverride;
-
-	UPROPERTY(BlueprintAssignable, Category = "Footsteps")
-	FOnFootstepDelegate OnFootstep;
-
-	/** Position of the last footstep sound */
-	UPROPERTY()
-	FVector LastFootstepLocation;
-
-	/** Direction of the last footstep */
-	UPROPERTY()
-	FVector LastFootstepDirection;
-
-	/** Time since last footstep */
-	UPROPERTY()
-	float LastFootstepTime;
-
-	/** Distance the character has to travel to play a footstep. */
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepDistanceSpeedMultiplier;
-
-	/** Angle the character has to turn to play a footstep. */
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepAngle;
-
-	/** Minimum time in seconds between footsteps */
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepTime;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepIntensity;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepIntensityCrouching;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepIntensityLand;
-
-	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
-	float FootstepIntensityJump;
 
 	UPROPERTY(Category = "Character Movement: Jumping / Falling", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
 	float JumpVelocityMultiplier;
@@ -122,11 +75,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
 	virtual void SetSprinting(bool IsSprinting);
 
-	virtual bool ShouldFootstep() const;
-
-	virtual void DoFootstep(float Intensity);
-
-	virtual void MoveAlongFloor(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult = NULL) override;
 
 	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
 
@@ -147,7 +95,7 @@ public:
 	void MountLadder(TScriptInterface<class IEstLadder> NewLadder);
 
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
-	void DismountLadder(enum EEstLadderDismountReason DismountReason);
+	void DismountLadder(EEstLadderDismountReason DismountReason);
 
 	/** Get the current ladder the character is climbing */
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")

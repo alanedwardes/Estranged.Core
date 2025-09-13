@@ -1,5 +1,5 @@
 #include "Volumes/EstWaterManifest.h"
-#include "Gameplay/EstCharacterMovementComponent.h"
+#include "Gameplay/EstFootstepComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Gameplay/EstPlayer.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,9 +17,9 @@ void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player, FVector Wate
 		return;
 	}
 
-	if (IsValid(Player->EstCharacterMovement))
+	if (IsValid(Player->FootstepComponent))
 	{
-		Player->EstCharacterMovement->FootstepMaterialOverride = PhysicalMaterialOverride;
+		Player->FootstepComponent->FootstepMaterialOverride = PhysicalMaterialOverride;
 	}
 
 	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, WaterSurface.Z);
@@ -36,9 +36,9 @@ void UEstWaterManifest::DeactivatePaddlingEffects(AEstPlayer* Player)
 		return;
 	}
 
-	if (IsValid(Player->EstCharacterMovement))
+	if (IsValid(Player->FootstepComponent))
 	{
-		Player->EstCharacterMovement->FootstepMaterialOverride = nullptr;
+		Player->FootstepComponent->FootstepMaterialOverride = nullptr;
 	}
 
 	if (IsValid(Player->PlayerCameraManager) && IsValid(PaddlingCameraModifier))
