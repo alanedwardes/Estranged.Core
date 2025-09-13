@@ -145,7 +145,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	PlayerThrowAngularVelocity = FVector(0.f, 100.f, 500.f);
 
 	FootstepComponent = PCIP.CreateDefaultSubobject<UEstFootstepComponent>(this, TEXT("Footstep"));
-	FootstepComponent->Activate();
+	FootstepComponent->bAutoActivate = true;
 }
 
 void AEstPlayer::OnPreSave_Implementation()

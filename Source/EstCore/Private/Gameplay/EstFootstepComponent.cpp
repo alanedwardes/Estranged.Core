@@ -1,8 +1,8 @@
 #include "Gameplay/EstFootstepComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "EstCore.h"
-#include "Gameplay/EstBaseCharacter.h"
-#include "Gameplay/EstCharacterMovementComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Physics/EstImpactManifest.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Physics/EstImpactEffect.h"
@@ -12,7 +12,7 @@
 UEstFootstepComponent::UEstFootstepComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	PrimaryComponentTick.bStartWithTickEnabled = true;
+	PrimaryComponentTick.bStartWithTickEnabled = false;
 
 	FootstepDistanceSpeedMultiplier = 0.4f;
 	FootstepAngle = 64.f;
@@ -23,19 +23,18 @@ UEstFootstepComponent::UEstFootstepComponent()
 	FootstepIntensityJump = 5.f;
 }
 
-void UEstFootstepComponent::BeginPlay()
+void UEstFootstepComponent::Activate(bool bReset)
 {
-	Super::BeginPlay();
+	Super::Activate(bReset);
 
-	CharacterOwner = Cast<AEstBaseCharacter>(GetOwner());
+	SetComponentTickEnabled(true);
+
+	CharacterOwner = Cast<ACharacter>(GetOwner());
 	if (CharacterOwner)
 	{
-		CharacterMovementComponent = Cast<UEstCharacterMovementComponent>(CharacterOwner->GetCharacterMovement());
-		
-		// Subscribe to the character's LandedDelegate
+		CharacterMovementComponent = Cast<UCharacterMovementComponent>(CharacterOwner->GetCharacterMovement());
+
 		CharacterOwner->LandedDelegate.AddDynamic(this, &UEstFootstepComponent::OnLanded);
-		
-		// Subscribe to movement mode changed delegate to detect jumps
 		CharacterOwner->MovementModeChangedDelegate.AddDynamic(this, &UEstFootstepComponent::OnMovementModeChanged);
 	}
 
@@ -44,11 +43,27 @@ void UEstFootstepComponent::BeginPlay()
 	LastFootstepTime = GetWorld()->GetTimeSeconds();
 }
 
+void UEstFootstepComponent::Deactivate()
+{
+	Super::Deactivate();
+
+	SetComponentTickEnabled(false);
+
+	if (CharacterOwner)
+	{
+		CharacterOwner->LandedDelegate.RemoveDynamic(this, &UEstFootstepComponent::OnLanded);
+		CharacterOwner->MovementModeChangedDelegate.RemoveDynamic(this, &UEstFootstepComponent::OnMovementModeChanged);
+	}
+
+	CharacterMovementComponent = nullptr;
+	CharacterOwner = nullptr;
+}
+
 void UEstFootstepComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsActive() && CharacterMovementComponent && CharacterMovementComponent->IsMovingOnGround() && ShouldFootstep())
+	if (CharacterMovementComponent && CharacterMovementComponent->IsMovingOnGround() && ShouldFootstep())
 	{
 		float Intensity = CharacterMovementComponent->IsCrouching() ? FootstepIntensityCrouching : FootstepIntensity;
 		DoFootstep(Intensity);
@@ -88,11 +103,6 @@ bool UEstFootstepComponent::ShouldFootstep() const
 
 void UEstFootstepComponent::DoFootstep(float Intensity)
 {
-	if (!IsActive())
-	{
-		return;
-	}
-
 	if (FootstepManifest == nullptr)
 	{
 		EST_LOG(this, Error, "UEstFootstepComponent::DoFootstep() - Footstep manifest is null");

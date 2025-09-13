@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "EstFootstepComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFootstepDelegate);
@@ -16,10 +15,12 @@ public:
 	UEstFootstepComponent();
 
 protected:
-	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+	virtual void Activate(bool bReset = false) override;
+	virtual void Deactivate() override;
+
 	/** Clothes sounds to play with each footstep */
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	TArray<class USoundBase*> ClothesSounds;
@@ -96,9 +97,9 @@ private:
 
 	/** Reference to the character movement component */
 	UPROPERTY()
-	class UEstCharacterMovementComponent* CharacterMovementComponent;
+	class UCharacterMovementComponent* CharacterMovementComponent;
 
 	/** Reference to the character owner */
 	UPROPERTY()
-	class AEstBaseCharacter* CharacterOwner;
+	class ACharacter* CharacterOwner;
 };
