@@ -1,7 +1,6 @@
 #include "Gameplay/EstCharacterMovementComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "EstCore.h"
-#include "Gameplay/EstPlayer.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "Gameplay/EstBaseCharacter.h"
 #include "Physics/EstImpactManifest.h"
@@ -77,21 +76,6 @@ bool UEstCharacterMovementComponent::IsSprinting() const
 void UEstCharacterMovementComponent::SetSprinting(bool IsSprinting)
 {
 	bIsSprinting = IsSprinting;
-}
-
-
-
-
-void UEstCharacterMovementComponent::ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)
-{
-	Super::ProcessLanded(Hit, remainingTime, Iterations);
-
-	AEstPlayer* Player = Cast<AEstPlayer>(CharacterOwner);
-	if (Player != nullptr)
-	{
-		Player->bForceCameraInterpolation = false;
-	}
-
 }
 
 bool UEstCharacterMovementComponent::DoJump(bool bReplayingMoves, float DeltaTime)

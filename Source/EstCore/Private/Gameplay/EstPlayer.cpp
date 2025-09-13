@@ -713,6 +713,8 @@ void AEstPlayer::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
+	bForceCameraInterpolation = false;
+
 	OnLandedDelegate.Broadcast(Hit, GetVelocity().GetAbsMax());
 
 	if (GetVelocity().GetAbsMax() > VelocityDamageThreshold)

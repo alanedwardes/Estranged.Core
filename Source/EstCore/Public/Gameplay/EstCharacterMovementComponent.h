@@ -65,7 +65,6 @@ public:
 	UPROPERTY(Category = "Character Movement", EditAnywhere, BlueprintReadWrite)
 	bool bIsMovementPaused;
 
-
 	UPROPERTY(Category = "Character Movement: Jumping / Falling", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
 	float JumpVelocityMultiplier;
 
@@ -74,9 +73,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|CharacterMovement")
 	virtual void SetSprinting(bool IsSprinting);
-
-
-	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
 
 	virtual bool DoJump(bool bReplayingMoves, float DeltaTime) override;
 
