@@ -132,8 +132,6 @@ void UEstFootstepComponent::DoFootstep(float Intensity)
 
 	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
 	{
-		EST_LOG(this, Trace, "Playing footstep effect for physical material %s on component %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
-
 		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
 	}
 	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
@@ -167,12 +165,7 @@ void UEstFootstepComponent::OnMovementModeChanged(ACharacter* Character, EMoveme
 		FVector Velocity = CharacterMovementComponent->Velocity;
 		if (FMath::IsNearlyEqual(Velocity.Z, CharacterMovementComponent->JumpZVelocity, 32.f))
 		{
-			EST_LOG(this, Trace, "Jump detected! Velocity.Z: %.2f, JumpVelocity: %.2f", Velocity.Z, CharacterMovementComponent->JumpZVelocity);
 			DoFootstep(FootstepIntensityJump);
-		}
-		else
-		{
-			EST_LOG(this, Trace, "Movement mode changed to Falling but velocity too low (%.2f <= %.2f)", Velocity.Z, CharacterMovementComponent->JumpZVelocity);
 		}
 	}
 }
