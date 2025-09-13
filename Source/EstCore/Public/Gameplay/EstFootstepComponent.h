@@ -73,14 +73,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Footsteps")
 	virtual void DoFootstep(float Intensity);
 
-	/** Handle landing event */
-	UFUNCTION()
-	void OnLanded(const FHitResult& Hit);
-
 	/** Handle movement mode changed event (for detecting jumps) */
 	UFUNCTION()
 	void OnMovementModeChanged(ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
-
 
 private:
 	/** Position of the last footstep sound */

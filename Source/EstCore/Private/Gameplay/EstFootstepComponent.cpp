@@ -35,8 +35,7 @@ void UEstFootstepComponent::Activate(bool bReset)
 	{
 		CharacterMovementComponent = Cast<UCharacterMovementComponent>(CharacterOwner->GetCharacterMovement());
 
-		CharacterOwner->LandedDelegate.AddDynamic(this, &UEstFootstepComponent::OnLanded);
-		CharacterOwner->MovementModeChangedDelegate.AddDynamic(this, &UEstFootstepComponent::OnMovementModeChanged);
+		CharacterOwner->MovementModeChangedDelegate.AddUniqueDynamic(this, &UEstFootstepComponent::OnMovementModeChanged);
 	}
 
 	LastFootstepLocation = GetOwner()->GetActorLocation();
@@ -52,7 +51,6 @@ void UEstFootstepComponent::Deactivate()
 
 	if (CharacterOwner)
 	{
-		CharacterOwner->LandedDelegate.RemoveDynamic(this, &UEstFootstepComponent::OnLanded);
 		CharacterOwner->MovementModeChangedDelegate.RemoveDynamic(this, &UEstFootstepComponent::OnMovementModeChanged);
 	}
 
@@ -151,11 +149,6 @@ void UEstFootstepComponent::DoFootstep(float Intensity)
 	LastFootstepTime = GetWorld()->GetTimeSeconds();
 }
 
-void UEstFootstepComponent::OnLanded(const FHitResult& Hit)
-{
-    DoFootstep(FootstepIntensityLand);
-}
-
 void UEstFootstepComponent::OnMovementModeChanged(ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
 	// Detect when character jumps (movement mode changes from Walking to Falling)
@@ -167,6 +160,12 @@ void UEstFootstepComponent::OnMovementModeChanged(ACharacter* Character, EMoveme
 		{
 			DoFootstep(FootstepIntensityJump);
 		}
+	}
+
+	// Detect when character lands (movement mode changes from non - Walking to Walking)
+	if (PrevMovementMode != MOVE_Walking && CharacterMovementComponent && CharacterMovementComponent->MovementMode == MOVE_Walking)
+	{
+		DoFootstep(FootstepIntensityLand);
 	}
 }
 
