@@ -287,7 +287,6 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 
 	FVector InputVector = GetLastInputVector();
 	FVector PlayerPosition = CharacterOwner->GetActorLocation();
-	FVector PlayerForward = CharacterOwner->GetActorForwardVector();
 	
 	// Check if player is off the ladder and needs to unmount
 	float DistanceFromStart = FVector::Dist(PlayerPosition, LadderExtents.StartPosition);
@@ -318,8 +317,30 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 		return;
 	}
 
-	// Project the input vector onto the player's forward direction to get the intended movement
-	float ForwardInput = FVector::DotProduct(InputVector, PlayerForward);
+	FRotator ControlRotation = CharacterOwner->GetControlRotation();
+	float PitchRadians = FMath::DegreesToRadians(ControlRotation.Pitch);
+	float InputMagnitude = InputVector.Size();
+
+	// Check if player is pressing S (downward input) - this should always move down
+	// We need to check input relative to the player's forward direction, not world space
+	FVector PlayerForward = CharacterOwner->GetActorForwardVector();
+	float ForwardInputDot = FVector::DotProduct(InputVector, PlayerForward);
+	bool bPressingDown = ForwardInputDot < 0.0f;
+	
+	float ForwardInput;
+	if (bPressingDown)
+	{
+		// S key pressed - always move down regardless of camera direction
+		ForwardInput = -InputMagnitude;
+	}
+	else
+	{
+		// W key or other input - use camera direction
+		// +1 is straight up, -1 is straight down
+		float PitchSine = FMath::Sin(PitchRadians) > 0 ? 1 : -1;
+		ForwardInput = InputMagnitude * PitchSine;
+	}
+
 	float ClimbSpeed = ForwardInput * LadderClimbSpeed;
 
 	FVector Delta = LadderDirection * ClimbSpeed * deltaTime;
