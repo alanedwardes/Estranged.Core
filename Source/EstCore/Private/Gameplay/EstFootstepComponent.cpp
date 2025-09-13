@@ -13,6 +13,7 @@ UEstFootstepComponent::UEstFootstepComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
+	PrimaryComponentTick.TickInterval = 0.1f;
 
 	FootstepDistanceSpeedMultiplier = 0.4f;
 	FootstepAngle = 64.f;
