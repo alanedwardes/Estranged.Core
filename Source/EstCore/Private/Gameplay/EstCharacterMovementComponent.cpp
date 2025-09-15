@@ -165,24 +165,24 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	float PitchRadians = FMath::DegreesToRadians(ControlRotation.Pitch);
 	float InputMagnitude = InputVector.Size();
 
-	// Check if player is pressing S (downward input) - this should always move down
-	// We need to check input relative to the player's forward direction, not world space
-	FVector PlayerForward = CharacterOwner->GetActorForwardVector();
-	float ForwardInputDot = FVector::DotProduct(InputVector, PlayerForward);
-	bool bPressingDown = ForwardInputDot < 0.0f;
-
-	float ForwardInput;
-	if (bPressingDown)
+	// Determine movement direction based on input intent
+	float ForwardInput = 0.0f;
+	if (InputMagnitude > 0.0f)
 	{
-		// S key pressed - always move down regardless of camera direction
-		ForwardInput = -InputMagnitude;
-	}
-	else
-	{
-		// W key or other input - use camera direction
-		// +1 is straight up, -1 is straight down
-		float PitchSine = FMath::Sin(PitchRadians) > -0.75 ? 1 : -1;
-		ForwardInput = InputMagnitude * PitchSine;
+		// Get the forward component of input (positive for W, negative for S)
+		FVector PlayerForward = CharacterOwner->GetActorForwardVector();
+		float InputDirection = FVector::DotProduct(InputVector, PlayerForward);
+		
+		if (InputDirection > 0.0f) // W key - use camera direction
+		{
+			// +1 is straight up, -1 is straight down
+			float PitchSine = FMath::Sin(PitchRadians) > 0 ? 1 : -1;
+			ForwardInput = InputMagnitude * PitchSine;
+		}
+		else if (InputDirection < 0.0f) // S key - always move down
+		{
+			ForwardInput = -InputMagnitude; // Always move down
+		}
 	}
 	
 	// Check if player is off the ladder and needs to unmount
