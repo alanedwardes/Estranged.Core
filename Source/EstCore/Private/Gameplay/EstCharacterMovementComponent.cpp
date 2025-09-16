@@ -17,7 +17,7 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	MaxWalkSpeedCrouched = 200.0f;
 	bCanSprint = true;
 
-	LadderClimbSpeed = 200.f;
+	LadderClimbSpeed = 128.f;
 }
 
 void UEstCharacterMovementComponent::OnPreSave_Implementation()
@@ -126,7 +126,7 @@ void UEstCharacterMovementComponent::DismountLadder(EEstLadderDismountReason Dis
 		IEstLadder::Execute_OnDismount(Ladder, CharacterOwner, DismountReason);
 	}
 
-	SetMovementMode(MOVE_Walking);
+	SetDefaultMovementMode();
 	SetCurrentLadder(nullptr);
 }
 
@@ -148,7 +148,7 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	if (Ladder == nullptr)
 	{
 		EST_LOG(this, Warning, "UEstCharacterMovementComponent::PhysLadder() - Current ladder does not implement IEstLadder, stopping ladder movement");
-		SetMovementMode(MOVE_Walking);
+		SetDefaultMovementMode();
 		SetCurrentLadder(nullptr);
 		return;
 	}
