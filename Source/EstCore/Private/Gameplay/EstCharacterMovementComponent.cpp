@@ -161,27 +161,42 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	FVector PlayerPosition = CharacterOwner->GetActorLocation();
 
 
-	FRotator ControlRotation = CharacterOwner->GetControlRotation();
-	float PitchRadians = FMath::DegreesToRadians(ControlRotation.Pitch);
 	float InputMagnitude = InputVector.Size();
+
+	// Determine if ladder is primarily vertical or horizontal
+	float LadderZComponent = FMath::Abs(LadderDirection.Z);
+	bool IsVerticalLadder = LadderZComponent > 0.7f; // Threshold for considering ladder vertical
 
 	// Determine movement direction based on input intent
 	float ForwardInput = 0.0f;
 	if (InputMagnitude > 0.0f)
 	{
-		// Get the forward component of input (positive for W, negative for S)
-		FVector PlayerForward = CharacterOwner->GetActorForwardVector();
-		float InputDirection = FVector::DotProduct(InputVector, PlayerForward);
-		
-		if (InputDirection > 0.0f) // W key - use camera direction
+		if (IsVerticalLadder)
 		{
-			// +1 is straight up, -1 is straight down
-			float PitchSine = FMath::Sin(PitchRadians) > 0 ? 1 : -1;
-			ForwardInput = InputMagnitude * PitchSine;
+			// For vertical ladders, use camera pitch-based movement
+			FRotator ControlRotation = CharacterOwner->GetControlRotation();
+			float PitchRadians = FMath::DegreesToRadians(ControlRotation.Pitch);
+			
+			// Get the forward component of input (positive for W, negative for S)
+			FVector PlayerForward = CharacterOwner->GetActorForwardVector();
+			float InputDirection = FVector::DotProduct(InputVector, PlayerForward);
+			
+			if (InputDirection > 0.0f) // W key - use camera direction
+			{
+				// +1 is straight up, -1 is straight down
+				float PitchSine = FMath::Sin(PitchRadians) > 0 ? 1 : -1;
+				ForwardInput = InputMagnitude * PitchSine;
+			}
+			else if (InputDirection < 0.0f) // S key - always move down
+			{
+				ForwardInput = -InputMagnitude; // Always move down
+			}
 		}
-		else if (InputDirection < 0.0f) // S key - always move down
+		else
 		{
-			ForwardInput = -InputMagnitude; // Always move down
+			// For horizontal ladders, use input direction relative to ladder direction
+			float InputDirection = FVector::DotProduct(InputVector, LadderDirection);
+			ForwardInput = InputMagnitude * FMath::Sign(InputDirection);
 		}
 	}
 	
