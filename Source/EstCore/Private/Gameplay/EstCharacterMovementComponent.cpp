@@ -137,15 +137,15 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 		return;
 	}
 
-	if (!CharacterOwner || (!CharacterOwner->GetController() && !bRunPhysicsWithNoController && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() && (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)))
+	UObject* Ladder = CurrentLadder.GetObject();
+	if (!Ladder || !CharacterOwner || (!CharacterOwner->GetController() && !bRunPhysicsWithNoController && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity() && (CharacterOwner->GetLocalRole() != ROLE_SimulatedProxy)))
 	{
 		Acceleration = FVector::ZeroVector;
 		Velocity = FVector::ZeroVector;
 		return;
 	}
 
-	UObject* Ladder = CurrentLadder.GetObject();
-	if (Ladder == nullptr)
+	if (!Ladder->Implements<UEstLadder>())
 	{
 		EST_LOG(this, Warning, "UEstCharacterMovementComponent::PhysLadder() - Current ladder does not implement IEstLadder, stopping ladder movement");
 		SetDefaultMovementMode();
