@@ -198,32 +198,32 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 			float InputDirection = FVector::DotProduct(InputVector, LadderDirection);
 			ForwardInput = InputMagnitude * FMath::Sign(InputDirection);
 		}
-	}
-	
-	// Check if player is off the ladder and needs to unmount
-	float DistanceFromStart = FVector::Dist(PlayerPosition, LadderExtents.StartPosition);
-	float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
-	float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
 
-	// If player is beyond the ladder extents, only unmount if they're moving further away
-	if (DistanceFromStart > LadderLength && ForwardInput > 0)
-	{
-		DismountLadder(EEstLadderDismountReason::ReachedEnd);
-		return;
-	}
+		// Check if player is off the ladder and needs to unmount
+		float DistanceFromStart = FVector::Dist(PlayerPosition, LadderExtents.StartPosition);
+		float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
+		float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
 
-	if (DistanceFromEnd > LadderLength && ForwardInput < 0)
-	{
-		DismountLadder(EEstLadderDismountReason::ReachedStart);
-		return;
-	}
+		// If player is beyond the ladder extents, only unmount if they're moving further away
+		if (DistanceFromStart > LadderLength && ForwardInput > 0)
+		{
+			DismountLadder(EEstLadderDismountReason::ReachedEnd);
+			return;
+		}
 
-	FFindFloorResult FloorResult;
-	FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
-	if (FloorResult.IsWalkableFloor() && ForwardInput < 0)
-	{
-		DismountLadder(EEstLadderDismountReason::ReachedFloor);
-		return;
+		if (DistanceFromEnd > LadderLength && ForwardInput < 0)
+		{
+			DismountLadder(EEstLadderDismountReason::ReachedStart);
+			return;
+		}
+
+		FFindFloorResult FloorResult;
+		FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
+		if (FloorResult.IsWalkableFloor() && ForwardInput < 0)
+		{
+			DismountLadder(EEstLadderDismountReason::ReachedFloor);
+			return;
+		}
 	}
 
 	float ClimbSpeed = ForwardInput * LadderClimbSpeed;
