@@ -91,6 +91,14 @@ protected:
 	/** Handle ladder climbing movement physics */
 	virtual void PhysLadder(float deltaTime, int32 Iterations);
 
+	/** Helper methods for PhysLadder */
+	bool IsVerticalLadder(const FVector& LadderDirection) const;
+	float CalculateVerticalInput(const FVector& InputVector, float InputMagnitude) const;
+	float CalculateHorizontalInput(const FVector& InputVector, const FVector& LadderDirection, float InputMagnitude) const;
+	float CalculateForwardInput(const FVector& InputVector, const FVector& LadderDirection) const;
+	bool CheckLadderBounds(const FVector& PlayerPosition, const struct FLadderExtents& LadderExtents, float ForwardInput);
+	bool CheckFloorDismount(float ForwardInput) const;
+
 public:
 	FORCEINLINE bool CanEverSprint() const { return bCanSprint; }
 

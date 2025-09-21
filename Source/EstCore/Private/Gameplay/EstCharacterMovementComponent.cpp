@@ -154,80 +154,27 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 	}
 
 	FLadderExtents LadderExtents = IEstLadder::Execute_GetLadderExtents(Ladder);
-
 	FVector LadderDirection = LadderExtents.GetLadderDirection();
-
 	FVector InputVector = GetLastInputVector();
 	FVector PlayerPosition = CharacterOwner->GetActorLocation();
 
+	// Calculate input-based movement direction
+	float ForwardInput = CalculateForwardInput(InputVector, LadderDirection);
 
-	float InputMagnitude = InputVector.Size();
-
-	// Determine if ladder is primarily vertical or horizontal
-	float LadderZComponent = FMath::Abs(LadderDirection.Z);
-	bool IsVerticalLadder = LadderZComponent > 0.7f; // Threshold for considering ladder vertical
-
-	// Determine movement direction based on input intent
-	float ForwardInput = 0.0f;
-	if (InputMagnitude > 0.0f)
+	// Check for dismount conditions
+	if (CheckLadderBounds(PlayerPosition, LadderExtents, ForwardInput))
 	{
-		if (IsVerticalLadder)
-		{
-			// For vertical ladders, use camera pitch-based movement
-			FRotator ControlRotation = CharacterOwner->GetControlRotation();
-			float PitchRadians = FMath::DegreesToRadians(ControlRotation.Pitch);
-			
-			// Get the forward component of input (positive for W, negative for S)
-			FVector PlayerForward = CharacterOwner->GetActorForwardVector();
-			float InputDirection = FVector::DotProduct(InputVector, PlayerForward);
-			
-			if (InputDirection > 0.0f) // W key - use camera direction
-			{
-				// +1 is straight up, -1 is straight down
-				float PitchSine = FMath::Sin(PitchRadians) > 0 ? 1 : -1;
-				ForwardInput = InputMagnitude * PitchSine;
-			}
-			else if (InputDirection < 0.0f) // S key - always move down
-			{
-				ForwardInput = -InputMagnitude; // Always move down
-			}
-		}
-		else
-		{
-			// For horizontal ladders, use input direction relative to ladder direction
-			float InputDirection = FVector::DotProduct(InputVector, LadderDirection);
-			ForwardInput = InputMagnitude * FMath::Sign(InputDirection);
-		}
-
-		// Check if player is off the ladder and needs to unmount
-		float DistanceFromStart = FVector::Dist(PlayerPosition, LadderExtents.StartPosition);
-		float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
-		float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
-
-		// If player is beyond the ladder extents, only unmount if they're moving further away
-		if (DistanceFromStart > LadderLength && ForwardInput > 0)
-		{
-			DismountLadder(EEstLadderDismountReason::ReachedEnd);
-			return;
-		}
-
-		if (DistanceFromEnd > LadderLength && ForwardInput < 0)
-		{
-			DismountLadder(EEstLadderDismountReason::ReachedStart);
-			return;
-		}
-
-		FFindFloorResult FloorResult;
-		FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
-		if (FloorResult.IsWalkableFloor() && ForwardInput < 0)
-		{
-			DismountLadder(EEstLadderDismountReason::ReachedFloor);
-			return;
-		}
+		return; // Already dismounted
 	}
 
-	float ClimbSpeed = ForwardInput * LadderClimbSpeed;
+	if (CheckFloorDismount(ForwardInput))
+	{
+		DismountLadder(EEstLadderDismountReason::ReachedFloor);
+		return;
+	}
 
+	// Apply movement
+	float ClimbSpeed = ForwardInput * LadderClimbSpeed;
 	FVector Delta = LadderDirection * ClimbSpeed * deltaTime;
 
 	FHitResult Hit;
@@ -247,4 +194,95 @@ void UEstCharacterMovementComponent::SetCurrentLadder(TScriptInterface<IEstLadde
 bool UEstCharacterMovementComponent::IsClimbingLadder() const
 {
 	return GetCustomMovementMode() == EEstCustomMovementMode::MOVE_Ladder;
+}
+
+bool UEstCharacterMovementComponent::IsVerticalLadder(const FVector& LadderDirection) const
+{
+	float LadderZComponent = FMath::Abs(LadderDirection.Z);
+	return LadderZComponent > 0.7f; // Threshold for considering ladder vertical
+}
+
+float UEstCharacterMovementComponent::CalculateVerticalInput(const FVector& InputVector, float InputMagnitude) const
+{
+	// For vertical ladders, use camera pitch-based movement
+	FRotator ControlRotation = CharacterOwner->GetControlRotation();
+	float PitchRadians = FMath::DegreesToRadians(ControlRotation.Pitch);
+	
+	// Get the forward component of input (positive for W, negative for S)
+	FVector PlayerForward = CharacterOwner->GetActorForwardVector();
+	float InputDirection = FVector::DotProduct(InputVector, PlayerForward);
+	
+	if (InputDirection > 0.0f) // W key - use camera direction
+	{
+		// +1 is straight up, -1 is straight down
+		float PitchSine = FMath::Sin(PitchRadians) > 0 ? 1 : -1;
+		return InputMagnitude * PitchSine;
+	}
+	else if (InputDirection < 0.0f) // S key - always move down
+	{
+		return -InputMagnitude; // Always move down
+	}
+	
+	return 0.0f;
+}
+
+float UEstCharacterMovementComponent::CalculateHorizontalInput(const FVector& InputVector, const FVector& LadderDirection, float InputMagnitude) const
+{
+	// For horizontal ladders, use input direction relative to ladder direction
+	float InputDirection = FVector::DotProduct(InputVector, LadderDirection);
+	return InputMagnitude * FMath::Sign(InputDirection);
+}
+
+float UEstCharacterMovementComponent::CalculateForwardInput(const FVector& InputVector, const FVector& LadderDirection) const
+{
+	float InputMagnitude = InputVector.Size();
+	
+	if (InputMagnitude <= 0.0f)
+	{
+		return 0.0f;
+	}
+	
+	if (IsVerticalLadder(LadderDirection))
+	{
+		return CalculateVerticalInput(InputVector, InputMagnitude);
+	}
+	else
+	{
+		return CalculateHorizontalInput(InputVector, LadderDirection, InputMagnitude);
+	}
+}
+
+bool UEstCharacterMovementComponent::CheckLadderBounds(const FVector& PlayerPosition, const FLadderExtents& LadderExtents, float ForwardInput)
+{
+	// Check if player is off the ladder and needs to unmount
+	float DistanceFromStart = FVector::Dist(PlayerPosition, LadderExtents.StartPosition);
+	float DistanceFromEnd = FVector::Dist(PlayerPosition, LadderExtents.EndPosition);
+	float LadderLength = FVector::Dist(LadderExtents.StartPosition, LadderExtents.EndPosition);
+
+	// If player is beyond the ladder extents, only unmount if they're moving further away
+	if (DistanceFromStart > LadderLength && ForwardInput > 0)
+	{
+		DismountLadder(EEstLadderDismountReason::ReachedEnd);
+		return true; // Dismounted
+	}
+
+	if (DistanceFromEnd > LadderLength && ForwardInput < 0)
+	{
+		DismountLadder(EEstLadderDismountReason::ReachedStart);
+		return true; // Dismounted
+	}
+	
+	return false; // Still on ladder
+}
+
+bool UEstCharacterMovementComponent::CheckFloorDismount(float ForwardInput) const
+{
+	if (ForwardInput >= 0.0f)
+	{
+		return false; // Not moving down, don't check for floor
+	}
+	
+	FFindFloorResult FloorResult;
+	FindFloor(CharacterOwner->GetActorLocation(), FloorResult, false);
+	return FloorResult.IsWalkableFloor();
 }
