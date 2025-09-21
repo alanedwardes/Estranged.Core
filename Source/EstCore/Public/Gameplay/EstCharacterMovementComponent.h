@@ -120,4 +120,7 @@ public:
 private:
 	/** The ladder the character is currently climbing, if any */
 	TScriptInterface<class IEstLadder> CurrentLadder;
+
+	/** The player's position relative to the ladder when they first mounted it */
+	FVector InitialLadderRelativePosition;
 };

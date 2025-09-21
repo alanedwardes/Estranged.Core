@@ -115,6 +115,10 @@ void UEstCharacterMovementComponent::MountLadder(TScriptInterface<IEstLadder> Ne
 	float Projection = FVector::DotProduct(ToStart, LadderDirection);
 	FVector NearestPoint = LadderExtents.StartPosition + (LadderDirection * Projection);
 	CharacterOwner->SetActorLocation(NearestPoint);
+	
+	// Store the initial relative position for moving ladder support
+	InitialLadderRelativePosition = NearestPoint - LadderExtents.StartPosition;
+	
 	Velocity = FVector::ZeroVector;
 }
 
@@ -167,18 +171,48 @@ void UEstCharacterMovementComponent::PhysLadder(float deltaTime, int32 Iteration
 		return; // Already dismounted
 	}
 
-	if (CheckFloorDismount(ForwardInput))
+	if (IsVerticalLadder(LadderDirection) && CheckFloorDismount(ForwardInput))
 	{
 		DismountLadder(EEstLadderDismountReason::ReachedFloor);
 		return;
 	}
 
-	// Apply movement
+	// Calculate combined movement (ladder movement + input movement)
+	FVector TotalMovement = FVector::ZeroVector;
+	
+	// Add ladder movement if ladder is movable
+	AActor* LadderActor = Cast<AActor>(Ladder);
+	if (LadderActor && LadderActor->GetRootComponent() && 
+		LadderActor->GetRootComponent()->Mobility == EComponentMobility::Movable)
+	{
+		FVector TargetPosition = LadderExtents.StartPosition + InitialLadderRelativePosition;
+		FVector LadderMovement = TargetPosition - PlayerPosition;
+		
+		// Only add ladder movement if it's significant to avoid jitter
+		if (LadderMovement.Size() > 0.1f)
+		{
+			TotalMovement += LadderMovement;
+		}
+	}
+	
+	// Add input-based movement
 	float ClimbSpeed = ForwardInput * LadderClimbSpeed;
-	FVector Delta = LadderDirection * ClimbSpeed * deltaTime;
+	FVector InputMovement = LadderDirection * ClimbSpeed * deltaTime;
+	TotalMovement += InputMovement;
 
-	FHitResult Hit;
-	SafeMoveUpdatedComponent(Delta, UpdatedComponent->GetComponentQuat(), true, Hit);
+	// Apply combined movement in a single operation
+	if (TotalMovement.Size() > 0.0f)
+	{
+		FHitResult Hit;
+		SafeMoveUpdatedComponent(TotalMovement, UpdatedComponent->GetComponentQuat(), true, Hit);
+		
+		// Update the relative position when player moves along the ladder
+		if (ForwardInput != 0.0f)
+		{
+			FVector NewPlayerPosition = CharacterOwner->GetActorLocation();
+			InitialLadderRelativePosition = NewPlayerPosition - LadderExtents.StartPosition;
+		}
+	}
 }
 
 TScriptInterface<IEstLadder> UEstCharacterMovementComponent::GetCurrentLadder()

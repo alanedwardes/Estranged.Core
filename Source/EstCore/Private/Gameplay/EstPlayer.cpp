@@ -1051,6 +1051,8 @@ void AEstPlayer::JumpPressedInput()
 	if (EstCharacterMovement->IsClimbingLadder())
 	{
 		EstCharacterMovement->DismountLadder(EEstLadderDismountReason::UserEjected);
+		EstCharacterMovement->Velocity += FVector(0.f, 0.f, EstCharacterMovement->JumpZVelocity);
+		return;
 	}
 
 	SwimmingUp = true;
