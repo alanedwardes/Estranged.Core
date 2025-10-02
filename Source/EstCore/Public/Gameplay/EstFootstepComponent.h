@@ -25,6 +25,10 @@ public:
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	TArray<class USoundBase*> ClothesSounds;
 
+	/** Ladder sounds to play with each ladder footstep */
+	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
+	class USoundBase* LadderSound;
+
 	/** Manifest containing footstep impact effects */
 	UPROPERTY(Category = "Footsteps", EditAnywhere, BlueprintReadWrite)
 	class UEstImpactManifest* FootstepManifest;

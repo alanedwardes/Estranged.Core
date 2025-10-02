@@ -1,4 +1,5 @@
 #include "Gameplay/EstFootstepComponent.h"
+#include "Gameplay/EstCharacterMovementComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "EstCore.h"
 #include "GameFramework/Character.h"
@@ -62,7 +63,13 @@ void UEstFootstepComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CharacterMovementComponent && CharacterMovementComponent->IsMovingOnGround() && ShouldFootstep())
+	if (CharacterMovementComponent == nullptr)
+	{
+		return;
+	}
+
+	const bool bCouldFootstep = CharacterMovementComponent->IsMovingOnGround() || CharacterMovementComponent->CustomMovementMode == (uint8)EEstCustomMovementMode::MOVE_Ladder;
+	if (bCouldFootstep && ShouldFootstep())
 	{
 		float Intensity = CharacterMovementComponent->IsCrouching() ? FootstepIntensityCrouching : FootstepIntensity;
 		DoFootstep(Intensity);
@@ -108,42 +115,49 @@ void UEstFootstepComponent::DoFootstep(float Intensity)
 		return;
 	}
 
-	FCollisionQueryParams TraceParams(FName(TEXT("PlayerFootstepTrace")), true, GetOwner());
-	TraceParams.bReturnPhysicalMaterial = true;
+	if (CharacterMovementComponent->CustomMovementMode == (uint8)EEstCustomMovementMode::MOVE_Ladder)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, LadderSound, GetOwner()->GetActorLocation());
+	}
 
-	const FVector EndTraceLocation = GetOwner()->GetActorLocation() + (FVector(0, 0, -1.f) * 100.f);
+	if (CharacterMovementComponent->IsMovingOnGround())
+	{
+		FCollisionQueryParams TraceParams(FName(TEXT("PlayerFootstepTrace")), true, GetOwner());
+		TraceParams.bReturnPhysicalMaterial = true;
 
-	FCollisionShape SweepCapsule = FCollisionShape::MakeCapsule(20.f, 0.f);
+		const FVector EndTraceLocation = GetOwner()->GetActorLocation() + (FVector(0, 0, -1.f) * 100.f);
 
-	FHitResult OutHit;
-	GetWorld()->SweepSingleByProfile(OutHit, GetOwner()->GetActorLocation(), EndTraceLocation, FQuat::Identity, PROFILE_FOOTSTEPS, SweepCapsule, TraceParams);
+		FCollisionShape SweepCapsule = FCollisionShape::MakeCapsule(20.f, 0.f);
 
-	const UPhysicalMaterial* PhysicalMaterial = FootstepMaterialOverride == nullptr ? UEstGameplayStatics::GetPhysicalMaterial(OutHit) : FootstepMaterialOverride;
-	const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
+		FHitResult OutHit;
+		GetWorld()->SweepSingleByProfile(OutHit, GetOwner()->GetActorLocation(), EndTraceLocation, FQuat::Identity, PROFILE_FOOTSTEPS, SweepCapsule, TraceParams);
 
-	OnFootstep.Broadcast();
+		const UPhysicalMaterial* PhysicalMaterial = FootstepMaterialOverride == nullptr ? UEstGameplayStatics::GetPhysicalMaterial(OutHit) : FootstepMaterialOverride;
+		const FEstImpactEffect ImpactEffect = UEstGameplayStatics::FindImpactEffect(FootstepManifest, PhysicalMaterial);
+
+		if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
+		{
+			UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
+		}
+		else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
+		{
+			if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
+			{
+				EST_LOG(this, Error, "Blocking hit on %s but no physical material", *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
+			}
+			else
+			{
+				EST_LOG(this, Error, "Blocking hit on %s in actor %s but no impact effect in manifest %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest));
+			}
+		}
+	}
 
 	for (USoundBase* ClothesSound : ClothesSounds)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ClothesSound, GetOwner()->GetActorLocation());
 	}
 
-	if (ImpactEffect != FEstImpactEffect::None && OutHit.Component.IsValid())
-	{
-		UEstGameplayStatics::DeployImpactEffect(ImpactEffect, OutHit.Location, OutHit.Normal, OutHit.Component.Get(), Intensity, nullptr);
-	}
-	else if (OutHit.bBlockingHit && FootstepMaterialOverride == nullptr)
-	{
-		if (UEstGameplayStatics::IsDefaultPhysicalMaterial(PhysicalMaterial))
-		{
-			EST_LOG(this, Error, "Blocking hit on %s but no physical material", *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()));
-		}
-		else
-		{
-			EST_LOG(this, Error, "Blocking hit on %s in actor %s but no impact effect in manifest %s", *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(OutHit.GetComponent()), *UEstGameplayStatics::GetNameOrNull(FootstepManifest));
-		}
-	}
-
+	OnFootstep.Broadcast();
 	LastFootstepLocation = GetOwner()->GetActorLocation();
 	LastFootstepDirection = GetOwner()->GetActorForwardVector();
 	LastFootstepTime = GetWorld()->GetTimeSeconds();
