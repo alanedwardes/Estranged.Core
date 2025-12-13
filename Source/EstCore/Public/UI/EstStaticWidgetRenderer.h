@@ -20,6 +20,10 @@ public:
 	/** Tick to check if primary/secondary attack is pressed */
 	virtual void Tick(float DeltaTime) override;
 
+	/** Get the widget instance being rendered to the material */
+	UFUNCTION(BlueprintPure, Category = "Widget")
+	UUserWidget* GetWidgetInstance() const { return WidgetInstance; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
