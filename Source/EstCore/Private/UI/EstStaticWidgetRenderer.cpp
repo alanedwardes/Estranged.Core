@@ -60,6 +60,8 @@ void AEstStaticWidgetRenderer::BeginPlay()
 	SlateWidgetInstance = WidgetInstance->TakeWidget();
 
 	RenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, CanvasRenderTarget2DClass, FMath::RoundToInt(WidgetSize.X), FMath::RoundToInt(WidgetSize.Y));
+	RenderTarget->Rename(*FString::Printf(TEXT("RT_%s_%s"), *GetName(), *WidgetInstance->GetName()), this);
+	RenderTarget->UpdateResource();
 
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	DynamicMaterial->SetTextureParameterValue(MaterialTextureParameterName, RenderTarget);
