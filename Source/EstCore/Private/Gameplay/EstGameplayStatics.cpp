@@ -43,6 +43,7 @@
 #include "Engine/GameViewportClient.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "SceneView.h"
+#include "ShaderPipelineCache.h"
 
 extern ENGINE_API float GAverageFPS;
 extern ENGINE_API float GAverageMS;
@@ -531,6 +532,11 @@ FString UEstGameplayStatics::GetNameOrNull(const UActorComponent* Component)
 
 const FString UEstGameplayStatics::GetStatsForNerds()
 {
+	if (FShaderPipelineCache::NumPrecompilesRemaining() > 0)
+	{
+		return FString::Printf(TEXT("PSO precompilation (%d)"), FShaderPipelineCache::NumPrecompilesRemaining());
+	}
+
 	return FString::Printf(TEXT("%5.2f FPS / %5.2f ms"), GAverageFPS, GAverageMS);
 }
 
