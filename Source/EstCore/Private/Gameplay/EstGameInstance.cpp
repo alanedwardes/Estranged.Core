@@ -93,6 +93,10 @@ void UEstGameInstance::OnStart()
 	SetCheatsEnabled(true);
 	SetLoggerEnabled(true);
 #endif
+	if (FParse::Param(FCommandLine::Get(), TEXT("Cheats")))
+	{
+		SetCheatsEnabled(true);
+	}
 	ApplyAudioSettings(UEstSaveStatics::LoadGameSettings());
 }
 
