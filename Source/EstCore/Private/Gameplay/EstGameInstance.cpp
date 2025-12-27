@@ -95,6 +95,15 @@ void UEstGameInstance::OnStart()
 		SetCheatsEnabled(true);
 		SetLoggerEnabled(true);
 	}
+
+	// BEGIN HACK TO FIX RESOLUTION SCALE BUG IN UNREAL ENGINE 5.6
+	static IConsoleVariable* CVarScalabilityResolutionQuality = IConsoleManager::Get().FindConsoleVariable(TEXT("sg.ResolutionQuality"));
+	if (FMath::IsNearlyZero(CVarScalabilityResolutionQuality->GetFloat()))
+	{
+		CVarScalabilityResolutionQuality->Set(100.f);
+	}
+	// END HACK TO FIX RESOLUTION SCALE BUG IN UNREAL ENGINE 5.6
+
 	ApplyAudioSettings(UEstSaveStatics::LoadGameSettings());
 }
 
