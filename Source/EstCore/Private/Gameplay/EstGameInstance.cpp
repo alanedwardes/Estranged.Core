@@ -89,13 +89,10 @@ bool UEstGameInstance::GetCheatsEnabled()
 
 void UEstGameInstance::OnStart()
 {
-#if WITH_EDITOR
-	SetCheatsEnabled(true);
-	SetLoggerEnabled(true);
-#endif
-	if (FParse::Param(FCommandLine::Get(), TEXT("Cheats")))
+	if (GIsEditor || FParse::Param(FCommandLine::Get(), TEXT("Cheats")))
 	{
 		SetCheatsEnabled(true);
+		SetLoggerEnabled(true);
 	}
 	ApplyAudioSettings(UEstSaveStatics::LoadGameSettings());
 }
