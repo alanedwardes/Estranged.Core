@@ -534,7 +534,7 @@ const FString UEstGameplayStatics::GetStatsForNerds()
 {
 	if (FShaderPipelineCache::NumPrecompilesRemaining() > 0)
 	{
-		return FString::Printf(TEXT("PSO precompilation (%d)"), FShaderPipelineCache::NumPrecompilesRemaining());
+		return FString::Printf(TEXT("%d PSOs"), FShaderPipelineCache::NumPrecompilesRemaining());
 	}
 
 	return FString::Printf(TEXT("%5.2f FPS / %5.2f ms"), GAverageFPS, GAverageMS);
