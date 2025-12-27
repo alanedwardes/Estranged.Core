@@ -89,7 +89,8 @@ bool UEstGameInstance::GetCheatsEnabled()
 
 void UEstGameInstance::OnStart()
 {
-	if (GIsEditor || FParse::Param(FCommandLine::Get(), TEXT("Cheats")))
+	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping ||
+		FParse::Param(FCommandLine::Get(), TEXT("Cheats")))
 	{
 		SetCheatsEnabled(true);
 		SetLoggerEnabled(true);
