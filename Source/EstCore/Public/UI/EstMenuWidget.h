@@ -60,10 +60,10 @@ public:
 	virtual void FocusArea(EEstMenuArea Area);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void EnableArea(EEstMenuArea Area, bool bNewIsEnabled);
+	virtual void SetAreaIsEnabled(EEstMenuArea Area, bool bNewIsEnabled);
 
 	UFUNCTION(BlueprintCallable)
-	virtual UUserWidget* GetArea(EEstMenuArea Area);
+	virtual UUserWidget* GetAreaWidget(EEstMenuArea Area);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AsyncModal(TSoftClassPtr<UEstMenuModal> MenuModal, FName Context);

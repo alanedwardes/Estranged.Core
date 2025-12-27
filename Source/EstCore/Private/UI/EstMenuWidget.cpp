@@ -79,7 +79,7 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 
 	if (CurrentMenuModal == nullptr)
 	{
-		EnableArea(EEstMenuArea::Section, true);
+		SetAreaIsEnabled(EEstMenuArea::Section, true);
 		FocusArea(EEstMenuArea::Section);
 	}
 
@@ -103,7 +103,7 @@ void UEstMenuWidget::RemoveMenu()
 
 void UEstMenuWidget::FocusArea(EEstMenuArea Area)
 {
-	UUserWidget* WidgetToFocus = GetArea(Area);
+	UUserWidget* WidgetToFocus = GetAreaWidget(Area);
 	if (WidgetToFocus == nullptr)
 	{
 		return;
@@ -112,9 +112,9 @@ void UEstMenuWidget::FocusArea(EEstMenuArea Area)
 	WidgetToFocus->SetUserFocus(GetOwningPlayer());
 }
 
-void UEstMenuWidget::EnableArea(EEstMenuArea Area, bool bNewIsEnabled)
+void UEstMenuWidget::SetAreaIsEnabled(EEstMenuArea Area, bool bNewIsEnabled)
 {
-	UUserWidget* WidgetToEnable = GetArea(Area);
+	UUserWidget* WidgetToEnable = GetAreaWidget(Area);
 	if (WidgetToEnable == nullptr)
 	{
 		return;
@@ -123,7 +123,7 @@ void UEstMenuWidget::EnableArea(EEstMenuArea Area, bool bNewIsEnabled)
 	WidgetToEnable->SetIsEnabled(bNewIsEnabled);
 }
 
-UUserWidget* UEstMenuWidget::GetArea(EEstMenuArea Area)
+UUserWidget* UEstMenuWidget::GetAreaWidget(EEstMenuArea Area)
 {
 	if (Area == EEstMenuArea::Modal)
 	{
@@ -144,9 +144,10 @@ void UEstMenuWidget::AsyncModal(TSoftClassPtr<UEstMenuModal> MenuModal, FName Co
 {
 	TWeakObjectPtr<UEstMenuWidget> WeakThis(this);
 
-	EnableArea(EEstMenuArea::Section, false);
-	EnableArea(EEstMenuArea::Extra, false);
-	EnableArea(EEstMenuArea::Modal, true);
+	// Disable all other areas while the modal is loading
+	SetAreaIsEnabled(EEstMenuArea::Section, false);
+	SetAreaIsEnabled(EEstMenuArea::Extra, false);
+	SetAreaIsEnabled(EEstMenuArea::Modal, false);
 
 	FSoftObjectPath StreamingObjectPath = MenuModal.ToSoftObjectPath();
 	TSharedPtr<FStreamableHandle> StreamingHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(StreamingObjectPath, [WeakThis, Context, MenuModal]() {
@@ -176,9 +177,10 @@ void UEstMenuWidget::Modal(UEstMenuModal* MenuModal, FName Context)
 
 	RemoveModal();
 
-	EnableArea(EEstMenuArea::Section, false);
-	EnableArea(EEstMenuArea::Extra, false);
-	EnableArea(EEstMenuArea::Modal, true);
+	SetAreaIsEnabled(EEstMenuArea::Section, false);
+	SetAreaIsEnabled(EEstMenuArea::Extra, false);
+	SetAreaIsEnabled(EEstMenuArea::Modal, true);
+	FocusArea(EEstMenuArea::Modal);
 
 	CurrentMenuModal = MenuModal;
 	CurrentMenuModal->Context = Context;
@@ -204,10 +206,9 @@ void UEstMenuWidget::ExitModal()
 {
 	RemoveModal();
 
-	EnableArea(EEstMenuArea::Section, true);
-	EnableArea(EEstMenuArea::Extra, true);
-	EnableArea(EEstMenuArea::Modal, false);
-
+	SetAreaIsEnabled(EEstMenuArea::Modal, false);
+	SetAreaIsEnabled(EEstMenuArea::Extra, true);
+	SetAreaIsEnabled(EEstMenuArea::Section, true);
 	FocusArea(EEstMenuArea::Section);
 }
 
