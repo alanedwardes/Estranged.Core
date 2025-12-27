@@ -12,6 +12,14 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnResumeGame);
 
+UENUM(BlueprintType)
+enum EEstMenuArea
+{
+	Section,
+	Modal,
+	Extra
+};
+
 UCLASS(abstract)
 class ESTCORE_API UEstMenuWidget : public UUserWidget
 {
@@ -49,7 +57,13 @@ public:
 	virtual void RemoveMenu();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void FocusMenu();
+	virtual void FocusArea(EEstMenuArea Area);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void EnableArea(EEstMenuArea Area, bool bNewIsEnabled);
+
+	UFUNCTION(BlueprintCallable)
+	virtual UUserWidget* GetArea(EEstMenuArea Area);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AsyncModal(TSoftClassPtr<UEstMenuModal> MenuModal, FName Context);

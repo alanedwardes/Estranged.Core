@@ -79,7 +79,8 @@ void UEstMenuWidget::Navigate(UEstMenuSection* MenuSection, FName Context)
 
 	if (CurrentMenuModal == nullptr)
 	{
-		FocusMenu();
+		EnableArea(EEstMenuArea::Section, true);
+		FocusArea(EEstMenuArea::Section);
 	}
 
 	OnMenuLoadingStateChanged(false);
@@ -100,17 +101,52 @@ void UEstMenuWidget::RemoveMenu()
 	}
 }
 
-void UEstMenuWidget::FocusMenu()
+void UEstMenuWidget::FocusArea(EEstMenuArea Area)
 {
-	if (CurrentMenuSection != nullptr)
+	UUserWidget* WidgetToFocus = GetArea(Area);
+	if (WidgetToFocus == nullptr)
 	{
-		CurrentMenuSection->SetUserFocus(GetOwningPlayer());
+		return;
 	}
+
+	WidgetToFocus->SetUserFocus(GetOwningPlayer());
+}
+
+void UEstMenuWidget::EnableArea(EEstMenuArea Area, bool bNewIsEnabled)
+{
+	UUserWidget* WidgetToEnable = GetArea(Area);
+	if (WidgetToEnable == nullptr)
+	{
+		return;
+	}
+
+	WidgetToEnable->SetIsEnabled(bNewIsEnabled);
+}
+
+UUserWidget* UEstMenuWidget::GetArea(EEstMenuArea Area)
+{
+	if (Area == EEstMenuArea::Modal)
+	{
+		return CurrentMenuModal;
+	}
+	else if (Area == EEstMenuArea::Extra)
+	{
+		return CurrentExtraSection;
+	}
+	else if (Area == EEstMenuArea::Section)
+	{
+		return CurrentMenuSection;
+	}
+	return nullptr;
 }
 
 void UEstMenuWidget::AsyncModal(TSoftClassPtr<UEstMenuModal> MenuModal, FName Context)
 {
 	TWeakObjectPtr<UEstMenuWidget> WeakThis(this);
+
+	EnableArea(EEstMenuArea::Section, false);
+	EnableArea(EEstMenuArea::Extra, false);
+	EnableArea(EEstMenuArea::Modal, true);
 
 	FSoftObjectPath StreamingObjectPath = MenuModal.ToSoftObjectPath();
 	TSharedPtr<FStreamableHandle> StreamingHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(StreamingObjectPath, [WeakThis, Context, MenuModal]() {
@@ -140,6 +176,10 @@ void UEstMenuWidget::Modal(UEstMenuModal* MenuModal, FName Context)
 
 	RemoveModal();
 
+	EnableArea(EEstMenuArea::Section, false);
+	EnableArea(EEstMenuArea::Extra, false);
+	EnableArea(EEstMenuArea::Modal, true);
+
 	CurrentMenuModal = MenuModal;
 	CurrentMenuModal->Context = Context;
 	CurrentMenuModal->OnExit.AddDynamic(this, &UEstMenuWidget::ExitModal);
@@ -163,7 +203,12 @@ void UEstMenuWidget::RemoveModal()
 void UEstMenuWidget::ExitModal()
 {
 	RemoveModal();
-	FocusMenu();
+
+	EnableArea(EEstMenuArea::Section, true);
+	EnableArea(EEstMenuArea::Extra, true);
+	EnableArea(EEstMenuArea::Modal, false);
+
+	FocusArea(EEstMenuArea::Section);
 }
 
 void UEstMenuWidget::AsyncExtra(TSoftClassPtr<UUserWidget> ExtraSection)
