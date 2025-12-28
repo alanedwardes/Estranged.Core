@@ -55,6 +55,18 @@ AEstStaticWidgetRenderer::AEstStaticWidgetRenderer(const class FObjectInitialize
 void AEstStaticWidgetRenderer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (WidgetClass.Get() == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: No WidgetClass specified on %s"), *GetName());
+		return;
+	}
+
+	if (CanvasRenderTarget2DClass.Get() == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: No CanvasRenderTarget2DClass specified on %s"), *GetName());
+		return;
+	}
 	
 	WidgetInstance = CreateWidget(GetWorld(), WidgetClass);
 	SlateWidgetInstance = WidgetInstance->TakeWidget();
@@ -70,6 +82,12 @@ void AEstStaticWidgetRenderer::BeginPlay()
 
 	for (AActor* Actor : Targets)
 	{
+		if (Actor == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: Null Target Actor specified on %s"), *GetName());
+			continue;
+		}
+
 		UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
 		if (Primitive != nullptr)
 		{	
