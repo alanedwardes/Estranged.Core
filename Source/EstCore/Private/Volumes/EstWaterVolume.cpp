@@ -252,13 +252,16 @@ void AEstWaterVolume::CausePainTo(AActor* Other)
 
 	const FVector OtherActorLocation = Other->GetActorLocation();
 
+	// Should we always apply pain?
+	bool bAlwaysApplyPain = FMath::IsNearlyZero(Manifest->PainStartRadius) && FMath::IsNearlyZero(Manifest->PainStartDepth);
+
 	// Have we gone too far from the origin?
 	bool bTooFarAway = !FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
 
 	// Are we too deep?
 	bool bTooDeep = !FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z < GetSurface().Z - Manifest->PainStartDepth;
 
-	if (bTooFarAway || bTooDeep)
+	if (bAlwaysApplyPain || bTooFarAway || bTooDeep)
 	{
 		TSubclassOf<UDamageType> DmgTypeClass = Manifest->DamageType ? *Manifest->DamageType : UDamageType::StaticClass();
 		Other->TakeDamage(Manifest->DamagePerSec * Manifest->PainInterval, FDamageEvent(DmgTypeClass), nullptr, this);
