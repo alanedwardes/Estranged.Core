@@ -131,12 +131,6 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 		return;
 	}
 
-	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
-	{
-		EST_LOG(this, Warning, "Not deploying impact effect because it impacted too soon after the world came up (need to wait until %.2fs)", WorldUpDelay);
-		return;
-	}
-
 	if (Component->GetOwner()->ActorHasTag(TAG_NOIMPACTS))
 	{
 		EST_LOG(this, Warning, "Not deploying impact effect for %s because it has the tag NOIMPACTS", *UEstGameplayStatics::GetNameOrNull(Component.Get()));
@@ -155,6 +149,13 @@ void UEstPhysicsCollisionHandler::DeployImpactEffect(const UEstImpactManifest* M
 	{
 		EST_LOG(this, Error, "Not deploying impact effect for %s because its physical material %s has no effects in the manifest %s", *UEstGameplayStatics::GetNameOrNull(Component.Get()), *UEstGameplayStatics::GetNameOrNull(PhysicalMaterial), *UEstGameplayStatics::GetNameOrNull(Manifest));
 		return;
+	}
+
+	// Suppress sounds during world "up" delay to avoid weird noises on level start
+	if (GetWorld()->GetRealTimeSeconds() < WorldUpDelay)
+	{
+		ImpactEffect.Sound = nullptr;
+		ImpactEffect.ScrapeSound = nullptr;
 	}
 
 	const float Intensity = FMath::Clamp(Velocity / MAX_VELOCITY, 0.1f, 1.f);
