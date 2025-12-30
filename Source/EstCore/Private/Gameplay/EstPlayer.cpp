@@ -984,7 +984,11 @@ void AEstPlayer::Move(const FInputActionValue& Value)
 
 	SetZooming(false);
 
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	// Normalized 2D movement vector
+	// Note: this is re-normalized in UCharacterMovementComponent::ScaleInputAcceleration
+	// However we want to normalise here, so that the movement input vector can be used
+	// directly. For example, ladder movement in EstCharacterMovementComponent.cpp
+	const FVector2D MovementVector = Value.Get<FVector2D>().GetSafeNormal();
 
 	if (GetCharacterMovement()->IsSwimming() || GetCharacterMovement()->IsFlying())
 	{
