@@ -9,6 +9,38 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEstPhysicsEffectsComponent, Log, All);
 
+USTRUCT(BlueprintType)
+struct ESTCORE_API FPhyicsEffectsPhysicsVolumeInfo
+{
+	GENERATED_BODY()
+
+	FPhyicsEffectsPhysicsVolumeInfo()
+		: FPhyicsEffectsPhysicsVolumeInfo(nullptr, nullptr, nullptr)
+	{
+	}
+
+	FPhyicsEffectsPhysicsVolumeInfo(class UPrimitiveComponent* InPrimitiveComponent,
+		class APhysicsVolume* InPhysicsVolume,
+		class AEstWaterVolume* InWaterVolume)
+		: PrimitiveComponent(InPrimitiveComponent)
+		, PhysicsVolume(InPhysicsVolume)
+		, WaterVolume(InWaterVolume)
+	{
+	}
+
+	bool operator==(const FPhyicsEffectsPhysicsVolumeInfo& Other) const { return PrimitiveComponent == Other.PrimitiveComponent && PhysicsVolume == Other.PhysicsVolume && WaterVolume == Other.WaterVolume; }
+	bool operator!=(const FPhyicsEffectsPhysicsVolumeInfo& Other) const { return !(*this == Other); }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UPrimitiveComponent* PrimitiveComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class APhysicsVolume* PhysicsVolume;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class AEstWaterVolume* WaterVolume;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESTCORE_API UEstPhysicsEffectsComponent : public UActorComponent
 {
@@ -38,13 +70,14 @@ protected:
 	UFUNCTION()
 	virtual void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FPhyicsEffectsPhysicsVolumeInfo> ComponentPhysicsVolumes;
+
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 
 private:
 	TMap<class UPrimitiveComponent*, class UEstPhysicsUserData*> ComponentUserData;
-
-	TMap<class UPrimitiveComponent*, TTuple<class APhysicsVolume*, class AEstWaterVolume*>> ComponentPhysicsVolumes;
 
 	virtual void ApplyBuoyancyForce(UPrimitiveComponent* PrimitiveComponent, APhysicsVolume* PhysicsVolume, AEstWaterVolume* WaterVolume, UEstPhysicsUserData* PhysicsUserData);
 };

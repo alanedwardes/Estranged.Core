@@ -106,7 +106,7 @@ void UEstPhysicsEffectsComponent::OnComponentBeginOverlap(UPrimitiveComponent* O
 			OverlappedComponent->SetAngularDamping(4.0f);
 		}
 
-		ComponentPhysicsVolumes.Add(OverlappedComponent, MakeTuple(PhysicsVolume, Cast<AEstWaterVolume>(PhysicsVolume)));
+		ComponentPhysicsVolumes.Add(FPhyicsEffectsPhysicsVolumeInfo(OverlappedComponent, PhysicsVolume, Cast<AEstWaterVolume>(PhysicsVolume)));
 	}
 }
 
@@ -127,7 +127,7 @@ void UEstPhysicsEffectsComponent::OnComponentEndOverlap(UPrimitiveComponent* Ove
 			OverlappedComponent->SetAngularDamping(0.0f);
 		}
 
-		ComponentPhysicsVolumes.Remove(OverlappedComponent);
+		ComponentPhysicsVolumes.Remove(FPhyicsEffectsPhysicsVolumeInfo(OverlappedComponent, PhysicsVolume, Cast<AEstWaterVolume>(PhysicsVolume)));
 	}
 }
 
@@ -245,15 +245,12 @@ void UEstPhysicsEffectsComponent::TickComponent(float DeltaTime, enum ELevelTick
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	for (TPair<UPrimitiveComponent*, TTuple<APhysicsVolume*, AEstWaterVolume*>> PrimitiveComponentPhysicsVolume : ComponentPhysicsVolumes)
+	for (const FPhyicsEffectsPhysicsVolumeInfo PhyicsEffectsPhysicsVolumeInfo : ComponentPhysicsVolumes)
 	{
-		UPrimitiveComponent* PrimitiveComponent = PrimitiveComponentPhysicsVolume.Key;
-		APhysicsVolume* PhysicsVolume = PrimitiveComponentPhysicsVolume.Value.Key;
-		AEstWaterVolume* WaterVolume = PrimitiveComponentPhysicsVolume.Value.Value;
-		UEstPhysicsUserData** UserDataPtr = ComponentUserData.Find(PrimitiveComponent);
+		UEstPhysicsUserData** UserDataPtr = ComponentUserData.Find(PhyicsEffectsPhysicsVolumeInfo.PrimitiveComponent);
 		UEstPhysicsUserData* UserData = UserDataPtr == nullptr ? nullptr : *UserDataPtr;
 
-		ApplyBuoyancyForce(PrimitiveComponent, PhysicsVolume, WaterVolume, UserData);
+		ApplyBuoyancyForce(PhyicsEffectsPhysicsVolumeInfo.PrimitiveComponent, PhyicsEffectsPhysicsVolumeInfo.PhysicsVolume, PhyicsEffectsPhysicsVolumeInfo.WaterVolume, UserData);
 	}
 }
 
