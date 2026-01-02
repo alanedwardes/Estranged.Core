@@ -123,6 +123,10 @@ void AEstGameMode::WorldBeginPlay()
 APawn* AEstGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
 {
 	APawn* Pawn = Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
+	if (Pawn == nullptr)
+	{
+		return nullptr;
+	}
 
 	if (AEstPlayerStart* Start = Cast<AEstPlayerStart>(StartSpot))
 	{
