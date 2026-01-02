@@ -31,9 +31,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp)
 	float Intensity;
 
-private:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSet<APawn*> Pawns;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSet<AActor*> Actors;
 };
