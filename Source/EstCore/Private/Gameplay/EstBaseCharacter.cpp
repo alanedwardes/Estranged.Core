@@ -133,7 +133,7 @@ bool AEstBaseCharacter::CanJumpInternal_Implementation() const
 	}
 
 	// If swimming but not fully immersed, allow jump to get out of water
-	if (GetMovementComponent()->IsSwimming() && EstCharacterMovement->ImmersionDepth() < 1.f)
+	if (UEstGameplayStatics::IsTreadingWater(GetCharacterMovement()))
 	{
 		return true;
 	}

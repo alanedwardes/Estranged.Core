@@ -68,7 +68,9 @@ void UEstFootstepComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		return;
 	}
 
-	const bool bCouldFootstep = CharacterMovementComponent->IsMovingOnGround() || CharacterMovementComponent->CustomMovementMode == (uint8)EEstCustomMovementMode::MOVE_Ladder;
+	const bool bCouldFootstep = CharacterMovementComponent->IsMovingOnGround() || 
+								CharacterMovementComponent->CustomMovementMode == (uint8)EEstCustomMovementMode::MOVE_Ladder ||
+								UEstGameplayStatics::IsTreadingWater(CharacterMovementComponent);
 	if (bCouldFootstep && ShouldFootstep())
 	{
 		float Intensity = CharacterMovementComponent->IsCrouching() ? FootstepIntensityCrouching : FootstepIntensity;
@@ -120,7 +122,7 @@ void UEstFootstepComponent::DoFootstep(float Intensity)
 		UGameplayStatics::PlaySoundAtLocation(this, LadderSound, GetOwner()->GetActorLocation());
 	}
 
-	if (CharacterMovementComponent->IsMovingOnGround())
+	if (CharacterMovementComponent->IsMovingOnGround() || UEstGameplayStatics::IsTreadingWater(CharacterMovementComponent))
 	{
 		FCollisionQueryParams TraceParams(FName(TEXT("PlayerFootstepTrace")), true, GetOwner());
 		TraceParams.bReturnPhysicalMaterial = true;

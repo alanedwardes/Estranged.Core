@@ -44,6 +44,7 @@
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "SceneView.h"
 #include "ShaderPipelineCache.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 extern ENGINE_API float GAverageFPS;
 extern ENGINE_API float GAverageMS;
@@ -1256,4 +1257,14 @@ FString UEstGameplayStatics::GetMassEquivalent(float Mass)
 	}
 
 	return MassText[ArraySize - 1].Description;
+}
+
+bool UEstGameplayStatics::IsTreadingWater(UCharacterMovementComponent* CharacterMovement)
+{
+	if (CharacterMovement == nullptr)
+	{
+		return false;
+	}
+
+	return CharacterMovement->IsSwimming() && CharacterMovement->ImmersionDepth() < 1.f;
 }

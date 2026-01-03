@@ -313,4 +313,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Physics)
 	static FString GetMassEquivalent(float Mass);
+
+	UFUNCTION(BlueprintPure, Category = Physics)
+	static bool IsTreadingWater(class UCharacterMovementComponent* CharacterMovement);
 };
