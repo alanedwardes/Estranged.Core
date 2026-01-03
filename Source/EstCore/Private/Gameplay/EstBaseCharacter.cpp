@@ -127,12 +127,18 @@ bool AEstBaseCharacter::CanJumpInternal_Implementation() const
 	}
 
 	const AEstCapabilityVolume* Capabilities = Cast<AEstCapabilityVolume>(GetPhysicsVolume());
-	if (Capabilities == nullptr)
+	if (Capabilities != nullptr && !Capabilities->CanJump)
 	{
-		return Super::CanJumpInternal_Implementation();
+		return false;
 	}
 
-	return Capabilities->CanJump && Super::CanJumpInternal_Implementation();
+	// If swimming but not fully immersed, allow jump to get out of water
+	if (GetMovementComponent()->IsSwimming() && EstCharacterMovement->ImmersionDepth() < 1.f)
+	{
+		return true;
+	}
+
+	return Super::CanJumpInternal_Implementation();
 }
 
 bool AEstBaseCharacter::CanCrouch() const
