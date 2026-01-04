@@ -66,6 +66,9 @@ public:
 	float PainStartRadius;
 
 	UFUNCTION()
+	void UpdateEffects(AEstPlayer* Player, FVector WaterSurface);
+
+	UFUNCTION()
 	void ActivatePaddlingEffects(class AEstPlayer* Player, FVector WaterSurface);
 
 	UFUNCTION()

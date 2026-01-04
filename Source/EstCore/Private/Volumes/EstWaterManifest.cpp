@@ -10,6 +10,11 @@
 #define WATER_SURFACE_MATERIAL_PARAMETER "WaterSurface"
 #define SOUND_TAG_UNDERWATER "UnderwaterLoopSound"
 
+void UEstWaterManifest::UpdateEffects(AEstPlayer* Player, FVector WaterSurface)
+{
+	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, WaterSurface.Z);
+}
+
 void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player, FVector WaterSurface)
 {
 	if (!IsValid(Player))
@@ -22,7 +27,6 @@ void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player, FVector Wate
 		Player->FootstepComponent->FootstepMaterialOverride = PhysicalMaterialOverride;
 	}
 
-	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, WaterSurface.Z);
 	if (IsValid(Player->PlayerCameraManager) && IsValid(PaddlingCameraModifier))
 	{
 		Player->PlayerCameraManager->AddNewCameraModifier(PaddlingCameraModifier);

@@ -73,6 +73,11 @@ void AEstWaterVolume::Tick(float DeltaTime)
 		LastManifest = Manifest;
 	}
 
+	if (IsValid(Manifest))
+	{
+		Manifest->UpdateEffects(OverlappingPlayer, GetSurface());
+	}
+
 	if (IsValid(Manifest) && LastPainTime < GetWorld()->GetTimeSeconds() - Manifest->PainInterval)
 	{
 		CausePainTo(OverlappingPlayer);
