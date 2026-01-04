@@ -3,22 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PhysicsVolume.h"
+#include "GameFramework/Volume.h"
 #include "EstPushVolume.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ESTCORE_API AEstPushVolume : public APhysicsVolume
+class ESTCORE_API AEstPushVolume : public AVolume
 {
 	GENERATED_UCLASS_BODY()
 
 public:
-	virtual void ActorEnteredVolume(class AActor* Other) override;
-
-	virtual void ActorLeavingVolume(class AActor* Other) override;
-
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;

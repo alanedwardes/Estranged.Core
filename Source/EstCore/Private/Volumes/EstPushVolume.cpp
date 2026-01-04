@@ -16,31 +16,15 @@ AEstPushVolume::AEstPushVolume(const FObjectInitializer& ObjectInitializer)
 	GetBrushComponent()->SetCollisionProfileName(PROFILE_TRIGGER);
 }
 
-void AEstPushVolume::ActorEnteredVolume(AActor* Other)
+void AEstPushVolume::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	Super::ActorEnteredVolume(Other);
+	Super::NotifyActorBeginOverlap(OtherActor);
 
-	APawn* Pawn = Cast<APawn>(Other);
+	APawn* Pawn = Cast<APawn>(OtherActor);
 	if (IsValid(Pawn))
 	{
 		Pawns.Add(Pawn);
 	}
-}
-
-void AEstPushVolume::ActorLeavingVolume(AActor* Other)
-{
-	Super::ActorLeavingVolume(Other);
-
-	APawn* Pawn = Cast<APawn>(Other);
-	if (IsValid(Pawn))
-	{
-		Pawns.Remove(Pawn);
-	}
-}
-
-void AEstPushVolume::NotifyActorBeginOverlap(AActor* OtherActor)
-{
-	Super::NotifyActorBeginOverlap(OtherActor);
 
 	UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent());
 	if (Primitive != nullptr && Primitive->IsSimulatingPhysics())
@@ -52,6 +36,12 @@ void AEstPushVolume::NotifyActorBeginOverlap(AActor* OtherActor)
 void AEstPushVolume::NotifyActorEndOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorEndOverlap(OtherActor);
+
+	APawn* Pawn = Cast<APawn>(OtherActor);
+	if (IsValid(Pawn))
+	{
+		Pawns.Remove(Pawn);
+	}
 
 	Actors.Remove(OtherActor);
 }
