@@ -113,5 +113,3 @@ void UMaterialExpressionGerstnerWave::GetCaption(TArray<FString>& OutCaptions) c
 }
 
 #endif
-
-#undef LOCTEXT_NAMESPACE
