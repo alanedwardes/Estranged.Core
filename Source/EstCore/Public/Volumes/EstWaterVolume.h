@@ -23,6 +23,7 @@ public:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	virtual void SetPlayerPaddling(bool bEnabled);
 	virtual void SetPlayerImmersed(bool bEnabled);
@@ -53,8 +54,17 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp, meta = (Units = "cm"))
 	float BuoyancyWaveAmplitude;
 
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* AboveWaterMesh;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* BelowWaterMesh;
+
 	UFUNCTION(BlueprintPure, Category = "Water")
 	virtual FVector GetSurface();
+
+	UFUNCTION(BlueprintPure, Category = "Water")
+	virtual FVector GetSurfaceAt(const FVector& Location) const;
 
 protected:
 	virtual void CausePainTo(class AActor* Other);

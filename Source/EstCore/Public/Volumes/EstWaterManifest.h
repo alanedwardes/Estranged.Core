@@ -3,16 +3,33 @@
 #include "Engine/DataAsset.h"
 #include "EstWaterManifest.generated.h"
 
+USTRUCT(BlueprintType)
+struct ESTCORE_API FEstGerstnerWave
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	FVector2D Direction = FVector2D(1.0f, 0.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	float Wavelength = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	float Amplitude = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	float Steepness = 0.5f;
+
+	void Recompute() {}
+};
+
 UCLASS(BlueprintType)
 class ESTCORE_API UEstWaterManifest : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	UEstWaterManifest(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-	{
-		DamageType = UDamageType::StaticClass();
-	}
+	UEstWaterManifest(const class FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class USoundMix* SoundMixOverride;
@@ -40,6 +57,15 @@ public:
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UMaterialParameterCollection* ParameterCollection;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	TArray<FEstGerstnerWave> Waves;
+
+	UFUNCTION(BlueprintCallable, Category = "Water | Waves")
+	float EvaluateWaveHeight(const FVector& WorldPosition, float Time) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Water | Waves")
+	void EvaluateWaveOffsets(const FVector& WorldPosition, float Time, FVector& OutOffsets, FVector& OutNormal) const;
 
 	/** Whether volume currently causes damage. */
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)

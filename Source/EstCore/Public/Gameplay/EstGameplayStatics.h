@@ -269,6 +269,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = Water)
 	static bool AreActorsEyesInWater(AActor* Actor);
 
+	/* Advanced check for actors with eyes to check if the eyes are immersed in a water volume. */
+	UFUNCTION(BlueprintPure, Category = Water)
+	static bool AreActorsEyesInWaterVolume(AActor* Actor, class AEstWaterVolume* WaterVolume);
+
 	UFUNCTION(BlueprintCallable, Category = "ForceFeedback")
 	static class UForceFeedbackComponent* SpawnForceFeedbackAttached(class UForceFeedbackEffect* ForceFeedbackEffect, USceneComponent* AttachToComponent);
 

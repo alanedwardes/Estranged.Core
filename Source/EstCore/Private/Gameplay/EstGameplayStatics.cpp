@@ -1113,6 +1113,21 @@ bool UEstGameplayStatics::AreActorsEyesInWater(AActor* Actor)
 	return IsValid(CurrentPhysicsVolume) && bIsWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
 }
 
+bool UEstGameplayStatics::AreActorsEyesInWaterVolume(AActor* Actor, AEstWaterVolume* WaterVolume)
+{
+	if (!IsValid(Actor))
+	{
+		return false;
+	}
+
+	FVector Location;
+	FRotator Rotator;
+	Actor->GetActorEyesViewPoint(Location, Rotator);
+
+	const FVector WaterSurface = WaterVolume->GetSurfaceAt(Location);
+	return Location.Z < WaterSurface.Z;
+}
+
 const TSet<FKey> UEstGameplayStatics::GetHintKeys(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, AEstPlayerController* Controller)
 {
 	TSet<FKey> Keys;

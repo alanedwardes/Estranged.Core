@@ -146,22 +146,25 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	// Get water surface Z
 	FBoxSphereBounds WaterBounds = PhysicsVolume->GetBounds();
 	float WaterLevelZ = WaterBounds.Origin.Z + WaterBounds.BoxExtent.Z;
-	
-	// If we do have a "proper" water volume, get its config
-	if (WaterVolume != nullptr)
-	{
-		// Add bobbing effect with sine wave
-		float GameTime = GetWorld()->GetTimeSeconds();
-
-		float BobbingOffset = FMath::Sin(GameTime * WaterVolume->BuoyancyWaveFrequency) * WaterVolume->BuoyancyWaveAmplitude;
-		WaterLevelZ += BobbingOffset;
-	}
 
 	// Get bounds and current velocity
 	FBoxSphereBounds ActorBounds = PrimitiveComponent->Bounds;
 	FVector BoxOrigin = ActorBounds.Origin;
 	FVector BoxExtent = ActorBounds.BoxExtent;
 	FVector CurrentVelocity = PrimitiveComponent->GetPhysicsLinearVelocity();
+	
+	// If we do have a "proper" water volume, get its config
+	if (WaterVolume != nullptr)
+	{
+		// Override water level with water volume surface (accounts for waves)
+		WaterLevelZ = WaterVolume->GetSurfaceAt(BoxOrigin).Z;
+
+		// Add bobbing effect with sine wave
+		float GameTime = GetWorld()->GetTimeSeconds();
+
+		float BobbingOffset = FMath::Sin(GameTime * WaterVolume->BuoyancyWaveFrequency) * WaterVolume->BuoyancyWaveAmplitude;
+		WaterLevelZ += BobbingOffset;
+	}
 
 	// Apply hull offset relative to the object's current orientation
 	// This allows boats to float with their hull at water surface instead of center
