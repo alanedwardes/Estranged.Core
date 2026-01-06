@@ -8,13 +8,23 @@ UMaterialExpressionGerstnerWave::UMaterialExpressionGerstnerWave(const FObjectIn
 #if WITH_EDITORONLY_DATA
 	MenuCategories.Add(FText::FromString(TEXT("Estranged")));
 #endif
+
+	Outputs.Reset();
+	Outputs.Add(FExpressionOutput(TEXT("Offsets")));
+	Outputs.Add(FExpressionOutput(TEXT("Normal")));
 }
 
 #if WITH_EDITOR
 
 int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int32 OutputIndex)
 {
-	// 1. Compile Inputs
+	if (!WaterManifest)
+	{
+		Compiler->Error(TEXT("Missing Water Manifest"));
+		return INDEX_NONE;
+	}
+
+	// 1. Compile Inputs (Common for both outputs)
 	int32 WorldPosIndex = WorldPosition.GetTracedInput().Expression 
 		? WorldPosition.Compile(Compiler) 
 		: Compiler->WorldPosition(EWorldPositionIncludedOffsets::WPT_Default);
@@ -27,19 +37,14 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 		? GlobalIntensity.Compile(Compiler)
 		: Compiler->Constant(1.0f);
 
-	if (!WaterManifest)
-	{
-		Compiler->Error(TEXT("Missing Water Manifest"));
-		return INDEX_NONE;
-	}
-
 	// 2. Build Math Graph
-	// Logic must STRICTLY match UEstWaterManifest::EvaluateWaveOffsets
-	// We bake the constants from the Manifest directly into the shader instructions.
 	
-	int32 OffsetsX = Compiler->Constant(0.0f);
-	int32 OffsetsY = Compiler->Constant(0.0f);
-	int32 OffsetsZ = Compiler->Constant(0.0f);
+	// Prepare Accumulators
+	// For Output 0 (Offsets): X, Y, Z accumulators
+	// For Output 1 (Normal): X, Y, Z accumulators
+	int32 AccX = Compiler->Constant(0.0f);
+	int32 AccY = Compiler->Constant(0.0f);
+	int32 AccZ = (OutputIndex == 0) ? Compiler->Constant(0.0f) : Compiler->Constant(1.0f); // Normal starts at (0,0,1)
 
 	int32 PosX = Compiler->ComponentMask(WorldPosIndex, true, false, false, false);
 	int32 PosY = Compiler->ComponentMask(WorldPosIndex, false, true, false, false);
@@ -60,48 +65,73 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 		int32 NodeK = Compiler->Constant(K);
 		int32 NodeC = Compiler->Constant(C);
 		
-		// Apply Global Intensity to Amplitude
 		int32 NodeAmp = Compiler->Mul(Compiler->Constant(Wave.Amplitude), IntensityIndex);
-		
 		int32 NodeSteep = Compiler->Constant(Wave.Steepness);
 
-		// float DotP = (Dir.X * Pos2D.X) + (Dir.Y * Pos2D.Y);
+		// Phase Calculation
 		int32 DotP = Compiler->Add(
 			Compiler->Mul(NodeDirX, PosX),
 			Compiler->Mul(NodeDirY, PosY)
 		);
 
-		// float Phase = K * DotP - (C * K * Time);
-		// CK = C * K
 		int32 NodeCK = Compiler->Mul(NodeC, NodeK);
-		
 		int32 Phase = Compiler->Sub(
 			Compiler->Mul(NodeK, DotP),
 			Compiler->Mul(NodeCK, TimeIndex)
 		);
 
-		// SinP, CosP
 		int32 SinP = Compiler->Sine(Phase);
 		int32 CosP = Compiler->Cosine(Phase);
 
-		// Z Accumulation (Cos)
-		// Offsets.z += Amplitude * CosP;
-		OffsetsZ = Compiler->Add(OffsetsZ, Compiler->Mul(NodeAmp, CosP));
+		if (OutputIndex == 0)
+		{
+			// --- OFFSET CALCULATION ---
+			// Z += Amplitude * CosP
+			AccZ = Compiler->Add(AccZ, Compiler->Mul(NodeAmp, CosP));
 
-		// XY Accumulation
-		// WA = Steepness * Amplitude
-		// Offsets.x += WA * DirX * SinP;
-		// Offsets.y += WA * DirY * SinP;
-		int32 WA = Compiler->Mul(NodeSteep, NodeAmp);
-		int32 CommonTerm = Compiler->Mul(WA, SinP);
+			// XY += Steepness * Amplitude * Dir * SinP
+			int32 WA = Compiler->Mul(NodeSteep, NodeAmp);
+			int32 CommonTerm = Compiler->Mul(WA, SinP);
 
-		OffsetsX = Compiler->Add(OffsetsX, Compiler->Mul(CommonTerm, NodeDirX));
-		OffsetsY = Compiler->Add(OffsetsY, Compiler->Mul(CommonTerm, NodeDirY));
+			AccX = Compiler->Add(AccX, Compiler->Mul(CommonTerm, NodeDirX));
+			AccY = Compiler->Add(AccY, Compiler->Mul(CommonTerm, NodeDirY));
+		}
+		else if (OutputIndex == 1)
+		{
+			// --- NORMAL CALCULATION ---
+			// N.xy -= Dir * K * A * SinP
+			// N.z -= Steepness * K * Amp * CosP
+			
+			// Term = K * Amp
+			int32 Term = Compiler->Mul(NodeK, NodeAmp);
+			
+			// XY Term = Term * SinP * Dir
+			int32 XYCommon = Compiler->Mul(Term, SinP);
+			
+			// We Use ADD for XY based on previous reasoning that N.x ~ Sin for x-displacement ~ Sin.
+			AccX = Compiler->Add(AccX, Compiler->Mul(XYCommon, NodeDirX));
+			AccY = Compiler->Add(AccY, Compiler->Mul(XYCommon, NodeDirY));
+
+			// Z Term
+			int32 ZTerm = Compiler->Mul(Compiler->Mul(NodeSteep, NodeAmp), NodeK);
+			AccZ = Compiler->Sub(AccZ, Compiler->Mul(ZTerm, CosP));
+		}
 	}
 
+	if (OutputIndex == 1)
+	{
+		// Normalize the result for safety
+		int32 ResultVec = Compiler->AppendVector(
+			Compiler->AppendVector(AccX, AccY),
+			AccZ
+		);
+		return Compiler->Normalize(ResultVec);
+	}
+	
+	// OutputIndex 0 -> Offsets
 	int32 Result = Compiler->AppendVector(
-		Compiler->AppendVector(OffsetsX, OffsetsY),
-		OffsetsZ
+		Compiler->AppendVector(AccX, AccY),
+		AccZ
 	);
 
 	return Result;

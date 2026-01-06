@@ -10,6 +10,9 @@ class UEstWaterManifest;
  * Calculates Gerstner Waves based on a set of waves defined in an EstWaterManifest.
  * 
  * Logic mirrors UEstWaterManifest::EvaluateWaveHeight on CPU.
+ * Outputs:
+ * - Offsets: World Position Offset (Vector3)
+ * - Normal: Wave Surface Normal (Vector3)
  */
 UCLASS(collapsecategories, hidecategories = Object, MinimalAPI)
 class UMaterialExpressionGerstnerWave : public UMaterialExpression
