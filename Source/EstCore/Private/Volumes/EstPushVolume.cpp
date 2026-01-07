@@ -12,6 +12,7 @@ AEstPushVolume::AEstPushVolume(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	bGenerateOverlapEventsDuringLevelStreaming = true;
 	Intensity = 1.f;
+	PushBackMultiplier = 1.f;
 
 	GetBrushComponent()->SetCollisionProfileName(PROFILE_TRIGGER);
 }
@@ -63,6 +64,21 @@ void AEstPushVolume::Tick(float DeltaTime)
 		if (!IsValid(MovementComponent))
 		{
 			continue;
+		}
+
+		if (PushBackMultiplier < 1.0f && Intensity > 0.0f)
+		{
+			FVector NormalizedPush = Push;
+			if (NormalizedPush.Normalize())
+			{
+				float VDotP = FVector::DotProduct(MovementComponent->Velocity, NormalizedPush);
+				if (VDotP < 0.f)
+				{
+					FVector OpposingVelocity = NormalizedPush * VDotP;
+					float ReductionFactor = (1.0f - PushBackMultiplier) * FMath::Min(Intensity, 1.0f);
+					MovementComponent->Velocity -= OpposingVelocity * ReductionFactor;
+				}
+			}
 		}
 
 		MovementComponent->Velocity += AdditionalVelocity;

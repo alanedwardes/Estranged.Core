@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp)
 	float Intensity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float PushBackMultiplier;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSet<APawn*> Pawns;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
