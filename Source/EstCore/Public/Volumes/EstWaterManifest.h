@@ -23,6 +23,42 @@ struct ESTCORE_API FEstGerstnerWave
 	void Recompute() {}
 };
 
+USTRUCT(BlueprintType)
+struct ESTCORE_API FEstGerstnerWaveGeneratorProfile
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator")
+	int32 NumWaves = 8;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (Units = "Centimeters"))
+	float MinWavelength = 2000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (Units = "Centimeters"))
+	float MaxWavelength = 15000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (Units = "Centimeters", ToolTip = "Total sum of all wave amplitudes. The peak-to-trough height will be roughly double this."))
+	float OverallAmplitude = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (ToolTip = "How much wavelength affects amplitude. 0 = equal amplitude, 1 = proportional to wavelength."))
+	float WavelengthPower = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 1))
+	float MinSteepness = 0.10f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 1))
+	float MaxSteepness = 0.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 360))
+	float WindDirection = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 180))
+	float DirectionVariance = 45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator")
+	int32 RandomSeed = 0;
+};
+
 UCLASS(BlueprintType)
 class ESTCORE_API UEstWaterManifest : public UDataAsset
 {
@@ -30,6 +66,12 @@ class ESTCORE_API UEstWaterManifest : public UDataAsset
 
 public:
 	UEstWaterManifest(const class FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditAnywhere, Category = "Water | Generator")
+	FEstGerstnerWaveGeneratorProfile GeneratorProfile;
+
+	UFUNCTION(CallInEditor, Category = "Water | Generator")
+	void GenerateWaves();
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class USoundMix* SoundMixOverride;

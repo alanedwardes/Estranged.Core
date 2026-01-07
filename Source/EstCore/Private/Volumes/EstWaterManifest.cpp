@@ -22,6 +22,55 @@ UEstWaterManifest::UEstWaterManifest(const class FObjectInitializer& ObjectIniti
 	DamageType = UDamageType::StaticClass();
 }
 
+void UEstWaterManifest::GenerateWaves()
+{
+	Waves.Empty();
+
+	FRandomStream Stream(GeneratorProfile.RandomSeed);
+
+	TArray<float> Wavelengths;
+	TArray<float> Steepnesses;
+	TArray<float> Weightings;
+	float TotalWeight = 0.0f;
+
+	for (int32 i = 0; i < GeneratorProfile.NumWaves; ++i)
+	{
+		float WL = Stream.FRandRange(GeneratorProfile.MinWavelength, GeneratorProfile.MaxWavelength);
+		Wavelengths.Add(WL);
+		
+		float ST = Stream.FRandRange(GeneratorProfile.MinSteepness, GeneratorProfile.MaxSteepness);
+		Steepnesses.Add(ST);
+
+		// Weighting based on wavelength. Longer waves carry more amplitude.
+		float Weight = FMath::Pow(WL, GeneratorProfile.WavelengthPower);
+		Weightings.Add(Weight);
+		TotalWeight += Weight;
+	}
+
+	for (int32 i = 0; i < GeneratorProfile.NumWaves; ++i)
+	{
+		FEstGerstnerWave NewWave;
+		NewWave.Wavelength = Wavelengths[i];
+		NewWave.Steepness = Steepnesses[i];
+
+		// Proportional amplitude based on weighting
+		if (TotalWeight > 0.0f)
+		{
+			NewWave.Amplitude = (Weightings[i] / TotalWeight) * GeneratorProfile.OverallAmplitude;
+		}
+		else
+		{
+			NewWave.Amplitude = GeneratorProfile.OverallAmplitude / GeneratorProfile.NumWaves;
+		}
+
+		float Variance = Stream.FRandRange(-GeneratorProfile.DirectionVariance, GeneratorProfile.DirectionVariance);
+		float AngleRad = FMath::DegreesToRadians(GeneratorProfile.WindDirection + Variance);
+		NewWave.Direction = FVector2D(FMath::Cos(AngleRad), FMath::Sin(AngleRad));
+
+		Waves.Add(NewWave);
+	}
+}
+
 float UEstWaterManifest::EvaluateWaveHeight(const FVector& WorldPosition, float Time) const
 {
 	FVector Offsets, Normal;
