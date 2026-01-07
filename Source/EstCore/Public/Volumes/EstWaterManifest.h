@@ -8,16 +8,16 @@ struct ESTCORE_API FEstGerstnerWave
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (ToolTip = "Normalized direction vector (X, Y)."))
 	FVector2D Direction = FVector2D(1.0f, 0.0f);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (Units = "Centimeters", ToolTip = "Wave length"))
 	float Wavelength = 1000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (Units = "Centimeters", ToolTip = "Wave amplitude"))
 	float Amplitude = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (ToolTip = "Steepness ratio (0.0 to 1.0). Controls how sharp the wave peaks are.", UIMin = 0, UIMax = 1))
 	float Steepness = 0.5f;
 
 	void Recompute() {}
