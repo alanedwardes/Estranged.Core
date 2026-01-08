@@ -8,6 +8,7 @@
 #include "Physics/EstImpactEffect.h"
 #include "Interfaces/EstLadder.h"
 #include "Kismet/GameplayStatics.h"
+#include "Volumes/EstWaterVolume.h"
 
 UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
@@ -228,6 +229,23 @@ void UEstCharacterMovementComponent::SetCurrentLadder(TScriptInterface<IEstLadde
 bool UEstCharacterMovementComponent::IsClimbingLadder() const
 {
 	return GetCustomMovementMode() == EEstCustomMovementMode::MOVE_Ladder;
+}
+
+float UEstCharacterMovementComponent::ImmersionDepth() const
+{
+	AEstWaterVolume* WaterVolume = Cast<AEstWaterVolume>(GetPhysicsVolume());
+	if (WaterVolume == nullptr)
+	{
+		return Super::ImmersionDepth();
+	}
+
+	const FVector WaterSurface = WaterVolume->GetSurfaceAt(CharacterOwner->GetActorLocation());
+	const float HalfHeight = CharacterOwner->GetSimpleCollisionHalfHeight();
+	const float CharacterBottomZ = CharacterOwner->GetActorLocation().Z - HalfHeight;
+
+	// Ratio of character height that is below water surface (0.0 = not in water, 1.0 = fully immersed)
+	const float Depth = (WaterSurface.Z - CharacterBottomZ) / (HalfHeight * 2.f);
+	return FMath::Clamp(Depth, 0.f, 1.f);
 }
 
 bool UEstCharacterMovementComponent::IsVerticalLadder(const FVector& LadderDirection) const

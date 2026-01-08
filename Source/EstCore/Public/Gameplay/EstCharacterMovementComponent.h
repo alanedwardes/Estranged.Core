@@ -87,6 +87,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Pawn|Components|CharacterMovement")
 	bool IsClimbingLadder() const;
 
+	float ImmersionDepth() const override;
+
 protected:
 	/** Handle ladder climbing movement physics */
 	virtual void PhysLadder(float deltaTime, int32 Iterations);

@@ -1103,14 +1103,18 @@ bool UEstGameplayStatics::AreActorsEyesInWater(AActor* Actor)
 		return false;
 	}
 
+	AEstWaterVolume* WaterVolume = Cast<AEstWaterVolume>(Actor->GetPhysicsVolume());
+	if (IsValid(WaterVolume))
+	{
+		return AreActorsEyesInWaterVolume(Actor, WaterVolume);
+	}
+
 	FVector Location;
 	FRotator Rotator;
 	Actor->GetActorEyesViewPoint(Location, Rotator);
 
 	APhysicsVolume* CurrentPhysicsVolume = Actor->GetPhysicsVolume();
-	const bool bIsWaterVolume = CurrentPhysicsVolume->bWaterVolume || CurrentPhysicsVolume->IsA<AEstWaterVolume>();
-
-	return IsValid(CurrentPhysicsVolume) && bIsWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
+	return IsValid(CurrentPhysicsVolume) && CurrentPhysicsVolume->bWaterVolume && CurrentPhysicsVolume->EncompassesPoint(Location);
 }
 
 bool UEstGameplayStatics::AreActorsEyesInWaterVolume(AActor* Actor, AEstWaterVolume* WaterVolume)
