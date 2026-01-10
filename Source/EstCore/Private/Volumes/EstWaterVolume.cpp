@@ -38,7 +38,13 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	BelowWaterMesh->SetupAttachment(GetRootComponent());
 	BelowWaterMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	BelowWaterMesh->SetCastShadow(false);
-	BelowWaterMesh->SetRelativeRotation(FRotator(180.f, 0.f, 0.f));
+	BelowWaterMesh->SetReverseCulling(true);
+
+	WaveExcluder = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("WaveExcluder"));
+	WaveExcluder->SetupAttachment(GetRootComponent());
+	WaveExcluder->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+	WaveExcluder->SetSphereRadius(256.f);
+	WaveExcluder->SetHiddenInGame(true);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> PlaneMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	if (PlaneMesh.Succeeded())
@@ -259,30 +265,6 @@ void AEstWaterVolume::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (PropertyChangedEvent.Property && PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(AEstWaterVolume, bUseWaveExcluder))
-	{
-		if (bUseWaveExcluder)
-		{
-			if (!IsValid(WaveExcluder))
-			{
-				WaveExcluder = NewObject<USphereComponent>(this, TEXT("WaveExcluder"));
-				WaveExcluder->SetupAttachment(GetRootComponent());
-				WaveExcluder->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-				WaveExcluder->SetSphereRadius(512.f);
-				WaveExcluder->RegisterComponent();
-				AddInstanceComponent(WaveExcluder);
-			}
-		}
-		else
-		{
-			if (IsValid(WaveExcluder))
-			{
-				RemoveInstanceComponent(WaveExcluder);
-				WaveExcluder->DestroyComponent();
-			}
-		}
-	}
-
 	SetMaterialParameters();
 }
 #endif
@@ -388,14 +370,17 @@ void AEstWaterVolume::OnConstruction(const FTransform& Transform)
 		BelowWaterMesh->SetRelativeLocation(FVector(0.f, 0.f, VolumeExtent.Z));
 	}
 
-	if (IsValid(AboveWaterMesh))
+	if (IsValid(Manifest))
 	{
-		AboveWaterMesh->SetMaterial(0, Manifest->AboveWaterMaterial);
-	}
+		if (IsValid(AboveWaterMesh))
+		{
+			AboveWaterMesh->SetMaterial(0, Manifest->AboveWaterMaterial);
+		}
 
-	if (IsValid(BelowWaterMesh))
-	{
-		BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
+		if (IsValid(BelowWaterMesh))
+		{
+			BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
+		}
 	}
 
 	SetMaterialParameters();
