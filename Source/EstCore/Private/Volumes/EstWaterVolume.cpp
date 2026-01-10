@@ -194,6 +194,19 @@ void AEstWaterVolume::ManifestChanged()
 			Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
 		}
 	}
+
+	if (IsValid(Manifest))
+	{
+		if (IsValid(AboveWaterMesh))
+		{
+			AboveWaterMesh->SetMaterial(0, Manifest->AboveWaterMaterial);
+		}
+
+		if (IsValid(BelowWaterMesh))
+		{
+			BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
+		}
+	}
 }
 
 #if WITH_EDITORONLY_DATA
@@ -288,6 +301,19 @@ void AEstWaterVolume::OnConstruction(const FTransform& Transform)
 		}
 
 		BelowWaterMesh->SetRelativeLocation(FVector(0.f, 0.f, VolumeExtent.Z));
+	}
+
+	if (IsValid(Manifest))
+	{
+		if (IsValid(AboveWaterMesh))
+		{
+			AboveWaterMesh->SetMaterial(0, Manifest->AboveWaterMaterial);
+		}
+
+		if (IsValid(BelowWaterMesh))
+		{
+			BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
+		}
 	}
 }
 

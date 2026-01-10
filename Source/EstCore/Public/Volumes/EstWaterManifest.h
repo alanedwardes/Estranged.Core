@@ -100,6 +100,12 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UMaterialParameterCollection* ParameterCollection;
 
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class UMaterialInterface* AboveWaterMaterial;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class UMaterialInterface* BelowWaterMaterial;
+
 	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
 	TArray<FEstGerstnerWave> Waves;
 
