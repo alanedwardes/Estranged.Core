@@ -1,5 +1,4 @@
 #include "Materials/MaterialExpressionGerstnerWave.h"
-#include "Volumes/EstWaterManifest.h"
 #include "MaterialCompiler.h"
 
 UMaterialExpressionGerstnerWave::UMaterialExpressionGerstnerWave(const FObjectInitializer& ObjectInitializer)
@@ -18,12 +17,6 @@ UMaterialExpressionGerstnerWave::UMaterialExpressionGerstnerWave(const FObjectIn
 
 int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int32 OutputIndex)
 {
-	if (!WaterManifest)
-	{
-		Compiler->Error(TEXT("Missing Water Manifest"));
-		return INDEX_NONE;
-	}
-
 	// 1. Compile Inputs (Common for both outputs)
 	int32 WorldPosIndex = WorldPosition.GetTracedInput().Expression 
 		? WorldPosition.Compile(Compiler) 
@@ -37,11 +30,13 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 		? GlobalIntensity.Compile(Compiler)
 		: Compiler->Constant(1.0f);
 
+	int32 ExcluderIndex = WaveExcluder.GetTracedInput().Expression
+		? WaveExcluder.Compile(Compiler)
+		: Compiler->Constant4(0.0f, 0.0f, 0.0f, 0.0f);
+
 	// 2. Build Math Graph
 	
 	// Prepare Accumulators
-	// For Output 0 (Offsets): X, Y, Z accumulators
-	// For Output 1 (Normal): X, Y, Z accumulators
 	int32 AccX = Compiler->Constant(0.0f);
 	int32 AccY = Compiler->Constant(0.0f);
 	int32 AccZ = (OutputIndex == 0) ? Compiler->Constant(0.0f) : Compiler->Constant(1.0f); // Normal starts at (0,0,1)
@@ -49,43 +44,65 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 	int32 PosX = Compiler->ComponentMask(WorldPosIndex, true, false, false, false);
 	int32 PosY = Compiler->ComponentMask(WorldPosIndex, false, true, false, false);
 
-	for (int32 i = 0; i < WaterManifest->Waves.Num(); ++i)
+	// Excluder Logic
+	int32 ExcluderX = Compiler->ComponentMask(ExcluderIndex, true, false, false, false);
+	int32 ExcluderY = Compiler->ComponentMask(ExcluderIndex, false, true, false, false);
+	int32 ExcluderRad = Compiler->ComponentMask(ExcluderIndex, false, false, true, false);
+	int32 ExcluderFade = Compiler->ComponentMask(ExcluderIndex, false, false, false, true);
+
+	// Dist = Sqrt((PosX - ExX)^2 + (PosY - ExY)^2)
+	int32 DiffX = Compiler->Sub(PosX, ExcluderX);
+	int32 DiffY = Compiler->Sub(PosY, ExcluderY);
+	int32 DistSq = Compiler->Add(Compiler->Mul(DiffX, DiffX), Compiler->Mul(DiffY, DiffY));
+	int32 Dist = Compiler->SquareRoot(DistSq);
+
+	// Alpha = SmoothStep(Rad, Rad + Fade, Dist)
+	int32 FadeEnd = Compiler->Add(ExcluderRad, ExcluderFade);
+	int32 AttenAlpha = Compiler->SmoothStep(ExcluderRad, FadeEnd, Dist);
+
+	// 3. Process Packed Waves (Strategy 1)
+	TArray<FExpressionInput*> PackedWaves;
+	PackedWaves.Add(&Wave1);
+	PackedWaves.Add(&Wave2);
+	PackedWaves.Add(&Wave3);
+	PackedWaves.Add(&Wave4);
+	PackedWaves.Add(&Wave5);
+	PackedWaves.Add(&Wave6);
+	PackedWaves.Add(&Wave7);
+	PackedWaves.Add(&Wave8);
+
+	for (int32 i = 0; i < PackedWaves.Num(); ++i)
 	{
-		const FEstGerstnerWave& Wave = WaterManifest->Waves[i];
-		if (Wave.Wavelength <= KINDA_SMALL_NUMBER) continue;
+		if (!PackedWaves[i]->GetTracedInput().Expression) continue;
 
-		// Calculate constants on CPU
-		const float PI_VAL = 3.1415926535f; 
-		float K = 2.0f * PI_VAL / Wave.Wavelength;
-		float C = FMath::Sqrt(980.0f / K);
-
-		// Material Nodes for constants
-		int32 NodeDirX = Compiler->Constant(Wave.Direction.X);
-		int32 NodeDirY = Compiler->Constant(Wave.Direction.Y);
-		int32 NodeK = Compiler->Constant(K);
-		int32 NodeC = Compiler->Constant(C);
+		int32 WavePack = PackedWaves[i]->Compile(Compiler);
 		
-		int32 NodeAmp = Compiler->Mul(Compiler->Constant(Wave.Amplitude), IntensityIndex);
-		int32 NodeSteep = Compiler->Constant(Wave.Steepness);
+		// Unpack: X=DirX*K, Y=DirY*K, Z=Amp, W=Steepness
+		int32 VK = Compiler->ComponentMask(WavePack, true, true, false, false);
+		
+		// K = length(VK). Add a small epsilon to avoid division by zero later.
+		int32 NodeK = Compiler->SquareRoot(Compiler->Add(Compiler->Dot(VK, VK), Compiler->Constant(0.00001f)));
+		
+		int32 NodeAmp = Compiler->Mul(Compiler->ComponentMask(WavePack, false, false, true, false), IntensityIndex);
+		NodeAmp = Compiler->Mul(NodeAmp, AttenAlpha); // Apply Excluder Attenuation
 
-		// Phase Calculation
-		int32 DotP = Compiler->Add(
-			Compiler->Mul(NodeDirX, PosX),
-			Compiler->Mul(NodeDirY, PosY)
-		);
-
-		int32 NodeCK = Compiler->Mul(NodeC, NodeK);
-		int32 Phase = Compiler->Sub(
-			Compiler->Mul(NodeK, DotP),
-			Compiler->Mul(NodeCK, TimeIndex)
-		);
+		int32 NodeSteep = Compiler->ComponentMask(WavePack, false, false, false, true);
+		
+		// Phase = dot(VK, Pos) - sqrt(9.8 * K) * Time
+		int32 DotP = Compiler->Dot(VK, Compiler->AppendVector(PosX, PosY));
+		int32 Omega = Compiler->SquareRoot(Compiler->Mul(Compiler->Constant(980.0f), NodeK));
+		int32 Phase = Compiler->Sub(DotP, Compiler->Mul(Omega, TimeIndex));
 
 		int32 SinP = Compiler->Sine(Phase);
 		int32 CosP = Compiler->Cosine(Phase);
 
 		if (OutputIndex == 0)
 		{
-			// --- OFFSET CALCULATION ---
+			// Normalized Direction = VK / K
+			int32 NodeDir = Compiler->Div(VK, NodeK);
+			int32 NodeDirX = Compiler->ComponentMask(NodeDir, true, false, false, false);
+			int32 NodeDirY = Compiler->ComponentMask(NodeDir, false, true, false, false);
+
 			// Z += Amplitude * CosP
 			AccZ = Compiler->Add(AccZ, Compiler->Mul(NodeAmp, CosP));
 
@@ -98,21 +115,14 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 		}
 		else if (OutputIndex == 1)
 		{
-			// --- NORMAL CALCULATION ---
-			// N.xy -= Dir * K * A * SinP
-			// N.z -= Steepness * K * Amp * CosP
+			// Normal XY Term = K * Amp * SinP * Dir = Amp * SinP * VK
+			// Note: (VK / K) * K cancels out, avoiding a division.
+			int32 XYCommon = Compiler->Mul(NodeAmp, SinP);
 			
-			// Term = K * Amp
-			int32 Term = Compiler->Mul(NodeK, NodeAmp);
-			
-			// XY Term = Term * SinP * Dir
-			int32 XYCommon = Compiler->Mul(Term, SinP);
-			
-			// We Use ADD for XY based on previous reasoning that N.x ~ Sin for x-displacement ~ Sin.
-			AccX = Compiler->Add(AccX, Compiler->Mul(XYCommon, NodeDirX));
-			AccY = Compiler->Add(AccY, Compiler->Mul(XYCommon, NodeDirY));
+			AccX = Compiler->Add(AccX, Compiler->Mul(XYCommon, Compiler->ComponentMask(VK, true, false, false, false)));
+			AccY = Compiler->Add(AccY, Compiler->Mul(XYCommon, Compiler->ComponentMask(VK, false, true, false, false)));
 
-			// Z Term
+			// Z += Steepness * K * Amp * CosP
 			int32 ZTerm = Compiler->Mul(Compiler->Mul(NodeSteep, NodeAmp), NodeK);
 			AccZ = Compiler->Sub(AccZ, Compiler->Mul(ZTerm, CosP));
 		}

@@ -4,7 +4,6 @@
 #include "Materials/MaterialExpression.h"
 #include "MaterialExpressionGerstnerWave.generated.h"
 
-class UEstWaterManifest;
 
 /**
  * Calculates Gerstner Waves based on a set of waves defined in an EstWaterManifest.
@@ -19,10 +18,6 @@ class UMaterialExpressionGerstnerWave : public UMaterialExpression
 {
 	GENERATED_UCLASS_BODY()
 
-	/** Reference to the Water Manifest containing wave data. */
-	UPROPERTY(EditAnywhere, Category = "Gerstner Waves")
-	TObjectPtr<UEstWaterManifest> WaterManifest;
-
 	/** Absolute World Position input. */
 	UPROPERTY(meta = (RequiredInput = "false", ToolTip = "If not connected, uses AbsoluteWorldPosition internal node."))
 	FExpressionInput WorldPosition;
@@ -34,6 +29,42 @@ class UMaterialExpressionGerstnerWave : public UMaterialExpression
 	/** Global scaler for wave amplitude. */
 	UPROPERTY(meta = (RequiredInput = "false", ToolTip = "Defaults to 1.0. Connect a ScalarParameter here to animate intensity."))
 	FExpressionInput GlobalIntensity;
+
+	/** Excluder input (Vector4: X, Y, Radius, FadeRadius). */
+	UPROPERTY(meta = (RequiredInput = "false", ToolTip = "Pack X, Y, Radius, FadeRadius into a Vector4 to exclude waves."))
+	FExpressionInput WaveExcluder;
+
+	/** Packed Wave 1 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave1;
+
+	/** Packed Wave 2 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave2;
+
+	/** Packed Wave 3 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave3;
+
+	/** Packed Wave 4 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave4;
+
+	/** Packed Wave 5 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave5;
+
+	/** Packed Wave 6 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave6;
+
+	/** Packed Wave 7 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave7;
+
+	/** Packed Wave 8 (Vector4: Dir.X*K, Dir.Y*K, Amplitude, Steepness). */
+	UPROPERTY(meta = (RequiredInput = "false"))
+	FExpressionInput Wave8;
 
 	//~ Begin UMaterialExpression Interface
 #if WITH_EDITOR

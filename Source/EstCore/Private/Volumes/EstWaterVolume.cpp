@@ -26,6 +26,9 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	BuoyancyWaveFrequency = 1.5f;
 	BuoyancyWaveAmplitude = 3.0f;
 
+	ExcluderFadeRadius = 128.f;
+	bUseWaveExcluder = false;
+
 	AboveWaterMesh = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("AboveWaterMesh"));
 	AboveWaterMesh->SetupAttachment(GetRootComponent());
 	AboveWaterMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
@@ -91,14 +94,17 @@ void AEstWaterVolume::Tick(float DeltaTime)
 		LastManifest = Manifest;
 	}
 
-	if (IsValid(Manifest))
+	if (IsValid(OverlappingPlayer))
 	{
-		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
-	}
+		if (IsValid(Manifest))
+		{
+			Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+		}
 
-	if (IsValid(Manifest))
-	{
-		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+		if (IsValid(Manifest))
+		{
+			Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+		}
 	}
 
 	if (UEstGameplayStatics::AreActorsEyesInWaterVolume(OverlappingPlayer, this))
@@ -246,11 +252,85 @@ void AEstWaterVolume::UpdateSelectionState()
 {
 
 }
+
+void AEstWaterVolume::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (PropertyChangedEvent.Property && PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(AEstWaterVolume, bUseWaveExcluder))
+	{
+		if (bUseWaveExcluder)
+		{
+			if (!IsValid(WaveExcluder))
+			{
+				WaveExcluder = NewObject<USphereComponent>(this, TEXT("WaveExcluder"));
+				WaveExcluder->SetupAttachment(GetRootComponent());
+				WaveExcluder->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+				WaveExcluder->SetSphereRadius(512.f);
+				WaveExcluder->RegisterComponent();
+				AddInstanceComponent(WaveExcluder);
+			}
+		}
+		else
+		{
+			if (IsValid(WaveExcluder))
+			{
+				RemoveInstanceComponent(WaveExcluder);
+				WaveExcluder->DestroyComponent();
+				WaveExcluder = nullptr;
+			}
+		}
+	}
+}
+void AEstWaterVolume::SetMaterialParameters()
+{
+	if (!IsValid(Manifest))
+	{
+		return;
+	}
+
+	FLinearColor ExcluderParams = FLinearColor(0.f, 0.f, 0.f, 0.f);
+	if (bUseWaveExcluder && IsValid(WaveExcluder))
+	{
+		FVector Loc = WaveExcluder->GetComponentLocation();
+		ExcluderParams = FLinearColor(Loc.X, Loc.Y, WaveExcluder->GetScaledSphereRadius(), ExcluderFadeRadius);
+	}
+
+	AboveWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+	BelowWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+
+	// Pack and pass up to 8 waves (Strategy 1)
+	if (Manifest)
+	{
+		for (int32 i = 0; i < 8; ++i)
+		{
+			FLinearColor PackedWave = FLinearColor(0.f, 0.f, 0.f, 0.f);
+			if (Manifest->Waves.IsValidIndex(i))
+			{
+				const FEstGerstnerWave& Wave = Manifest->Waves[i];
+				if (Wave.Wavelength > KINDA_SMALL_NUMBER)
+				{
+					const float K = 2.0f * UE_PI / Wave.Wavelength;
+					PackedWave.R = Wave.Direction.X * K;
+					PackedWave.G = Wave.Direction.Y * K;
+					PackedWave.B = Wave.Amplitude;
+					PackedWave.A = Wave.Steepness;
+				}
+			}
+
+			FName ParamName = *FString::Printf(TEXT("Wave%d"), i + 1);
+			AboveWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
+			BelowWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
+		}
+	}
+}
 #endif
 
 void AEstWaterVolume::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	SetMaterialParameters();
 
 	LastManifest = Manifest;
 }
@@ -292,17 +372,14 @@ void AEstWaterVolume::OnConstruction(const FTransform& Transform)
 		BelowWaterMesh->SetRelativeLocation(FVector(0.f, 0.f, VolumeExtent.Z));
 	}
 
-	if (IsValid(Manifest))
+	if (IsValid(AboveWaterMesh))
 	{
-		if (IsValid(AboveWaterMesh))
-		{
-			AboveWaterMesh->SetMaterial(0, Manifest->AboveWaterMaterial);
-		}
+		AboveWaterMesh->SetMaterial(0, Manifest->AboveWaterMaterial);
+	}
 
-		if (IsValid(BelowWaterMesh))
-		{
-			BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
-		}
+	if (IsValid(BelowWaterMesh))
+	{
+		BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
 	}
 }
 
@@ -335,11 +412,22 @@ FVector AEstWaterVolume::GetSurfaceAt(const FVector& Location) const
 
 	if (IsValid(Manifest) && GetWorld())
 	{
-		float WaveZ = Manifest->EvaluateWaveHeight(FVector(Location.X, Location.Y, FlatSurface.Z), GetWorld()->GetTimeSeconds());
-		// EvaluateWaveHeight returns the absolute Z height (BaseZ + OffsetZ) ?
-		// Wait, EvaluateWaveHeight implementation: return WorldPosition.Z + Offsets.Z;
-		// So passing FlatSurface.Z as input Z results in FlatSurface.Z + Offset.
-		return FVector(Location.X, Location.Y, WaveZ);
+		FVector Offsets, Normal;
+		Manifest->EvaluateWaveOffsets(FVector(Location.X, Location.Y, FlatSurface.Z), GetWorld()->GetTimeSeconds(), Offsets, Normal);
+
+		if (bUseWaveExcluder && IsValid(WaveExcluder))
+		{
+			FVector ExcluderPos = WaveExcluder->GetComponentLocation();
+			float Dist = FVector::Dist2D(ExcluderPos, Location);
+			float Radius = WaveExcluder->GetScaledSphereRadius();
+			float Fade = ExcluderFadeRadius;
+
+			// 0 inside Radius, 0-1 in Fade, 1 outside
+			float Alpha = FMath::SmoothStep(Radius, Radius + Fade, Dist);
+			Offsets *= Alpha;
+		}
+
+		return FVector(Location.X, Location.Y, FlatSurface.Z + Offsets.Z);
 	}
 	return FVector(Location.X, Location.Y, FlatSurface.Z);
 }

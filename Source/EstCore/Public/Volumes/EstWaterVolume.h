@@ -39,6 +39,10 @@ public:
 	void UpdateSelectionState();
 
 	bool bSelectedInEditor;
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
+	void SetMaterialParameters();
 #endif
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp)
@@ -57,6 +61,15 @@ public:
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* BelowWaterMesh;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	class USphereComponent* WaveExcluder;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	bool bUseWaveExcluder;
+
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	float ExcluderFadeRadius;
 
 	UFUNCTION(BlueprintPure, Category = "Water")
 	virtual FVector GetSurface();
