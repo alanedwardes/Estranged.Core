@@ -22,10 +22,6 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	bWaterVolume = true;
 	bPhysicsOnContact = false;
 
-
-	BuoyancyWaveFrequency = 1.5f;
-	BuoyancyWaveAmplitude = 3.0f;
-
 	ExcluderFadeRadius = 128.f;
 	bUseWaveExcluder = false;
 
@@ -243,7 +239,6 @@ void AEstWaterVolume::OnSelectionChanged(UObject* NewSelection)
 		{
 			// Respond to this actor being selected
 			bSelectedInEditor = true;
-			UpdateSelectionState();
 		}
 	}
 
@@ -253,12 +248,7 @@ void AEstWaterVolume::OnSelectionChanged(UObject* NewSelection)
 	{
 		// Respond to this actor being deselected
 		bSelectedInEditor = false;
-		UpdateSelectionState();
 	}
-}
-void AEstWaterVolume::UpdateSelectionState()
-{
-
 }
 
 void AEstWaterVolume::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)

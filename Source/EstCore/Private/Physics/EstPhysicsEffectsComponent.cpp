@@ -158,12 +158,6 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	{
 		// Override water level with water volume surface (accounts for waves)
 		WaterLevelZ = WaterVolume->GetSurfaceAt(BoxOrigin).Z;
-
-		// Add bobbing effect with sine wave
-		float GameTime = GetWorld()->GetTimeSeconds();
-
-		float BobbingOffset = FMath::Sin(GameTime * WaterVolume->BuoyancyWaveFrequency) * WaterVolume->BuoyancyWaveAmplitude;
-		WaterLevelZ += BobbingOffset;
 	}
 
 	// Apply hull offset relative to the object's current orientation

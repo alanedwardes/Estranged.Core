@@ -36,8 +36,6 @@ public:
 
 	void OnSelectionChanged(UObject* NewSelection);
 
-	void UpdateSelectionState();
-
 	bool bSelectedInEditor;
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -47,14 +45,6 @@ public:
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp)
 	class UEstWaterManifest* Manifest;
-
-	/* Used in EstPhysicsEffectsComponents to simulate bobbing (this controls the frequency) */
-	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp, meta = (Units = "hz"))
-	float BuoyancyWaveFrequency;
-
-	/* Used in EstPhysicsEffectsComponents to simulate bobbing (this controls the scale) */
-	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp, meta = (Units = "cm"))
-	float BuoyancyWaveAmplitude;
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* AboveWaterMesh;
