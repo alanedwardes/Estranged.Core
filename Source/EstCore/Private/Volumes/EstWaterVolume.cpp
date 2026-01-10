@@ -292,34 +292,30 @@ void AEstWaterVolume::SetMaterialParameters()
 		BelowWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
 	}
 
-	// Pack and pass up to 8 waves (Strategy 1)
-	if (Manifest)
+	for (int32 i = 0; i < 8; ++i)
 	{
-		for (int32 i = 0; i < 8; ++i)
+		FLinearColor PackedWave = FLinearColor(0.f, 0.f, 0.f, 0.f);
+		if (Manifest->Waves.IsValidIndex(i))
 		{
-			FLinearColor PackedWave = FLinearColor(0.f, 0.f, 0.f, 0.f);
-			if (Manifest->Waves.IsValidIndex(i))
+			const FEstGerstnerWave& Wave = Manifest->Waves[i];
+			if (Wave.Wavelength > KINDA_SMALL_NUMBER)
 			{
-				const FEstGerstnerWave& Wave = Manifest->Waves[i];
-				if (Wave.Wavelength > KINDA_SMALL_NUMBER)
-				{
-					const float K = 2.0f * UE_PI / Wave.Wavelength;
-					PackedWave.R = Wave.Direction.X * K;
-					PackedWave.G = Wave.Direction.Y * K;
-					PackedWave.B = Wave.Amplitude;
-					PackedWave.A = Wave.Steepness;
-				}
+				const float K = 2.0f * UE_PI / Wave.Wavelength;
+				PackedWave.R = Wave.Direction.X * K;
+				PackedWave.G = Wave.Direction.Y * K;
+				PackedWave.B = Wave.Amplitude;
+				PackedWave.A = Wave.Steepness;
 			}
+		}
 
-			FName ParamName = *FString::Printf(TEXT("Wave%d"), i + 1);
-			if (IsValid(AboveWaterMesh))
-			{
-				AboveWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
-			}
-			if (IsValid(BelowWaterMesh))
-			{
-				BelowWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
-			}
+		FName ParamName = *FString::Printf(TEXT("Wave%d"), i + 1);
+		if (IsValid(AboveWaterMesh))
+		{
+			AboveWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
+		}
+		if (IsValid(BelowWaterMesh))
+		{
+			BelowWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
 		}
 	}
 }
