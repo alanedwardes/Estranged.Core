@@ -34,7 +34,6 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	BelowWaterMesh->SetupAttachment(GetRootComponent());
 	BelowWaterMesh->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	BelowWaterMesh->SetCastShadow(false);
-	BelowWaterMesh->SetReverseCulling(true);
 
 	WaveExcluder = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("WaveExcluder"));
 	WaveExcluder->SetupAttachment(GetRootComponent());
@@ -349,7 +348,7 @@ void AEstWaterVolume::OnConstruction(const FTransform& Transform)
 
 		if (!FMath::IsNearlyZero(MeshExtent.X) && !FMath::IsNearlyZero(MeshExtent.Y))
 		{
-			FVector NewScale = FVector(VolumeExtent.X / MeshExtent.X, VolumeExtent.Y / MeshExtent.Y, 1.f);
+			FVector NewScale = FVector(VolumeExtent.X / MeshExtent.X, VolumeExtent.Y / MeshExtent.Y, -1.f);
 			BelowWaterMesh->SetRelativeScale3D(NewScale);
 		}
 
