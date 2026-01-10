@@ -41,9 +41,9 @@ public:
 	bool bSelectedInEditor;
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 	void SetMaterialParameters();
-#endif
 
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite, Interp)
 	class UEstWaterManifest* Manifest;

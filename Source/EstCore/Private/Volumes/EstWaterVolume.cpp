@@ -209,6 +209,8 @@ void AEstWaterVolume::ManifestChanged()
 			BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
 		}
 	}
+
+	SetMaterialParameters();
 }
 
 #if WITH_EDITORONLY_DATA
@@ -277,11 +279,14 @@ void AEstWaterVolume::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 			{
 				RemoveInstanceComponent(WaveExcluder);
 				WaveExcluder->DestroyComponent();
-				WaveExcluder = nullptr;
 			}
 		}
 	}
+
+	SetMaterialParameters();
 }
+#endif
+
 void AEstWaterVolume::SetMaterialParameters()
 {
 	if (!IsValid(Manifest))
@@ -296,8 +301,14 @@ void AEstWaterVolume::SetMaterialParameters()
 		ExcluderParams = FLinearColor(Loc.X, Loc.Y, WaveExcluder->GetScaledSphereRadius(), ExcluderFadeRadius);
 	}
 
-	AboveWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
-	BelowWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+	if (IsValid(AboveWaterMesh))
+	{
+		AboveWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+	}
+	if (IsValid(BelowWaterMesh))
+	{
+		BelowWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+	}
 
 	// Pack and pass up to 8 waves (Strategy 1)
 	if (Manifest)
@@ -319,12 +330,17 @@ void AEstWaterVolume::SetMaterialParameters()
 			}
 
 			FName ParamName = *FString::Printf(TEXT("Wave%d"), i + 1);
-			AboveWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
-			BelowWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
+			if (IsValid(AboveWaterMesh))
+			{
+				AboveWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
+			}
+			if (IsValid(BelowWaterMesh))
+			{
+				BelowWaterMesh->SetColorParameterValueOnMaterials(ParamName, PackedWave);
+			}
 		}
 	}
 }
-#endif
 
 void AEstWaterVolume::PostInitializeComponents()
 {
@@ -381,6 +397,8 @@ void AEstWaterVolume::OnConstruction(const FTransform& Transform)
 	{
 		BelowWaterMesh->SetMaterial(0, Manifest->BelowWaterMaterial);
 	}
+
+	SetMaterialParameters();
 }
 
 void AEstWaterVolume::ActorEnteredVolume(AActor* Other)
