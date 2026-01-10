@@ -60,7 +60,7 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 	int32 FadeEnd = Compiler->Add(ExcluderRad, ExcluderFade);
 	int32 AttenAlpha = Compiler->SmoothStep(ExcluderRad, FadeEnd, Dist);
 
-	// 3. Process Packed Waves (Strategy 1)
+	// 3. Process Packed Waves
 	TArray<FExpressionInput*> PackedWaves;
 	PackedWaves.Add(&Wave1);
 	PackedWaves.Add(&Wave2);
