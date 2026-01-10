@@ -34,8 +34,6 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	bool bUpdateDebugOverlays;
 
-	class USphereComponent* PainRadius;
-
 	void OnSelectionChanged(UObject* NewSelection);
 
 	void UpdateSelectionState();
@@ -67,8 +65,6 @@ public:
 	virtual FVector GetSurfaceAt(const FVector& Location) const;
 
 protected:
-	virtual void CausePainTo(class AActor* Other);
-
 	UPROPERTY()
 	class AEstPlayer* OverlappingPlayer;
 

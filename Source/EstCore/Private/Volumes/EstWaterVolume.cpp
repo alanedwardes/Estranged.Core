@@ -2,6 +2,7 @@
 
 #include "Volumes/EstWaterVolume.h"
 #include "EstCore.h"
+#include "GameFramework/DamageType.h"
 #include "Components/BrushComponent.h"
 #include "Gameplay/EstPlayer.h"
 #include "Components/StaticMeshComponent.h"
@@ -44,10 +45,6 @@ AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	}
 
 #if WITH_EDITORONLY_DATA
-	PainRadius = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("PainRadius"));
-	PainRadius->SetVisibility(false);
-	PainRadius->SetupAttachment(GetRootComponent());
-	PainRadius->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	USelection::SelectionChangedEvent.AddUObject(this, &AEstWaterVolume::OnSelectionChanged);
 #endif
 }
@@ -68,7 +65,7 @@ void AEstWaterVolume::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void AEstWaterVolume::NotifyActorEndOverlap(AActor* OtherActor)
 {
-	Super::NotifyActorBeginOverlap(OtherActor);
+	Super::NotifyActorEndOverlap(OtherActor);
 
 	AEstPlayer* Player = Cast<AEstPlayer>(OtherActor);
 	if (IsValid(Player))
@@ -99,10 +96,9 @@ void AEstWaterVolume::Tick(float DeltaTime)
 		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
 	}
 
-	if (IsValid(Manifest) && LastPainTime < GetWorld()->GetTimeSeconds() - Manifest->PainInterval)
+	if (IsValid(Manifest))
 	{
-		CausePainTo(OverlappingPlayer);
-		LastPainTime = GetWorld()->GetTimeSeconds();
+		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
 	}
 
 	if (UEstGameplayStatics::AreActorsEyesInWaterVolume(OverlappingPlayer, this))
@@ -248,20 +244,13 @@ void AEstWaterVolume::OnSelectionChanged(UObject* NewSelection)
 }
 void AEstWaterVolume::UpdateSelectionState()
 {
-	if (IsValid(Manifest))
-	{
-		PainRadius->SetSphereRadius(Manifest->PainStartRadius);
-	}
 
-	PainRadius->SetWorldLocation(GetSurface());
-	PainRadius->SetVisibility(bSelectedInEditor);
 }
 #endif
 
 void AEstWaterVolume::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 
 	LastManifest = Manifest;
 }
@@ -353,31 +342,4 @@ FVector AEstWaterVolume::GetSurfaceAt(const FVector& Location) const
 		return FVector(Location.X, Location.Y, WaveZ);
 	}
 	return FVector(Location.X, Location.Y, FlatSurface.Z);
-}
-
-void AEstWaterVolume::CausePainTo(AActor* Other)
-{
-	// Check if damage is really enabled
-	if (FMath::IsNearlyZero(Manifest->DamagePerSec))
-	{
-		return;
-	}
-
-	const FVector OtherActorLocation = Other->GetActorLocation();
-
-	// Should we always apply pain?
-	bool bAlwaysApplyPain = FMath::IsNearlyZero(Manifest->PainStartRadius) && FMath::IsNearlyZero(Manifest->PainStartDepth);
-
-	// Have we gone too far from the origin?
-	bool bTooFarAway = !FMath::IsNearlyZero(Manifest->PainStartRadius) && (GetSurface() - OtherActorLocation).Size() > Manifest->PainStartRadius;
-
-	// Are we too deep?
-	// Are we too deep?
-	bool bTooDeep = !FMath::IsNearlyZero(Manifest->PainStartDepth) && OtherActorLocation.Z < GetSurfaceAt(OtherActorLocation).Z - Manifest->PainStartDepth;
-
-	if (bAlwaysApplyPain || bTooFarAway || bTooDeep)
-	{
-		TSubclassOf<UDamageType> DmgTypeClass = Manifest->DamageType ? *Manifest->DamageType : UDamageType::StaticClass();
-		Other->TakeDamage(Manifest->DamagePerSec * Manifest->PainInterval, FDamageEvent(DmgTypeClass), nullptr, this);
-	}
 }

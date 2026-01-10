@@ -19,7 +19,6 @@ void UEstWaterManifest::UpdateEffects(AEstPlayer* Player, FVector WaterSurface)
 
 UEstWaterManifest::UEstWaterManifest(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	DamageType = UDamageType::StaticClass();
 }
 
 void UEstWaterManifest::GenerateWaves()
