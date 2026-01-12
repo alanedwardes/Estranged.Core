@@ -7,15 +7,15 @@
 #include "Components/AudioComponent.h"
 
 #define REVERB_TAG_UNDERWATER "Underwater"
+#define WATER_SURFACE_EYES_MATERIAL_PARAMETER "WaterSurfaceAtEyes"
 #define WATER_SURFACE_MATERIAL_PARAMETER "WaterSurface"
 #define SOUND_TAG_UNDERWATER "UnderwaterLoopSound"
 
-void UEstWaterManifest::UpdateEffects(AEstPlayer* Player, FVector WaterSurface)
+void UEstWaterManifest::UpdateEffects(AEstPlayer* Player, FVector WaterSurface, FVector VolumeExtent)
 {
-	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, WaterSurface.Z);
+	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_EYES_MATERIAL_PARAMETER, WaterSurface.Z);
+	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, VolumeExtent.Z);
 }
-
-
 
 UEstWaterManifest::UEstWaterManifest(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -85,6 +85,10 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 	const float Gravity = 980.0f;
 	const FVector2D Pos2D(WorldPosition.X, WorldPosition.Y);
 
+	float AccX = 0.0f;
+	float AccY = 0.0f;
+	float AccZ = 1.0f; // Normal starts at (0,0,1)
+
 	for (const FEstGerstnerWave& Wave : Waves)
 	{
 		if (Wave.Wavelength <= KINDA_SMALL_NUMBER) continue;
@@ -102,18 +106,25 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 		OutOffsets.Z += Wave.Amplitude * CosP;
 
 		// XY Displacement
-		// QA = Steepness / K. Using simplified Q calculation:
-		// If Steepness is 0-1 range, we generally want Q = Steepness / (Amplitude * K * NumWaves) to avoid loops.
-		// Here assuming 'Steepness' is the raw Q factor for simplicity, or we can normalize.
-		// Let's match typical direct control: X += Steepness * Amplitude * D * Sin
-		
 		const float WA = Wave.Steepness * Wave.Amplitude;
 		OutOffsets.X += WA * Wave.Direction.X * SinP;
 		OutOffsets.Y += WA * Wave.Direction.Y * SinP;
+
+		// Normal Calculation: -K * Amp * Sin(Phase) * Direction
+		// This matches the partial derivatives used on GPU
+		const float XYCommon = Wave.Amplitude * SinP;
+		AccX += XYCommon * (Wave.Direction.X * K);
+		AccY += XYCommon * (Wave.Direction.Y * K);
+
+		// Z component: 1 - sum(Steepness * K * Amp * Cos(Phase))
+		const float ZTerm = WA * K;
+		AccZ -= ZTerm * CosP;
 	}
+
+	OutNormal = FVector(AccX, AccY, AccZ).GetSafeNormal();
 }
 
-void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player, FVector WaterSurface)
+void UEstWaterManifest::ActivatePaddlingEffects(AEstPlayer* Player)
 {
 	if (!IsValid(Player))
 	{
@@ -150,7 +161,7 @@ void UEstWaterManifest::DeactivatePaddlingEffects(AEstPlayer* Player)
 	}
 }
 
-void UEstWaterManifest::ActivateImmersionEffects(AEstPlayer* Player, FVector WaterSurface)
+void UEstWaterManifest::ActivateImmersionEffects(AEstPlayer* Player)
 {
 	if (!IsValid(Player))
 	{

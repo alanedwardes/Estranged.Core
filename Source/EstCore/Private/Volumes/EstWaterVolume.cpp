@@ -10,6 +10,7 @@
 #include "Components/SphereComponent.h"
 #include "Engine/Selection.h"
 #include "UObject/ConstructorHelpers.h"
+#include "DrawDebugHelpers.h"
 
 AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -95,16 +96,29 @@ void AEstWaterVolume::Tick(float DeltaTime)
 		LastManifest = Manifest;
 	}
 
-	if (IsValid(OverlappingPlayer))
+	if (IsValid(Manifest))
 	{
-		if (IsValid(Manifest))
-		{
-			Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
-		}
+		FVector EyeLocation;
+		FRotator EyeRotation;
+		OverlappingPlayer->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-		if (IsValid(Manifest))
+		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(EyeLocation), AboveWaterMesh->GetComponentLocation());
+
+		// Debug draw CPU wave simulation as a point grid
+		if (bDebugDrawCPUWaves && DebugGridSpacing > 0.f)
 		{
-			Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+			const float HalfSize = DebugGridSize * 0.5f;
+			const FVector PlayerPos = OverlappingPlayer->GetActorLocation();
+			
+			for (float X = -HalfSize; X <= HalfSize; X += DebugGridSpacing)
+			{
+				for (float Y = -HalfSize; Y <= HalfSize; Y += DebugGridSpacing)
+				{
+					FVector SamplePos = FVector(PlayerPos.X + X, PlayerPos.Y + Y, 0.f);
+					FVector SurfacePos = GetSurfaceAt(SamplePos);
+					DrawDebugPoint(GetWorld(), SurfacePos, 5.f, FColor::Red, false, -1.f, 0);
+				}
+			}
 		}
 	}
 
@@ -126,7 +140,7 @@ void AEstWaterVolume::SetPlayerImmersed(bool bEnabled)
 		{
 			if (IsValid(Manifest))
 			{
-				Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+				Manifest->ActivateImmersionEffects(OverlappingPlayer);
 			}
 			bPlayerImmersed = true;
 		}
@@ -152,7 +166,7 @@ void AEstWaterVolume::SetPlayerPaddling(bool bEnabled)
 		{
 			if (IsValid(Manifest))
 			{
-				Manifest->ActivatePaddlingEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+				Manifest->ActivatePaddlingEffects(OverlappingPlayer);
 			}
 			bPlayerPaddling = true;
 		}
@@ -181,7 +195,7 @@ void AEstWaterVolume::ManifestChanged()
 
 		if (IsValid(Manifest))
 		{
-			Manifest->ActivatePaddlingEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+			Manifest->ActivatePaddlingEffects(OverlappingPlayer);
 		}
 	}
 
@@ -194,7 +208,7 @@ void AEstWaterVolume::ManifestChanged()
 
 		if (IsValid(Manifest))
 		{
-			Manifest->ActivateImmersionEffects(OverlappingPlayer, GetSurfaceAt(OverlappingPlayer->GetActorLocation()));
+			Manifest->ActivateImmersionEffects(OverlappingPlayer);
 		}
 	}
 

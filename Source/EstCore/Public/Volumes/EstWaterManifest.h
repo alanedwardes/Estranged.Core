@@ -116,16 +116,16 @@ public:
 	void EvaluateWaveOffsets(const FVector& WorldPosition, float Time, FVector& OutOffsets, FVector& OutNormal) const;
 
 	UFUNCTION()
-	void UpdateEffects(AEstPlayer* Player, FVector WaterSurface);
+	void UpdateEffects(AEstPlayer* Player, FVector WaterSurface, FVector VolumeExtent);
 
 	UFUNCTION()
-	void ActivatePaddlingEffects(class AEstPlayer* Player, FVector WaterSurface);
+	void ActivatePaddlingEffects(class AEstPlayer* Player);
 
 	UFUNCTION()
 	void DeactivatePaddlingEffects(class AEstPlayer* Player);
 
 	UFUNCTION()
-	void ActivateImmersionEffects(class AEstPlayer* Player, FVector WaterSurface);
+	void ActivateImmersionEffects(class AEstPlayer* Player);
 
 	UFUNCTION()
 	void DeactivateImmersionEffects(class AEstPlayer* Player);

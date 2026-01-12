@@ -61,6 +61,15 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	float ExcluderFadeRadius;
 
+	UPROPERTY(Category = "Water | Debug", EditAnywhere, BlueprintReadWrite)
+	bool bDebugDrawCPUWaves;
+
+	UPROPERTY(Category = "Water | Debug", EditAnywhere, BlueprintReadWrite)
+	float DebugGridSize = 1000.f;
+
+	UPROPERTY(Category = "Water | Debug", EditAnywhere, BlueprintReadWrite)
+	float DebugGridSpacing = 100.f;
+
 	UFUNCTION(BlueprintPure, Category = "Water")
 	virtual FVector GetSurface();
 

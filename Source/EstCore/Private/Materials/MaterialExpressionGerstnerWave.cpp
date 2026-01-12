@@ -80,11 +80,16 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 		// Unpack: X=DirX*K, Y=DirY*K, Z=Amp, W=Steepness
 		int32 VK = Compiler->ComponentMask(WavePack, true, true, false, false);
 		
-		// K = length(VK). Add a small epsilon to avoid division by zero later.
-		int32 NodeK = Compiler->SquareRoot(Compiler->Add(Compiler->Dot(VK, VK), Compiler->Constant(0.00001f)));
+		// K = length(VK). Add a very small epsilon to avoid division by zero.
+		int32 NodeK = Compiler->Add(Compiler->Length(VK), Compiler->Constant(1.e-7f));
 		
 		int32 NodeAmp = Compiler->Mul(Compiler->ComponentMask(WavePack, false, false, true, false), IntensityIndex);
-		NodeAmp = Compiler->Mul(NodeAmp, AttenAlpha); // Apply Excluder Attenuation
+
+		// Only apply excluder attenuation if the excluder input is connected
+		if (WaveExcluder.GetTracedInput().Expression)
+		{
+			NodeAmp = Compiler->Mul(NodeAmp, AttenAlpha);
+		}
 
 		int32 NodeSteep = Compiler->ComponentMask(WavePack, false, false, false, true);
 		
@@ -93,6 +98,7 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 		int32 Omega = Compiler->SquareRoot(Compiler->Mul(Compiler->Constant(980.0f), NodeK));
 		int32 Phase = Compiler->Sub(DotP, Compiler->Mul(Omega, TimeIndex));
 
+		// Use radians directly, as Compiler->Sine generates raw sin() HLSL
 		int32 SinP = Compiler->Sine(Phase);
 		int32 CosP = Compiler->Cosine(Phase);
 
