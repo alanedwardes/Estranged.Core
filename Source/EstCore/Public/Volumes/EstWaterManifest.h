@@ -110,13 +110,13 @@ public:
 	TArray<FEstGerstnerWave> Waves;
 
 	UFUNCTION(BlueprintCallable, Category = "Water | Waves")
-	float EvaluateWaveHeight(const FVector& WorldPosition, float Time) const;
+	float EvaluateWaveHeight(const FVector& WorldPosition, float Time, float WaveIntensity = 1.0f) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Water | Waves")
-	void EvaluateWaveOffsets(const FVector& WorldPosition, float Time, FVector& OutOffsets, FVector& OutNormal) const;
+	void EvaluateWaveOffsets(const FVector& WorldPosition, float Time, FVector& OutOffsets, FVector& OutNormal, float WaveIntensity = 1.0f) const;
 
 	UFUNCTION()
-	void UpdateEffects(AEstPlayer* Player, FVector WaterSurface, FVector VolumeExtent);
+	void UpdateEffects(AEstPlayer* Player, FVector WaterSurface, FVector VolumeExtent, float WaveIntensity);
 
 	UFUNCTION()
 	void ActivatePaddlingEffects(class AEstPlayer* Player);

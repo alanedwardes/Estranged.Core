@@ -61,6 +61,9 @@ public:
 	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
 	float ExcluderFadeRadius;
 
+	UPROPERTY(Category = "Water", EditAnywhere, BlueprintReadWrite)
+	float WaveIntensity = 1.f;
+
 	UPROPERTY(Category = "Water | Debug", EditAnywhere, BlueprintReadWrite)
 	bool bDebugDrawCPUWaves;
 

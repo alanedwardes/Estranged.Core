@@ -12,6 +12,9 @@
 #include "UObject/ConstructorHelpers.h"
 #include "DrawDebugHelpers.h"
 
+#define WAVE_ECLUDER_MATERIAL_PARAMETER "WaveExcluder"
+#define WAVE_INTENSITY_MATERIAL_PARAMETER "WaveIntensity"
+
 AEstWaterVolume::AEstWaterVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -102,7 +105,16 @@ void AEstWaterVolume::Tick(float DeltaTime)
 		FRotator EyeRotation;
 		OverlappingPlayer->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(EyeLocation), AboveWaterMesh->GetComponentLocation());
+		Manifest->UpdateEffects(OverlappingPlayer, GetSurfaceAt(EyeLocation), AboveWaterMesh->GetComponentLocation(), WaveIntensity);
+
+		if (IsValid(AboveWaterMesh))
+		{
+			AboveWaterMesh->SetScalarParameterValueOnMaterials(WAVE_INTENSITY_MATERIAL_PARAMETER, WaveIntensity);
+		}
+		if (IsValid(BelowWaterMesh))
+		{
+			BelowWaterMesh->SetScalarParameterValueOnMaterials(WAVE_INTENSITY_MATERIAL_PARAMETER, WaveIntensity);
+		}
 
 		// Debug draw CPU wave simulation as a point grid
 		if (bDebugDrawCPUWaves && DebugGridSpacing > 0.f)
@@ -288,11 +300,13 @@ void AEstWaterVolume::SetMaterialParameters()
 
 	if (IsValid(AboveWaterMesh))
 	{
-		AboveWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+		AboveWaterMesh->SetColorParameterValueOnMaterials(WAVE_ECLUDER_MATERIAL_PARAMETER, ExcluderParams);
+		AboveWaterMesh->SetScalarParameterValueOnMaterials(WAVE_INTENSITY_MATERIAL_PARAMETER, WaveIntensity);
 	}
 	if (IsValid(BelowWaterMesh))
 	{
-		BelowWaterMesh->SetColorParameterValueOnMaterials(TEXT("WaveExcluder"), ExcluderParams);
+		BelowWaterMesh->SetColorParameterValueOnMaterials(WAVE_ECLUDER_MATERIAL_PARAMETER, ExcluderParams);
+		BelowWaterMesh->SetScalarParameterValueOnMaterials(WAVE_INTENSITY_MATERIAL_PARAMETER, WaveIntensity);
 	}
 
 	for (int32 i = 0; i < 8; ++i)
@@ -415,7 +429,7 @@ FVector AEstWaterVolume::GetSurfaceAt(const FVector& Location) const
 	if (IsValid(Manifest) && GetWorld())
 	{
 		FVector Offsets, Normal;
-		Manifest->EvaluateWaveOffsets(FVector(Location.X, Location.Y, FlatSurface.Z), GetWorld()->GetTimeSeconds(), Offsets, Normal);
+		Manifest->EvaluateWaveOffsets(FVector(Location.X, Location.Y, FlatSurface.Z), GetWorld()->GetTimeSeconds(), Offsets, Normal, WaveIntensity);
 
 		if (bUseWaveExcluder && IsValid(WaveExcluder))
 		{

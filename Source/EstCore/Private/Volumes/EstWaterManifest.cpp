@@ -11,7 +11,7 @@
 #define WATER_SURFACE_MATERIAL_PARAMETER "WaterSurface"
 #define SOUND_TAG_UNDERWATER "UnderwaterLoopSound"
 
-void UEstWaterManifest::UpdateEffects(AEstPlayer* Player, FVector WaterSurface, FVector VolumeExtent)
+void UEstWaterManifest::UpdateEffects(AEstPlayer* Player, FVector WaterSurface, FVector VolumeExtent, float WaveIntensity)
 {
 	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_EYES_MATERIAL_PARAMETER, WaterSurface.Z);
 	UKismetMaterialLibrary::SetScalarParameterValue(Player, ParameterCollection, WATER_SURFACE_MATERIAL_PARAMETER, VolumeExtent.Z);
@@ -70,14 +70,14 @@ void UEstWaterManifest::GenerateWaves()
 	}
 }
 
-float UEstWaterManifest::EvaluateWaveHeight(const FVector& WorldPosition, float Time) const
+float UEstWaterManifest::EvaluateWaveHeight(const FVector& WorldPosition, float Time, float WaveIntensity) const
 {
 	FVector Offsets, Normal;
-	EvaluateWaveOffsets(WorldPosition, Time, Offsets, Normal);
+	EvaluateWaveOffsets(WorldPosition, Time, Offsets, Normal, WaveIntensity);
 	return WorldPosition.Z + Offsets.Z;
 }
 
-void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float Time, FVector& OutOffsets, FVector& OutNormal) const
+void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float Time, FVector& OutOffsets, FVector& OutNormal, float WaveIntensity) const
 {
 	OutOffsets = FVector::ZeroVector;
 	OutNormal = FVector::UpVector; // Simplified normal accumulation
@@ -102,17 +102,19 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 		float SinP, CosP;
 		FMath::SinCos(&SinP, &CosP, Phase);
 
+		const float Amplitude = Wave.Amplitude * WaveIntensity;
+
 		// Z Displacement (Height)
-		OutOffsets.Z += Wave.Amplitude * CosP;
+		OutOffsets.Z += Amplitude * CosP;
 
 		// XY Displacement
-		const float WA = Wave.Steepness * Wave.Amplitude;
+		const float WA = Wave.Steepness * Amplitude;
 		OutOffsets.X += WA * Wave.Direction.X * SinP;
 		OutOffsets.Y += WA * Wave.Direction.Y * SinP;
 
 		// Normal Calculation: -K * Amp * Sin(Phase) * Direction
 		// This matches the partial derivatives used on GPU
-		const float XYCommon = Wave.Amplitude * SinP;
+		const float XYCommon = Amplitude * SinP;
 		AccX += XYCommon * (Wave.Direction.X * K);
 		AccY += XYCommon * (Wave.Direction.Y * K);
 
