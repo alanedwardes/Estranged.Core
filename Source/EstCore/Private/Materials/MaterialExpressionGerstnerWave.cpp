@@ -77,21 +77,27 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 
 		int32 WavePack = PackedWaves[i]->Compile(Compiler);
 		
-		// Unpack: X=DirX*K, Y=DirY*K, Z=Amp, W=Steepness
-		int32 VK = Compiler->ComponentMask(WavePack, true, true, false, false);
-		
-		// K = length(VK). Add a very small epsilon to avoid division by zero.
-		int32 NodeK = Compiler->Add(Compiler->Length(VK), Compiler->Constant(1.e-7f));
-		
+		// Unpack: X=Angle, Y=Wavelength, Z=Amplitude, W=Steepness
+		int32 NodeAngle = Compiler->ComponentMask(WavePack, true, false, false, false);
+		int32 NodeWavelength = Compiler->Add(Compiler->ComponentMask(WavePack, false, true, false, false), Compiler->Constant(1.e-7f));
 		int32 NodeAmp = Compiler->Mul(Compiler->ComponentMask(WavePack, false, false, true, false), IntensityIndex);
+		int32 NodeSteep = Compiler->ComponentMask(WavePack, false, false, false, true);
+
+		// K = 2 * PI / Wavelength
+		int32 NodeK = Compiler->Div(Compiler->Mul(Compiler->Constant(2.0f), Compiler->Constant(UE_PI)), NodeWavelength);
+
+		// Direction from Angle (Degrees to Radians)
+		int32 AngleRad = Compiler->Mul(NodeAngle, Compiler->Constant(UE_PI / 180.0f));
+		int32 DirX = Compiler->Cosine(AngleRad);
+		int32 DirY = Compiler->Sine(AngleRad);
+		int32 VK = Compiler->AppendVector(DirX, DirY);
+		VK = Compiler->Mul(VK, NodeK);
 
 		// Only apply excluder attenuation if the excluder input is connected
 		if (WaveExcluder.GetTracedInput().Expression)
 		{
 			NodeAmp = Compiler->Mul(NodeAmp, AttenAlpha);
 		}
-
-		int32 NodeSteep = Compiler->ComponentMask(WavePack, false, false, false, true);
 		
 		// Phase = dot(VK, Pos) - sqrt(9.8 * K) * Time
 		int32 DotP = Compiler->Dot(VK, Compiler->AppendVector(PosX, PosY));

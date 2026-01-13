@@ -63,8 +63,7 @@ void UEstWaterManifest::GenerateWaves()
 		}
 
 		float Variance = Stream.FRandRange(-GeneratorProfile.DirectionVariance, GeneratorProfile.DirectionVariance);
-		float AngleRad = FMath::DegreesToRadians(GeneratorProfile.WindDirection + Variance);
-		NewWave.Direction = FVector2D(FMath::Cos(AngleRad), FMath::Sin(AngleRad));
+		NewWave.Angle = FRotator::ClampAxis(GeneratorProfile.WindDirection + Variance);
 
 		Waves.Add(NewWave);
 	}
@@ -93,10 +92,13 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 	{
 		if (Wave.Wavelength <= KINDA_SMALL_NUMBER) continue;
 
+		const float AngleRad = FMath::DegreesToRadians(Wave.Angle);
+		const FVector2D Direction(FMath::Cos(AngleRad), FMath::Sin(AngleRad));
+
 		const float K = 2.0f * UE_PI / Wave.Wavelength;
 		const float C = FMath::Sqrt(Gravity / K); // Phase speed
 		
-		const float DotP = (Wave.Direction.X * Pos2D.X) + (Wave.Direction.Y * Pos2D.Y);
+		const float DotP = (Direction.X * Pos2D.X) + (Direction.Y * Pos2D.Y);
 		const float Phase = K * DotP - (C * K * Time);
 		
 		float SinP, CosP;
@@ -109,14 +111,14 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 
 		// XY Displacement
 		const float WA = Wave.Steepness * Amplitude;
-		OutOffsets.X += WA * Wave.Direction.X * SinP;
-		OutOffsets.Y += WA * Wave.Direction.Y * SinP;
+		OutOffsets.X += WA * Direction.X * SinP;
+		OutOffsets.Y += WA * Direction.Y * SinP;
 
 		// Normal Calculation: -K * Amp * Sin(Phase) * Direction
 		// This matches the partial derivatives used on GPU
 		const float XYCommon = Amplitude * SinP;
-		AccX += XYCommon * (Wave.Direction.X * K);
-		AccY += XYCommon * (Wave.Direction.Y * K);
+		AccX += XYCommon * (Direction.X * K);
+		AccY += XYCommon * (Direction.Y * K);
 
 		// Z component: 1 - sum(Steepness * K * Amp * Cos(Phase))
 		const float ZTerm = WA * K;

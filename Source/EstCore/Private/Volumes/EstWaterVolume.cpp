@@ -317,9 +317,8 @@ void AEstWaterVolume::SetMaterialParameters()
 			const FEstGerstnerWave& Wave = Manifest->Waves[i];
 			if (Wave.Wavelength > KINDA_SMALL_NUMBER)
 			{
-				const float K = 2.0f * UE_PI / Wave.Wavelength;
-				PackedWave.R = Wave.Direction.X * K;
-				PackedWave.G = Wave.Direction.Y * K;
+				PackedWave.R = Wave.Angle;
+				PackedWave.G = Wave.Wavelength;
 				PackedWave.B = Wave.Amplitude;
 				PackedWave.A = Wave.Steepness;
 			}

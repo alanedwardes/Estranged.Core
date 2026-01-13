@@ -8,8 +8,8 @@ struct ESTCORE_API FEstGerstnerWave
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (ToolTip = "Normalized direction vector (X, Y)."))
-	FVector2D Direction = FVector2D(1.0f, 0.0f);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (UIMin = 0, UIMax = 360, ToolTip = "Wave direction in degrees."))
+	float Angle = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave", meta = (Units = "Centimeters", ToolTip = "Wave length"))
 	float Wavelength = 1000.0f;
@@ -49,10 +49,10 @@ struct ESTCORE_API FEstGerstnerWaveGeneratorProfile
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 1))
 	float MaxSteepness = 0.35f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 360))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 360, Units = "Degrees"))
 	float WindDirection = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 180))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator", meta = (UIMin = 0, UIMax = 180, Units = "Degrees"))
 	float DirectionVariance = 45.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Generator")
