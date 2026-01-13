@@ -127,8 +127,11 @@ void AEstWaterVolume::Tick(float DeltaTime)
 				for (float Y = -HalfSize; Y <= HalfSize; Y += DebugGridSpacing)
 				{
 					FVector SamplePos = FVector(PlayerPos.X + X, PlayerPos.Y + Y, 0.f);
-					FVector SurfacePos = GetSurfaceAt(SamplePos);
+					FVector SurfacePos, SurfaceNormal;
+					GetSurfaceData(SamplePos, SurfacePos, SurfaceNormal);
+
 					DrawDebugPoint(GetWorld(), SurfacePos, 5.f, FColor::Red, false, -1.f, 0);
+					DrawDebugLine(GetWorld(), SurfacePos, SurfacePos + (SurfaceNormal * 50.f), FColor::Blue, false, -1.f, 0, 1.f);
 				}
 			}
 		}
@@ -416,14 +419,18 @@ FVector AEstWaterVolume::GetSurface()
 
 FVector AEstWaterVolume::GetSurfaceAt(const FVector& Location) const
 {
-	FBoxSphereBounds Bounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
-	FVector FlatSurface = Bounds.Origin + FVector(0.f, 0.f, Bounds.BoxExtent.Z);
-	// If getting surface for this volume, we assume FlatSurface Z is the base level.
-	// But GetSurface() usually recalculates bounds.
-	// Let's use the current GetSurface() logic but we can't call non-const GetSurface() from const function easily without duplication.
-	// Duplicating the simple bounds calculation:
+	FVector SurfacePos, SurfaceNormal;
+	GetSurfaceData(Location, SurfacePos, SurfaceNormal);
+	return SurfacePos;
+}
+
+void AEstWaterVolume::GetSurfaceData(const FVector& Location, FVector& OutSurfacePosition, FVector& OutSurfaceNormal) const
+{
 	FBoxSphereBounds CalcBounds = GetBrushComponent()->CalcBounds(GetBrushComponent()->GetComponentTransform());
-	FlatSurface = CalcBounds.Origin + FVector(0.f, 0.f, CalcBounds.BoxExtent.Z);
+	FVector FlatSurface = CalcBounds.Origin + FVector(0.f, 0.f, CalcBounds.BoxExtent.Z);
+
+	OutSurfacePosition = FVector(Location.X, Location.Y, FlatSurface.Z);
+	OutSurfaceNormal = FVector::UpVector;
 
 	if (IsValid(Manifest) && GetWorld())
 	{
@@ -440,9 +447,12 @@ FVector AEstWaterVolume::GetSurfaceAt(const FVector& Location) const
 			// 0 inside Radius, 0-1 in Fade, 1 outside
 			float Alpha = FMath::SmoothStep(Radius, Radius + Fade, Dist);
 			Offsets *= Alpha;
+			
+			// Interpolate normal between world up and wave normal
+			Normal = FMath::Lerp(FVector::UpVector, Normal, Alpha).GetSafeNormal();
 		}
 
-		return FVector(Location.X, Location.Y, FlatSurface.Z + Offsets.Z);
+		OutSurfacePosition.Z += Offsets.Z;
+		OutSurfaceNormal = Normal;
 	}
-	return FVector(Location.X, Location.Y, FlatSurface.Z);
 }

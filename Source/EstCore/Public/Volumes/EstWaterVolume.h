@@ -79,6 +79,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Water")
 	virtual FVector GetSurfaceAt(const FVector& Location) const;
 
+	/** Returns both surface position and normal at a given location. */
+	virtual void GetSurfaceData(const FVector& Location, FVector& OutSurfacePosition, FVector& OutSurfaceNormal) const;
+
 protected:
 	UPROPERTY()
 	class AEstPlayer* OverlappingPlayer;

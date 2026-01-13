@@ -143,9 +143,10 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 		return;
 	}
 
-	// Get water surface Z
+	// Get water surface Z and Normal
 	FBoxSphereBounds WaterBounds = PhysicsVolume->GetBounds();
 	float WaterLevelZ = WaterBounds.Origin.Z + WaterBounds.BoxExtent.Z;
+	FVector SurfaceNormal = FVector::UpVector;
 
 	// Get bounds and current velocity
 	FBoxSphereBounds ActorBounds = PrimitiveComponent->Bounds;
@@ -156,8 +157,10 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	// If we do have a "proper" water volume, get its config
 	if (WaterVolume != nullptr)
 	{
-		// Override water level with water volume surface (accounts for waves)
-		WaterLevelZ = WaterVolume->GetSurfaceAt(BoxOrigin).Z;
+		// Override water level and normal with water volume surface (accounts for waves)
+		FVector SurfacePos;
+		WaterVolume->GetSurfaceData(BoxOrigin, SurfacePos, SurfaceNormal);
+		WaterLevelZ = SurfacePos.Z;
 	}
 
 	// Apply hull offset relative to the object's current orientation
@@ -190,13 +193,15 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 	float SubmergedPercentage = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, EffectiveHeight), FVector2D(0.0f, 1.0f), SubmergedHeight);
 	float Gravity = GetWorld()->GetGravityZ();
 
-	// Apply buoyant force proportional to submerged percentage
-	float BuoyantForce = ObjectMass * -Gravity * SubmergedPercentage * PhysicsUserData->BuoyancyCoefficient;
+	// Apply buoyant force proportional to submerged percentage, directed along the surface normal
+	// This makes objects align with the wave surface and also provides some lateral push/sliding
+	float BuoyantForceMagnitude = ObjectMass * -Gravity * SubmergedPercentage * PhysicsUserData->BuoyancyCoefficient;
+	FVector BuoyantForce = SurfaceNormal * BuoyantForceMagnitude;
 
 	FVector DragForce = -CurrentVelocity * ObjectMass;
 
 	// Apply forces with drag
-	FVector TotalForce = FVector(0, 0, BuoyantForce) + DragForce;
+	FVector TotalForce = BuoyantForce + DragForce;
 	PrimitiveComponent->AddForce(TotalForce);
 
 	if (!FMath::IsNearlyZero(PhysicsUserData->SelfRightingDegrees))
@@ -204,15 +209,15 @@ void UEstPhysicsEffectsComponent::ApplyBuoyancyForce(UPrimitiveComponent* Primit
 		// Get current up vector
 		FVector CurrentUp = CurrentRotation.RotateVector(FVector::UpVector);
 		
-		// Calculate angles to both upright and upside down orientations
-		FVector WorldUp = FVector::UpVector;
-		FVector WorldDown = -FVector::UpVector;
+		// Use surface normal as the target up vector for the rolling effect
+		FVector TargetUp = SurfaceNormal;
+		FVector TargetDown = -SurfaceNormal;
 		
-		float AngleToUp = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, WorldUp), -1.0f, 1.0f));
-		float AngleToDown = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, WorldDown), -1.0f, 1.0f));
+		float AngleToUp = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, TargetUp), -1.0f, 1.0f));
+		float AngleToDown = FMath::Acos(FMath::Clamp(FVector::DotProduct(CurrentUp, TargetDown), -1.0f, 1.0f));
 		
-		// Choose the closest orientation
-		FVector DesiredUp = (AngleToUp < AngleToDown) ? WorldUp : WorldDown;
+		// Choose the closest orientation (upright or upside down relative to wave slope)
+		FVector DesiredUp = (AngleToUp < AngleToDown) ? TargetUp : TargetDown;
 		
 		// Calculate the cross product to get rotation axis and sine of angle
 		FVector RotationAxis = FVector::CrossProduct(CurrentUp, DesiredUp);
