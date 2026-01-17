@@ -23,7 +23,14 @@ UEstWaterManifest::UEstWaterManifest(const class FObjectInitializer& ObjectIniti
 
 void UEstWaterManifest::GenerateWaves()
 {
-	Waves.Empty();
+	Wave1 = FEstGerstnerWave();
+	Wave2 = FEstGerstnerWave();
+	Wave3 = FEstGerstnerWave();
+	Wave4 = FEstGerstnerWave();
+	Wave5 = FEstGerstnerWave();
+	Wave6 = FEstGerstnerWave();
+	Wave7 = FEstGerstnerWave();
+	Wave8 = FEstGerstnerWave();
 
 	FRandomStream Stream(GeneratorProfile.RandomSeed);
 
@@ -32,11 +39,13 @@ void UEstWaterManifest::GenerateWaves()
 	TArray<float> Weightings;
 	float TotalWeight = 0.0f;
 
-	for (int32 i = 0; i < GeneratorProfile.NumWaves; ++i)
+	const int32 NumWavesToGenerate = FMath::Min(GeneratorProfile.NumWaves, 8);
+
+	for (int32 i = 0; i < NumWavesToGenerate; ++i)
 	{
 		float WL = Stream.FRandRange(GeneratorProfile.MinWavelength, GeneratorProfile.MaxWavelength);
 		Wavelengths.Add(WL);
-		
+
 		float ST = Stream.FRandRange(GeneratorProfile.MinSteepness, GeneratorProfile.MaxSteepness);
 		Steepnesses.Add(ST);
 
@@ -46,7 +55,9 @@ void UEstWaterManifest::GenerateWaves()
 		TotalWeight += Weight;
 	}
 
-	for (int32 i = 0; i < GeneratorProfile.NumWaves; ++i)
+	FEstGerstnerWave* WavePtrs[] = { &Wave1, &Wave2, &Wave3, &Wave4, &Wave5, &Wave6, &Wave7, &Wave8 };
+
+	for (int32 i = 0; i < NumWavesToGenerate; ++i)
 	{
 		FEstGerstnerWave NewWave;
 		NewWave.Wavelength = Wavelengths[i];
@@ -59,13 +70,13 @@ void UEstWaterManifest::GenerateWaves()
 		}
 		else
 		{
-			NewWave.Amplitude = GeneratorProfile.OverallAmplitude / GeneratorProfile.NumWaves;
+			NewWave.Amplitude = GeneratorProfile.OverallAmplitude / NumWavesToGenerate;
 		}
 
 		float Variance = Stream.FRandRange(-GeneratorProfile.DirectionVariance, GeneratorProfile.DirectionVariance);
 		NewWave.Angle = FRotator::ClampAxis(GeneratorProfile.WindDirection + Variance);
 
-		Waves.Add(NewWave);
+		*WavePtrs[i] = NewWave;
 	}
 }
 
@@ -88,8 +99,11 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 	float AccY = 0.0f;
 	float AccZ = 1.0f; // Normal starts at (0,0,1)
 
-	for (const FEstGerstnerWave& Wave : Waves)
+	const FEstGerstnerWave* WavePtrs[] = { &Wave1, &Wave2, &Wave3, &Wave4, &Wave5, &Wave6, &Wave7, &Wave8 };
+
+	for (const FEstGerstnerWave* WavePtr : WavePtrs)
 	{
+		const FEstGerstnerWave& Wave = *WavePtr;
 		if (Wave.Wavelength <= KINDA_SMALL_NUMBER) continue;
 
 		const float AngleRad = FMath::DegreesToRadians(Wave.Angle);

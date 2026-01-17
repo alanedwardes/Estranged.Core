@@ -312,19 +312,19 @@ void AEstWaterVolume::SetMaterialParameters()
 		BelowWaterMesh->SetScalarParameterValueOnMaterials(WAVE_INTENSITY_MATERIAL_PARAMETER, WaveIntensity);
 	}
 
+	const FEstGerstnerWave* WavePtrs[] = { &Manifest->Wave1, &Manifest->Wave2, &Manifest->Wave3, &Manifest->Wave4, &Manifest->Wave5, &Manifest->Wave6, &Manifest->Wave7, &Manifest->Wave8 };
+
 	for (int32 i = 0; i < 8; ++i)
 	{
 		FLinearColor PackedWave = FLinearColor(0.f, 0.f, 0.f, 0.f);
-		if (Manifest->Waves.IsValidIndex(i))
+		const FEstGerstnerWave& Wave = *WavePtrs[i];
+		
+		if (Wave.Wavelength > KINDA_SMALL_NUMBER)
 		{
-			const FEstGerstnerWave& Wave = Manifest->Waves[i];
-			if (Wave.Wavelength > KINDA_SMALL_NUMBER)
-			{
-				PackedWave.R = Wave.Angle;
-				PackedWave.G = Wave.Wavelength;
-				PackedWave.B = Wave.Amplitude;
-				PackedWave.A = Wave.Steepness;
-			}
+			PackedWave.R = Wave.Angle;
+			PackedWave.G = Wave.Wavelength;
+			PackedWave.B = Wave.Amplitude;
+			PackedWave.A = Wave.Steepness;
 		}
 
 		FName ParamName = *FString::Printf(TEXT("Wave%d"), i + 1);

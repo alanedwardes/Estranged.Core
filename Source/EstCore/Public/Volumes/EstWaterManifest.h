@@ -107,7 +107,28 @@ public:
 	class UMaterialInterface* BelowWaterMaterial;
 
 	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
-	TArray<FEstGerstnerWave> Waves;
+	FEstGerstnerWave Wave1;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave2;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave3;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave4;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave5;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave6;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave7;
+
+	UPROPERTY(Category = "Water | Waves", EditAnywhere, BlueprintReadWrite)
+	FEstGerstnerWave Wave8;
 
 	UFUNCTION(BlueprintCallable, Category = "Water | Waves")
 	float EvaluateWaveHeight(const FVector& WorldPosition, float Time, float WaveIntensity = 1.0f) const;
