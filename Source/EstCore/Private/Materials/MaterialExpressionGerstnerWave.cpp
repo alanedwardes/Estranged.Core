@@ -11,6 +11,8 @@ UMaterialExpressionGerstnerWave::UMaterialExpressionGerstnerWave(const FObjectIn
 	Outputs.Reset();
 	Outputs.Add(FExpressionOutput(TEXT("Offsets")));
 	Outputs.Add(FExpressionOutput(TEXT("Normal")));
+
+	bShowOutputNameOnPin = true;
 }
 
 #if WITH_EDITOR
