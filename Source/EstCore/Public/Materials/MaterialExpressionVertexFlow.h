@@ -5,7 +5,7 @@
 #include "MaterialExpressionVertexFlow.generated.h"
 
 /**
- * Calculates continuous flow UVs based on Mesh Vertex Colors (Red/Green channels).
+ * Calculates continuous flow UVs based on flow direction input or Mesh Vertex Colors.
  * 
  * Outputs:
  * - UV_A (Vector2): Distorted UVs for Phase 0.
@@ -20,6 +20,11 @@ class UMaterialExpressionVertexFlow : public UMaterialExpression
 	/** Base UV coordinates to be distorted. Defaults to TextureCoorindates[0]. */
 	UPROPERTY(meta = (RequiredInput = "false", ToolTip = "Base UVs to distort."))
 	FExpressionInput BaseUV;
+
+	/** Flow direction input (RG = XY world direction, B = strength). 
+	 *  Connect a MeshPaintTextureObject or flow map texture sample here. */
+	UPROPERTY(meta = (RequiredInput = "true", ToolTip = "Flow direction (RG = world XY direction, B = strength)."))
+	FExpressionInput FlowDirection;
 
 	/** Global flow speed multiplier. Defaults to 1.0. */
 	UPROPERTY(meta = (RequiredInput = "false", ToolTip = "Speed of the flow cycle."))
