@@ -144,6 +144,8 @@ int32 UMaterialExpressionGerstnerWave::Compile(FMaterialCompiler* Compiler, int3
 
 	if (OutputIndex == 1)
 	{
+		AccZ = Compiler->Max(AccZ, Compiler->Constant(0.01f));
+
 		// Normalize the result for safety
 		int32 ResultVec = Compiler->AppendVector(
 			Compiler->AppendVector(AccX, AccY),

@@ -139,6 +139,8 @@ void UEstWaterManifest::EvaluateWaveOffsets(const FVector& WorldPosition, float 
 		AccZ -= ZTerm * CosP;
 	}
 
+	AccZ = FMath::Max(AccZ, 0.01f);
+
 	OutNormal = FVector(AccX, AccY, AccZ).GetSafeNormal();
 }
 
