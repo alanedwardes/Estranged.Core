@@ -104,7 +104,13 @@ void UEstGameInstance::OnStart()
 	}
 	// END HACK TO FIX RESOLUTION SCALE BUG IN UNREAL ENGINE 5.6
 
-	ApplyAudioSettings(UEstSaveStatics::LoadGameSettings());
+	GameSettings = Cast<UEstGameSettingsSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_GAME_SETTINGS, 0));
+	if (GameSettings == nullptr)
+	{
+		GameSettings = NewObject<UEstGameSettingsSave>();
+	}
+
+	ApplyAudioSettings();
 }
 
 void UEstGameInstance::LogMessage(FEstLoggerMessage Message)
@@ -242,6 +248,13 @@ bool UEstGameInstance::LazilyCreateAudioComponent()
 	return true;
 }
 
+void UEstGameInstance::SaveGameSettings()
+{
+	UGameplayStatics::SaveGameToSlot(GameSettings, SAVE_SLOT_GAME_SETTINGS, 0);
+
+	EST_LOG(GameSettings, Normal, "Game Settings Saved");
+}
+
 float UEstGameInstance::GetPlayPosition()
 {
 	if (AudioComponent == nullptr)
@@ -297,7 +310,7 @@ bool UEstGameInstance::Tick(float DeltaTime)
 	return true;
 }
 
-void UEstGameInstance::ApplyAudioSettings(UEstGameSettingsSave* GameSettings)
+void UEstGameInstance::ApplyAudioSettings()
 {
 	FAudioDeviceHandle AudioDeviceHandle = GEngine->GetActiveAudioDevice();
 	if (!AudioDeviceHandle.IsValid())

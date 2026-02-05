@@ -18,8 +18,6 @@ void UEstHUDWidget::NativeConstruct()
 
 	OnPossessedPawnChanged(nullptr, Controller->GetPawn());
 
-	SubtitleFontSizeMultiplier = 1.0f;
-
 	FSubtitleManager::GetSubtitleManager()->OnSetSubtitleText().AddUObject(this, &UEstHUDWidget::HandleSetSubtitleText);
 
 	Super::NativeConstruct();
@@ -63,8 +61,6 @@ void UEstHUDWidget::NewSubtitle(const FText &SubtitleText)
 		NewSubtitle.bIsHidden = false;
 		NewSubtitle.SubtitleId = FGuid::NewGuid();
 		NewSubtitle.SubtitleText = SubtitleText;
-		NewSubtitle.bUseSimpleSubtitleFont = bUseSimpleSubtitleFont;
-		NewSubtitle.SubtitleFontSizeMultiplier = SubtitleFontSizeMultiplier;
 		Subtitles.Add(NewSubtitle);
 		OnShowSubtitle(NewSubtitle);
 	}

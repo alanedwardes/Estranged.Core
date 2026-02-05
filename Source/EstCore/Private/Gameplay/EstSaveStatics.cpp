@@ -356,24 +356,6 @@ void UEstSaveStatics::SerializeLowLevel(UObject* Object, TArray<uint8>& InBytes)
 	Object->Serialize(Ar);
 }
 
-UEstGameSettingsSave* UEstSaveStatics::LoadGameSettings()
-{
-	UEstGameSettingsSave* Save = Cast<UEstGameSettingsSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_GAME_SETTINGS, 0));
-	if (Save == nullptr)
-	{
-		Save = NewObject<UEstGameSettingsSave>();
-	}
-
-	return Save;
-}
-
-void UEstSaveStatics::SaveGameSettings(UEstGameSettingsSave* GameSettings)
-{
-	UGameplayStatics::SaveGameToSlot(GameSettings, SAVE_SLOT_GAME_SETTINGS, 0);
-
-	EST_LOG(GameSettings, Normal, "Game Settings Saved");
-}
-
 UEstCheckpointSave* UEstSaveStatics::LoadCheckpoints()
 {
 	UEstCheckpointSave* Save = Cast<UEstCheckpointSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_CHECKPOINTS, 0));

@@ -11,7 +11,7 @@ struct ESTCORE_API FEstSubtitle
 {
 	GENERATED_BODY()
 
-	FEstSubtitle() : bIsClosedCaption(false), bUseSimpleSubtitleFont(false), SubtitleFontSizeMultiplier(1.f) {}
+	FEstSubtitle() : bIsClosedCaption(false) {}
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -22,12 +22,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bIsClosedCaption;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool bUseSimpleSubtitleFont;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float SubtitleFontSizeMultiplier;
 
 	bool bIsHidden;
 };
@@ -50,9 +44,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstPlayerController> Controller;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = General)
-	void OnSettingsUpdated();
-
 	// Begin weapon
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TWeakObjectPtr<class AEstFirearmWeapon> Firearm;
@@ -74,30 +65,6 @@ public:
 	// End weapon
 
 	// Begin subtitles
-	UFUNCTION(BlueprintPure)
-	bool GetEnableClosedCaptions() { return bEnableClosedCaptions || bForceClosedCaptions; };
-
-	UFUNCTION(BlueprintPure)
-	bool GetEnableSubtitles() { return !bDisableSubtitles; };
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	bool bDisableSubtitles;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	bool bEnableClosedCaptions;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	bool bForceClosedCaptions;
-
-	UFUNCTION(BlueprintCallable)
-	void SetForceClosedCaptions(bool bNewForceClosedCaptions) { bForceClosedCaptions = bNewForceClosedCaptions; };
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	bool bUseSimpleSubtitleFont;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	float SubtitleFontSizeMultiplier;
-
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FText LastSubtitleText;
 

@@ -40,8 +40,6 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	Camera->bUsePawnControlRotation = true;
 	Camera->SetupAttachment(GetRootComponent());
 
-	SetFieldOfView(UEstSaveStatics::LoadGameSettings()->FieldOfView);
-
 	CameraSmoothSpeed = 22.f;
 
 	ZoomFieldOfView = 40.f;
@@ -368,6 +366,12 @@ void AEstPlayer::UpdateCameraTick(float DeltaSeconds)
 void AEstPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UEstGameInstance* GameInstance = Cast<UEstGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		SetFieldOfView(GameInstance->GameSettings->FieldOfView);
+	}
 
 	Camera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 }

@@ -37,4 +37,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float FieldOfView;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
+	float SubtitleScale;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
+	bool bSubtitlesDisabled;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
+	bool bClosedCaptionsEnabled;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Subtitles)
+	bool bSimplifiedSubtitleFont;
 };
