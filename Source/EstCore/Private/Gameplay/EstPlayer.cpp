@@ -136,6 +136,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	AirSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("AirSound"));
 	AirSound->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	AirSound->SetVolumeMultiplier(0.f);
+	AirSound->bSuppressSubtitles = true;
 
 	VelocityAirEffectsThreshold = 1024.0;
 	VelocityDamageThreshold = 2048.0;
