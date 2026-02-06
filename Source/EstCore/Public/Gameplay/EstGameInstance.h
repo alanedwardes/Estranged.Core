@@ -129,6 +129,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Settings)
 	void SaveGameSettings();
+
+	UFUNCTION(BlueprintCallable, Category = Settings)
+	void LoadGameSettings();
 private:
 	class UAudioComponent* AudioComponent;
 

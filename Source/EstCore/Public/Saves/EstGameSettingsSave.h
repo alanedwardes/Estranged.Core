@@ -21,6 +21,7 @@ public:
 		VoiceVolume = 1.f;
 		MusicVolume = 1.f;
 		FieldOfView = 110.f;
+		SubtitleScale = 1.f;
 	}
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume)

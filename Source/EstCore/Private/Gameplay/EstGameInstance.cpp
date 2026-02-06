@@ -27,6 +27,8 @@ void UEstGameInstance::Init()
 	FTickerDelegate TickDelegate = FTickerDelegate::CreateUObject(this, &UEstGameInstance::Tick);
 	TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
 
+	LoadGameSettings();
+
 	Super::Init();
 }
 
@@ -103,12 +105,6 @@ void UEstGameInstance::OnStart()
 		CVarScalabilityResolutionQuality->Set(100.f);
 	}
 	// END HACK TO FIX RESOLUTION SCALE BUG IN UNREAL ENGINE 5.6
-
-	GameSettings = Cast<UEstGameSettingsSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_GAME_SETTINGS, 0));
-	if (GameSettings == nullptr)
-	{
-		GameSettings = NewObject<UEstGameSettingsSave>();
-	}
 
 	ApplyAudioSettings();
 }
@@ -253,6 +249,15 @@ void UEstGameInstance::SaveGameSettings()
 	UGameplayStatics::SaveGameToSlot(GameSettings, SAVE_SLOT_GAME_SETTINGS, 0);
 
 	EST_LOG(GameSettings, Normal, "Game Settings Saved");
+}
+
+void UEstGameInstance::LoadGameSettings()
+{
+	GameSettings = Cast<UEstGameSettingsSave>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_GAME_SETTINGS, 0));
+	if (GameSettings == nullptr)
+	{
+		GameSettings = NewObject<UEstGameSettingsSave>();
+	}
 }
 
 float UEstGameInstance::GetPlayPosition()
