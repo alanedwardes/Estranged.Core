@@ -15,8 +15,11 @@ private:
 	static void OnOutOfMemory();
 	static void OnGPUOutOfMemory(const uint64, const uint64);
 
+	static void OnEndFrame();
+	static void OnPreLoadMap(const FString& MapName);
+	static void OnPostLoadMap(UWorld* World);
+
 	static void SendReport(const FString& Reason, const FString& QueryParams = TEXT(""));
 
 	static FString CollectGameUserSettings();
-	static void OnConfigSaved(const TCHAR* IniFilename, const FString& ContentsToSave, int32& SavedCount);
 };

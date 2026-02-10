@@ -7,13 +7,25 @@
 #include "Misc/ScopeLock.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Async/Async.h"
+#include "Misc/App.h"
+#include "Engine/World.h"
 
 static FDelegateHandle OnCrashHandle;
 static FDelegateHandle OnStartupHandle;
 static FDelegateHandle OnOutOfMemoryHandle;
 static FDelegateHandle OnGPUOutOfMemoryHandle;
 static FDelegateHandle OnPreExitHandle;
-static FDelegateHandle ConfigSaveHandle;
+
+static FDelegateHandle OnEndFrameHandle;
+static FDelegateHandle PreLoadMapHandle;
+static FDelegateHandle PostLoadMapHandle;
+
+static bool bIsLoading = false;
+static double TotalSessionTime = 0.0;
+static uint64 TotalFrameCount = 0;
+static uint64 Frames_Above60 = 0;
+static uint64 Frames_30to60 = 0;
+static uint64 Frames_Below30 = 0;
 
 void FEstTelemetry::Init()
 {
@@ -22,7 +34,18 @@ void FEstTelemetry::Init()
 	OnOutOfMemoryHandle = FCoreDelegates::GetOutOfMemoryDelegate().AddStatic(&FEstTelemetry::OnOutOfMemory);
 	OnGPUOutOfMemoryHandle = FCoreDelegates::GetGPUOutOfMemoryDelegate().AddStatic(&FEstTelemetry::OnGPUOutOfMemory);
 	OnPreExitHandle = FCoreDelegates::OnPreExit.AddStatic(&FEstTelemetry::OnPreExit);
-	ConfigSaveHandle = FCoreDelegates::TSPreSaveConfigFileDelegate().AddStatic(&FEstTelemetry::OnConfigSaved);
+
+	OnEndFrameHandle = FCoreDelegates::OnEndFrame.AddStatic(&FEstTelemetry::OnEndFrame);
+	PreLoadMapHandle = FCoreUObjectDelegates::PreLoadMap.AddStatic(&FEstTelemetry::OnPreLoadMap);
+	PostLoadMapHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddStatic(&FEstTelemetry::OnPostLoadMap);
+
+	// Reset stats
+	TotalSessionTime = 0.0;
+	TotalFrameCount = 0;
+	Frames_Above60 = 0;
+	Frames_30to60 = 0;
+	Frames_Below30 = 0;
+	bIsLoading = false;
 }
 
 void FEstTelemetry::Shutdown()
@@ -39,11 +62,13 @@ void FEstTelemetry::Shutdown()
 	OnGPUOutOfMemoryHandle.Reset();
 	OnPreExitHandle.Reset();
 
-	if (ConfigSaveHandle.IsValid())
-	{
-		FCoreDelegates::TSPreSaveConfigFileDelegate().Remove(ConfigSaveHandle);
-		ConfigSaveHandle.Reset();
-	}
+	FCoreDelegates::OnEndFrame.Remove(OnEndFrameHandle);
+	FCoreUObjectDelegates::PreLoadMap.Remove(PreLoadMapHandle);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadMapHandle);
+
+	OnEndFrameHandle.Reset();
+	PreLoadMapHandle.Reset();
+	PostLoadMapHandle.Reset();
 }
 
 void FEstTelemetry::OnCrash()
@@ -58,18 +83,29 @@ void FEstTelemetry::OnStartup()
 
 void FEstTelemetry::OnPreExit()
 {
-	SendReport(TEXT("settings"), CollectGameUserSettings());
-}
-
-void FEstTelemetry::OnConfigSaved(const TCHAR* IniFilename, const FString& ContentsToSave, int32& SavedCount)
-{
-	if (FString(IniFilename).Contains(TEXT("GameUserSettings")))
+	if (TotalFrameCount > 0)
 	{
-		AsyncTask(ENamedThreads::GameThread, []()
-		{
-			SendReport(TEXT("settings"), CollectGameUserSettings());
-		});
+		FString Params;
+		
+		const double AvgFps = TotalSessionTime > 0 ? (double)TotalFrameCount / TotalSessionTime : 0.0;
+		Params += FString::Printf(TEXT("avg_fps=%.2f&"), AvgFps);
+		
+		const float PctAbove60 = (float)Frames_Above60 / (float)TotalFrameCount * 100.0f;
+		Params += FString::Printf(TEXT("pct_above_60=%.2f&"), PctAbove60);
+		
+		const float Pct30to60 = (float)Frames_30to60 / (float)TotalFrameCount * 100.0f;
+		Params += FString::Printf(TEXT("pct_30_to_60=%.2f&"), Pct30to60);
+		
+		const float PctBelow30 = (float)Frames_Below30 / (float)TotalFrameCount * 100.0f;
+		Params += FString::Printf(TEXT("pct_below_30=%.2f&"), PctBelow30);
+
+		Params += FString::Printf(TEXT("total_frames=%llu&"), TotalFrameCount);
+		Params += FString::Printf(TEXT("session_time=%.2f"), TotalSessionTime);
+
+		SendReport(TEXT("frames"), Params);
 	}
+	
+	SendReport(TEXT("settings"), CollectGameUserSettings());
 }
 
 void FEstTelemetry::OnOutOfMemory()
@@ -80,6 +116,51 @@ void FEstTelemetry::OnOutOfMemory()
 void FEstTelemetry::OnGPUOutOfMemory(const uint64 Size, const uint64 Available)
 {
 	SendReport(TEXT("oom_gpu"), FString::Printf(TEXT("size=%llu&available=%llu"), Size, Available));
+}
+
+void FEstTelemetry::OnEndFrame()
+{
+	if (bIsLoading)
+	{
+		return;
+	}
+
+	if (GWorld == nullptr || !GWorld->HasBegunPlay())
+	{
+		return;
+	}
+
+	const double DT = FApp::GetDeltaTime();
+	if (DT <= 0.0)
+	{
+		return;
+	}
+
+	TotalSessionTime += DT;
+	TotalFrameCount++;
+
+	if (DT <= 0.01667) // 60 FPS = 16.666ms
+	{
+		Frames_Above60++;
+	}
+	else if (DT <= 0.03334) // 30 FPS = 33.333ms
+	{
+		Frames_30to60++;
+	}
+	else
+	{
+		Frames_Below30++;
+	}
+}
+
+void FEstTelemetry::OnPreLoadMap(const FString& MapName)
+{
+	bIsLoading = true;
+}
+
+void FEstTelemetry::OnPostLoadMap(UWorld* World)
+{
+	bIsLoading = false;
 }
 
 void FEstTelemetry::SendReport(const FString& Reason, const FString& QueryParams)
