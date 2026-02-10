@@ -99,7 +99,6 @@ void FEstTelemetry::OnPreExit()
 		const float PctBelow30 = (float)Frames_Below30 / (float)TotalFrameCount * 100.0f;
 		Params += FString::Printf(TEXT("pct_below_30=%.2f&"), PctBelow30);
 
-		Params += FString::Printf(TEXT("total_frames=%llu&"), TotalFrameCount);
 		Params += FString::Printf(TEXT("session_time=%.2f"), TotalSessionTime);
 
 		SendReport(TEXT("frames"), Params);
