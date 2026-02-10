@@ -1,0 +1,18 @@
+#pragma once
+
+#include "CoreMinimal.h"
+
+class ESTCORE_API FEstTelemetry
+{
+public:
+	static void Init();
+	static void Shutdown();
+
+private:
+	static void OnCrash();
+	static void OnStartup();
+	static void OnOutOfMemory();
+	static void OnGPUOutOfMemory(const uint64, const uint64);
+
+	static void SendReport(const FString& Reason, const FString& QueryParams = TEXT(""));
+};
