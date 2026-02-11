@@ -12,6 +12,7 @@
 #include "Misc/Paths.h"
 #include "HAL/PlatformFileManager.h"
 #include "Misc/FileHelper.h"
+#include "HAL/IConsoleManager.h"
 
 static FDelegateHandle OnCrashHandle;
 static FDelegateHandle OnStartupHandle;
@@ -248,6 +249,12 @@ FString FEstTelemetry::CollectGameUserSettings()
 	Params += FString::Printf(TEXT("sg.FoliageQuality=%d&"), sg_Foliage);
 	Params += FString::Printf(TEXT("sg.ShadingQuality=%d&"), sg_Shading);
 	Params += FString::Printf(TEXT("sg.LandscapeQuality=%d&"), sg_Landscape);
+
+	static const auto CVarAntiAliasingMethod = IConsoleManager::Get().FindConsoleVariable(TEXT("r.AntiAliasingMethod"));
+	if (CVarAntiAliasingMethod != nullptr)
+	{
+		Params += FString::Printf(TEXT("r.AntiAliasingMethod=%d&"), CVarAntiAliasingMethod->GetInt());
+	}
 	
 	bool bUseVSync = GUS->IsVSyncEnabled();
 	FIntPoint Res = GUS->GetScreenResolution();
