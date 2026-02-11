@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EstTelemetry.generated.h"
 
 class ESTCORE_API FEstTelemetry
 {
@@ -22,4 +23,17 @@ private:
 	static void SendReport(const FString& Reason, const FString& QueryParams = TEXT(""));
 
 	static FString CollectGameUserSettings();
+};
+
+UCLASS()
+class ESTCORE_API UEstTelemetryStatics : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintPure, Category = "Telemetry")
+	static bool IsTelemetryEnabled();
+
+	UFUNCTION(BlueprintCallable, Category = "Telemetry")
+	static void SetTelemetryEnabled(bool bEnabled);
 };

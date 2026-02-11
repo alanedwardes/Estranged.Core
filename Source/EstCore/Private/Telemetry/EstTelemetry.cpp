@@ -9,6 +9,9 @@
 #include "Async/Async.h"
 #include "Misc/App.h"
 #include "Engine/World.h"
+#include "Misc/Paths.h"
+#include "HAL/PlatformFileManager.h"
+#include "Misc/FileHelper.h"
 
 static FDelegateHandle OnCrashHandle;
 static FDelegateHandle OnStartupHandle;
@@ -164,6 +167,11 @@ void FEstTelemetry::OnPostLoadMap(UWorld* World)
 
 void FEstTelemetry::SendReport(const FString& Reason, const FString& QueryParams)
 {
+	if (!UEstTelemetryStatics::IsTelemetryEnabled())
+	{
+		return;
+	}
+
 	FString StatsEndpoint;
 	if (GConfig)
 	{
@@ -257,4 +265,26 @@ FString FEstTelemetry::CollectGameUserSettings()
 	Params += FString::Printf(TEXT("HDRDisplayOutputNits=%d"), HDRNits);
 
 	return Params;
+}
+
+static FString GetOptOutFilePath()
+{
+	return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("NoTelemetry.txt"));
+}
+
+bool UEstTelemetryStatics::IsTelemetryEnabled()
+{
+	return !FPlatformFileManager::Get().GetPlatformFile().FileExists(*GetOptOutFilePath());
+}
+
+void UEstTelemetryStatics::SetTelemetryEnabled(bool bEnabled)
+{
+	if (bEnabled)
+	{
+		FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*GetOptOutFilePath());
+	}
+	else
+	{
+		FFileHelper::SaveStringToFile(TEXT(""), *GetOptOutFilePath());
+	}
 }
