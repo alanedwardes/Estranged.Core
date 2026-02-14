@@ -91,8 +91,10 @@ bool UEstGameInstance::GetCheatsEnabled()
 
 void UEstGameInstance::OnStart()
 {
-	if (FApp::GetBuildConfiguration() != EBuildConfiguration::Shipping ||
-		FParse::Param(FCommandLine::Get(), TEXT("Cheats")))
+	const bool bIsShipping = FApp::GetBuildConfiguration() == EBuildConfiguration::Shipping;
+	const bool bIsMovieRender = FParse::Param(FCommandLine::Get(), TEXT("MoviePipeline"));
+	const bool bAreCheatsEnabled = FParse::Param(FCommandLine::Get(), TEXT("Cheats"));
+	if ((!bIsShipping || bAreCheatsEnabled) && !bIsMovieRender)
 	{
 		SetCheatsEnabled(true);
 		SetLoggerEnabled(true);
