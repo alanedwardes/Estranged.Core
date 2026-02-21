@@ -30,7 +30,8 @@ namespace UnrealBuildTool.Rules
                     "ChaosSolverEngine",
                     "GeometryCollectionEngine",
                     "EnhancedInput",
-                    "FieldSystemEngine"
+                    "FieldSystemEngine",
+                    "ImageDownload"
             });
 
             if (Target.Type == TargetType.Editor)
