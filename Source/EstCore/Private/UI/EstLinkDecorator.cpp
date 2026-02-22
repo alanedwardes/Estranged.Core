@@ -15,6 +15,16 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstLinkDecorator)
 
+struct FEstRichTextBlockAccessor : public URichTextBlock
+{
+	static TArray<TSharedRef<ITextDecorator>> GetDecorators(URichTextBlock* RichTextBlock)
+	{
+		TArray<TSharedRef<ITextDecorator>> OutDecorators;
+		((FEstRichTextBlockAccessor*)RichTextBlock)->CreateDecorators(OutDecorators);
+		return OutDecorators;
+	}
+};
+
 class FEstLinkDecorator : public ITextDecorator
 {
 public:
@@ -63,6 +73,7 @@ public:
 				.Text(RunInfo.Content)
 				.TextStyle(&TextStyle)
 				.DecoratorStyleSet(Style)
+				.Decorators(FEstRichTextBlockAccessor::GetDecorators(Owner))
 				.Visibility(EVisibility::Visible)
 			];
 
