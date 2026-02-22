@@ -3,6 +3,7 @@
 #include "Gameplay/EstSkinnedMeshCacheComponent.h"
 #include "EstCore.h"
 #include "Runtime/Engine/Classes/Components/SkinnedMeshComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstSkinnedMeshCacheComponent)
 
 UEstSkinnedMeshCacheComponent::UEstSkinnedMeshCacheComponent(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

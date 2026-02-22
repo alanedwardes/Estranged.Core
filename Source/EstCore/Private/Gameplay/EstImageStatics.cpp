@@ -3,6 +3,7 @@
 #include "ImageUtils.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstImageStatics)
 
 bool UEstImageStatics::CompressImageToJpeg(const TArray<FColor> &SrcData, TArray<uint8> &DstData, int32 Width, int32 Height, int32 Quality)
 {

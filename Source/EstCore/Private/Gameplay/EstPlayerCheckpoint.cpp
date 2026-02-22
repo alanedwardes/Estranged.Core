@@ -10,6 +10,7 @@
 #include "Saves/EstCheckpointSave.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Gameplay/EstGameInstance.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPlayerCheckpoint)
 
 AEstPlayerCheckpoint::AEstPlayerCheckpoint(const class FObjectInitializer& PCIP)
 	: Super(PCIP)

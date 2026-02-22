@@ -6,6 +6,7 @@
 #include "Gameplay/EstHealthComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/Controller.h"
 #include "Runtime/Engine/Public/TimerManager.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstAICharacter)
 
 AEstAICharacter::AEstAICharacter(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

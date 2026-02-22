@@ -13,6 +13,7 @@
 #include "HAL/PlatformFileManager.h"
 #include "Misc/FileHelper.h"
 #include "HAL/IConsoleManager.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstTelemetry)
 
 static FDelegateHandle OnCrashHandle;
 static FDelegateHandle OnStartupHandle;
@@ -24,7 +25,7 @@ static FDelegateHandle OnEndFrameHandle;
 static FDelegateHandle PreLoadMapHandle;
 static FDelegateHandle PostLoadMapHandle;
 
-static bool bIsLoading = false;
+static bool bIsLoadingForTelemetry = false;
 static double TotalSessionTime = 0.0;
 static uint64 TotalFrameCount = 0;
 static uint64 Frames_Above60 = 0;
@@ -49,7 +50,7 @@ void FEstTelemetry::Init()
 	Frames_Above60 = 0;
 	Frames_30to60 = 0;
 	Frames_Below30 = 0;
-	bIsLoading = false;
+	bIsLoadingForTelemetry = false;
 }
 
 void FEstTelemetry::Shutdown()
@@ -123,7 +124,7 @@ void FEstTelemetry::OnGPUOutOfMemory(const uint64 Size, const uint64 Available)
 
 void FEstTelemetry::OnEndFrame()
 {
-	if (bIsLoading)
+	if (bIsLoadingForTelemetry)
 	{
 		return;
 	}
@@ -158,12 +159,12 @@ void FEstTelemetry::OnEndFrame()
 
 void FEstTelemetry::OnPreLoadMap(const FString& MapName)
 {
-	bIsLoading = true;
+	bIsLoadingForTelemetry = true;
 }
 
 void FEstTelemetry::OnPostLoadMap(UWorld* World)
 {
-	bIsLoading = false;
+	bIsLoadingForTelemetry = false;
 }
 
 void FEstTelemetry::SendReport(const FString& Reason, const FString& QueryParams)

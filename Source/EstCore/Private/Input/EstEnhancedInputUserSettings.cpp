@@ -2,6 +2,7 @@
 
 
 #include "Input/EstEnhancedInputUserSettings.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstEnhancedInputUserSettings)
 
 UEstEnhancedInputUserSettings::UEstEnhancedInputUserSettings()
 {

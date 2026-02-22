@@ -1,5 +1,6 @@
 #include "Materials/MaterialExpressionGerstnerWave.h"
 #include "MaterialCompiler.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(MaterialExpressionGerstnerWave)
 
 UMaterialExpressionGerstnerWave::UMaterialExpressionGerstnerWave(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

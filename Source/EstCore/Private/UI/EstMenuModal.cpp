@@ -2,6 +2,7 @@
 
 
 #include "UI/EstMenuModal.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstMenuModal)
 
 void UEstMenuModal::OnBack_Implementation()
 {

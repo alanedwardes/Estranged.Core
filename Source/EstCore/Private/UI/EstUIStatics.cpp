@@ -4,6 +4,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ScrollBox.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstUIStatics)
 
 void UEstUIStatics::GetChildrenRecursively(UUserWidget* UserWidget, TArray<UWidget*>& Widgets)
 {

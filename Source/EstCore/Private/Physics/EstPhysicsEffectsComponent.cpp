@@ -12,6 +12,7 @@
 #include "Gameplay/EstGameInstance.h"
 #include "Volumes/EstWaterVolume.h"
 #include "UserData/EstPhysicsUserData.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPhysicsEffectsComponent)
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
 

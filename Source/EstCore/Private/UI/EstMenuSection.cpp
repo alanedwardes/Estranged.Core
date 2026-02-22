@@ -8,6 +8,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/ScrollBox.h"
 #include "Blueprint/WidgetTree.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstMenuSection)
 
 ESlateVisibility UEstMenuSection::VisibleOnDesktop() const
 {

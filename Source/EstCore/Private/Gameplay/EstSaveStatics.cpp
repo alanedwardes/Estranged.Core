@@ -22,6 +22,7 @@
 #include "Saves/EstGameSettingsSave.h"
 #include "AudioDevice.h"
 #include "Gameplay/EstGameInstance.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstSaveStatics)
 
 bool UEstSaveStatics::IsActorValidForSaving(AActor* Actor)
 {

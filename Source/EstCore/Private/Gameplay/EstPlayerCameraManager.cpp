@@ -5,6 +5,7 @@
 #include "Gameplay/EstPlayer.h"
 #include "Gameplay/EstBaseWeapon.h"
 #include "Runtime/Slate/Public/Widgets/SViewport.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPlayerCameraManager)
 
 void AEstPlayerCameraManager::OnPhotographySessionStart_Implementation()
 {

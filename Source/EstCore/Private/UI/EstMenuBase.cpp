@@ -5,6 +5,7 @@
 #include "Components/ScrollBox.h"
 #include "Blueprint/WidgetTree.h"
 #include "Framework/Application/SlateApplication.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstMenuBase)
 
 void UEstMenuBase::OnBack_Implementation()
 {

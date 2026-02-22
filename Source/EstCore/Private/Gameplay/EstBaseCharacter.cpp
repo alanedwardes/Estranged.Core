@@ -10,6 +10,7 @@
 #include "Gameplay/EstHealthComponent.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Gameplay/EstGameplayStatics.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstBaseCharacter)
 
 AEstBaseCharacter::AEstBaseCharacter(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UEstCharacterMovementComponent>(CharacterMovementComponentName))

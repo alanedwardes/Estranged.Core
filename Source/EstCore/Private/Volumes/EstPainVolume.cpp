@@ -6,6 +6,7 @@
 #include "Components/BrushComponent.h"
 #include "EstConstants.h"
 #include "TimerManager.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPainVolume)
 
 AEstPainVolume::AEstPainVolume()
 {

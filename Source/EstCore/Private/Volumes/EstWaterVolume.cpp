@@ -11,6 +11,7 @@
 #include "Engine/Selection.h"
 #include "UObject/ConstructorHelpers.h"
 #include "DrawDebugHelpers.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstWaterVolume)
 
 #define WAVE_ECLUDER_MATERIAL_PARAMETER "WaveExcluder"
 #define WAVE_INTENSITY_MATERIAL_PARAMETER "WaveIntensity"

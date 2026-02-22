@@ -1,6 +1,7 @@
 #include "Gameplay/EstResourceComponent.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "EstCore.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstResourceComponent)
 
 UEstResourceComponent::UEstResourceComponent()
 {

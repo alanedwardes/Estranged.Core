@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraModifier.h"
 #include "Components/AudioComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstWaterManifest)
 
 #define REVERB_TAG_UNDERWATER "Underwater"
 #define WATER_SURFACE_EYES_MATERIAL_PARAMETER "WaterSurfaceAtEyes"

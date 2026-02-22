@@ -9,6 +9,7 @@
 #include "Interfaces/EstLadder.h"
 #include "Kismet/GameplayStatics.h"
 #include "Volumes/EstWaterVolume.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstCharacterMovementComponent)
 
 UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)

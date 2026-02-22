@@ -4,6 +4,7 @@
 #include "EnhancedPlayerInput.h"
 #include "EnhancedInputSubsystems.h"
 #include "Input/EstEnhancedInputUserSettings.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstInputModifiers)
 
 FInputActionValue UEstInputModifierMouse::ModifyRaw_Implementation(const UEnhancedPlayerInput* PlayerInput, FInputActionValue CurrentValue, float DeltaTime)
 {

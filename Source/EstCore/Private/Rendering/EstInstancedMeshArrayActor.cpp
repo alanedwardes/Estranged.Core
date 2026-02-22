@@ -3,6 +3,7 @@
 #include "Rendering/EstInstancedMeshArrayActor.h"
 #include "Engine/CollisionProfile.h"
 #include "Rendering/EstInstancedMeshArrayComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstInstancedMeshArrayActor)
 
 AEstInstancedMeshArrayActor::AEstInstancedMeshArrayActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

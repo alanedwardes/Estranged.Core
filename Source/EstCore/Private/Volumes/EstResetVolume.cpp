@@ -4,6 +4,7 @@
 #include "GameFramework/Pawn.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/GameplayStatics.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstResetVolume)
 
 AEstResetVolume::AEstResetVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

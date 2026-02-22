@@ -11,6 +11,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
 #include "Engine/PlayerStartPIE.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstGameMode)
 
 void AEstGameMode::HandleMatchHasStarted()
 {

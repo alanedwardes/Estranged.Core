@@ -12,6 +12,7 @@
 #include "Runtime/Engine/Public/AudioDevice.h"
 #include "Gameplay/EstSaveStatics.h"
 #include "Saves/EstGameSettingsSave.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstGameInstance)
 
 void UEstGameInstance::Init()
 {

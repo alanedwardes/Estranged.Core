@@ -14,6 +14,7 @@
 #include "Gameplay/EstGameInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPhysicsCollisionHandler)
 
 #define MAX_VELOCITY 512.f
 

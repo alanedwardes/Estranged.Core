@@ -4,6 +4,7 @@
 #include "EstCore.h"
 #include "Components/BrushComponent.h"
 #include "Gameplay/EstFootstepComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstFootstepVolume)
 
 AEstFootstepVolume::AEstFootstepVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

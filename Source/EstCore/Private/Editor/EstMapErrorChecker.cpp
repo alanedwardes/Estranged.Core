@@ -15,6 +15,7 @@
 #include "Sound/SoundClass.h"
 #include "Engine/CollisionProfile.h"
 #include "Physics/EstPhysicsEffectsComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstMapErrorChecker)
 
 #if WITH_EDITOR
 void AEstMapErrorChecker::CheckForErrors()

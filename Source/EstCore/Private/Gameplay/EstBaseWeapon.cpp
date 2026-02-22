@@ -6,6 +6,7 @@
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
 #include "Gameplay/EstBaseCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstBaseWeapon)
 
 AEstBaseWeapon::AEstBaseWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)

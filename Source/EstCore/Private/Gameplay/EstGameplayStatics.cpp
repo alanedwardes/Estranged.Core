@@ -45,6 +45,7 @@
 #include "SceneView.h"
 #include "ShaderPipelineCache.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstGameplayStatics)
 
 extern ENGINE_API float GAverageFPS;
 extern ENGINE_API float GAverageMS;

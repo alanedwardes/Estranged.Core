@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerInput.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPlayerController)
 
 AEstPlayerController::AEstPlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)

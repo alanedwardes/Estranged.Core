@@ -2,6 +2,7 @@
 
 #include "Physics/EstPhysicsStrainComponent.h"
 #include "Field/FieldSystemComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPhysicsStrainComponent)
 
 UEstPhysicsStrainComponent::UEstPhysicsStrainComponent()
 {

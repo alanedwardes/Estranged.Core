@@ -6,6 +6,7 @@
 #include "GameFramework/DamageType.h"
 #include "Engine/DamageEvents.h"
 #include "EstConstants.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPainSphereComponent)
 
 void UEstPainSphereComponent::OnPainComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

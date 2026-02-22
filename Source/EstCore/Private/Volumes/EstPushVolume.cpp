@@ -4,6 +4,7 @@
 #include "Components/BrushComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/Pawn.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstPushVolume)
 
 AEstPushVolume::AEstPushVolume(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

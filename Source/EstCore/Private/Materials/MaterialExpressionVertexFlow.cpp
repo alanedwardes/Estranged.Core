@@ -1,5 +1,6 @@
 #include "Materials/MaterialExpressionVertexFlow.h"
 #include "MaterialCompiler.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(MaterialExpressionVertexFlow)
 
 UMaterialExpressionVertexFlow::UMaterialExpressionVertexFlow(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

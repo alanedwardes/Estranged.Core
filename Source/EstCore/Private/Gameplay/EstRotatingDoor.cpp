@@ -4,6 +4,7 @@
 #include "Components/ArrowComponent.h"
 #include "Gameplay/EstBaseCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstRotatingDoor)
 
 AEstRotatingDoor::AEstRotatingDoor(const FObjectInitializer& ObjectInitializer)
 {

@@ -2,6 +2,7 @@
 
 
 #include "Sound/EstAudioComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstAudioComponent)
 
 UEstAudioComponent::UEstAudioComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

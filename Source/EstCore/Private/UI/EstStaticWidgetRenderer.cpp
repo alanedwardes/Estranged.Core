@@ -11,6 +11,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/DecalComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstStaticWidgetRenderer)
 
 // Sets default values
 AEstStaticWidgetRenderer::AEstStaticWidgetRenderer(const class FObjectInitializer& PCIP)

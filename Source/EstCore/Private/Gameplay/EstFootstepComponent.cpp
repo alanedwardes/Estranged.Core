@@ -9,6 +9,7 @@
 #include "Physics/EstImpactEffect.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstFootstepComponent)
 
 UEstFootstepComponent::UEstFootstepComponent()
 {

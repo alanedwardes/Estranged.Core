@@ -5,6 +5,7 @@
 #include "Gameplay/EstBaseCharacter.h"
 #include "Runtime/AIModule/Classes/Perception/AISense_Hearing.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstFirearmWeapon)
 
 AEstFirearmWeapon::AEstFirearmWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)

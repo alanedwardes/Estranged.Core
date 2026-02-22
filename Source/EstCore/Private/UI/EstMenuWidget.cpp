@@ -10,6 +10,7 @@
 #include "Gameplay/EstPlayerController.h"
 #include "Framework/Application/SlateApplication.h"
 #include "EstCore.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstMenuWidget)
 
 void UEstMenuWidget::Action(FEstMenuAction MenuAction)
 {

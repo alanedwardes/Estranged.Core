@@ -2,6 +2,7 @@
 #include "EstConstants.h"
 #include "Runtime/AIModule/Classes/BrainComponent.h"
 #include "Runtime/AIModule/Classes/BehaviorTree/BlackboardComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstAIController)
 
 AEstAIController::AEstAIController(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

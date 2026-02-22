@@ -3,6 +3,7 @@
 #include "Rendering/EstLightFlickerComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Components/LightComponent.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstLightFlickerComponent)
 
 UEstLightFlickerComponent::UEstLightFlickerComponent()
 {

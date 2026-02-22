@@ -2,6 +2,7 @@
 #include "Engine/EngineTypes.h"
 #include "Engine/DamageEvents.h"
 #include "EstCore.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(EstHealthComponent)
 
 void UEstHealthComponent::OnPostRestore_Implementation()
 {
