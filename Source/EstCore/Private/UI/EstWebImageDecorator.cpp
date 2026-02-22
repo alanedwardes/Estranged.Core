@@ -24,7 +24,7 @@ public:
 			: _FadeDuration(0.25f)
 			, _BackgroundTint(FLinearColor::White)
 		{}
-		SLATE_ARGUMENT(FString, Url)
+		SLATE_ARGUMENT(FString, Src)
 		SLATE_ARGUMENT(float, FadeDuration)
 		SLATE_ARGUMENT(const FSlateBrush*, BackgroundBrush)
 		SLATE_ARGUMENT(FLinearColor, BackgroundTint)
@@ -38,7 +38,7 @@ public:
 		TOptional<int32> Height,
 		EStretch::Type Stretch)
 	{
-		Url = InArgs._Url;
+		Src = InArgs._Src;
 		FadeDuration = InArgs._FadeDuration;
 		BackgroundTintCopy = InArgs._BackgroundTint;
 
@@ -114,7 +114,7 @@ public:
 			if (FSlateRect::DoRectanglesIntersect(MyCullingRect, AllottedGeometry.GetLayoutBoundingRect()))
 			{
 				bDownloadStarted = true;
-				WebImage->BeginDownload(Url, FWebImage::FOnImageDownloaded::CreateSP(
+				WebImage->BeginDownload(Src, FWebImage::FOnImageDownloaded::CreateSP(
 					const_cast<SEstInlineWebImage*>(this), &SEstInlineWebImage::OnDownloadComplete));
 			}
 		}
@@ -164,7 +164,7 @@ private:
 	FSlateBrush ForegroundBrushCopy;
 	FSlateBrush BackgroundBrushCopy;
 	FLinearColor BackgroundTintCopy;
-	FString Url;
+	FString Src;
 	TSharedPtr<FWebImage> WebImage;
 	float FadeDuration = 0.25f;
 
@@ -184,7 +184,7 @@ public:
 	virtual bool Supports(const FTextRunParseResults& RunParseResult, const FString& Text) const override
 	{
 		return RunParseResult.Name == TEXT("img")
-			&& RunParseResult.MetaData.Contains(TEXT("url"));
+			&& RunParseResult.MetaData.Contains(TEXT("src"));
 	}
 
 protected:
@@ -193,7 +193,7 @@ protected:
 		const FTextBlockStyle& TextStyle) const override
 	{
 		const FSlateBrush* ForegroundBrush = &Decorator->ForegroundPlaceholderBrush;
-		const FString Url = RunInfo.MetaData[TEXT("url")];
+		const FString Src = RunInfo.MetaData[TEXT("src")];
 
 		FLinearColor BackgroundTint = FLinearColor::White;
 		if (const FString* BackgroundString = RunInfo.MetaData.Find(TEXT("background")))
@@ -233,7 +233,7 @@ protected:
 		}
 
 		return SNew(SEstInlineWebImage, ForegroundBrush, TextStyle, Width, Height, Stretch)
-			.Url(Url)
+			.Src(Src)
 			.FadeDuration(Decorator->FadeDuration)
 			.BackgroundBrush(&Decorator->BackgroundPlaceholderBrush)
 			.BackgroundTint(BackgroundTint);

@@ -9,7 +9,7 @@
 /**
  * Lazy-loads images from HTTP endpoints into a URichTextBlock.
  *
- * Handles <img url="..." width="64" height="64"/> tags. The download begins
+ * Handles <img src="..." width="64" height="64"/> tags. The download begins
  * the first time the widget is painted (viewport-culling aware), and the
  * placeholder fades out over FadeDuration seconds once it completes.
  */
