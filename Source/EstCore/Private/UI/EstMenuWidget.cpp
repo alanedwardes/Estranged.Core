@@ -268,8 +268,27 @@ FReply UEstMenuWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const 
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
+FReply UEstMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	const bool bWantsResume = InKeyEvent.GetKey() == EKeys::Escape || InKeyEvent.GetKey() == EKeys::Gamepad_Special_Right;
+	if (bWantsResume)
+	{
+		ResumeGame();
+		return FReply::Handled();
+	}
+
+	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+}
+
 void UEstMenuWidget::ResumeGame()
 {
+	// Special handling for modal - ask it to exit
+	if (CurrentMenuModal != nullptr)
+	{
+		CurrentMenuModal->OnBack();
+		return;
+	}
+
 	UEstGameInstance* EstGameInstance = Cast<UEstGameInstance>(GetWorld()->GetGameInstance());
 	AEstPlayerController* EstPlayerController = Cast<AEstPlayerController>(GetOwningPlayer());
 
