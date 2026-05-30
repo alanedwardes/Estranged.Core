@@ -298,7 +298,7 @@ public:
 	static bool IsDefaultPhysicalMaterial(const class UPhysicalMaterial* PhysicalMaterial);
 
 	UFUNCTION(BlueprintCallable, Category = Input)
-	static const TSet<FKey> GetHintKeys(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, class AEstPlayerController* Controller);
+	static const TSet<FKey> GetHintKeys(TArray<class UInputAction*> Bindings, class AEstPlayerController* Controller);
 	
 	UFUNCTION(BlueprintPure, Category = Game)
 	static void GetActorBoundingSphere(AActor* Actor, FVector& Origin, float& Radius);

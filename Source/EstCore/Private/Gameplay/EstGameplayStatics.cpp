@@ -13,6 +13,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "GenericPlatform/GenericPlatformCrashContext.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerInput.h"
+#include "EnhancedInputSubsystems.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "AudioDevice.h"
 #include "Gameplay/EstGameMode.h"
@@ -1133,31 +1134,29 @@ bool UEstGameplayStatics::AreActorsEyesInWaterVolume(AActor* Actor, AEstWaterVol
 	return Location.Z < WaterSurface.Z;
 }
 
-const TSet<FKey> UEstGameplayStatics::GetHintKeys(class UInputMappingContext* InputMappingContext, TArray<class UInputAction*> Bindings, AEstPlayerController* Controller)
+const TSet<FKey> UEstGameplayStatics::GetHintKeys(TArray<class UInputAction*> Bindings, AEstPlayerController* Controller)
 {
 	TSet<FKey> Keys;
-	if (InputMappingContext == nullptr)
+	if (Controller == nullptr)
 	{
 		return Keys;
 	}
 
-	TArray<FEnhancedActionKeyMapping> Mappings = InputMappingContext->GetMappings();
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = Controller->GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!Subsystem)
+	{
+		return Keys;
+	}
 
-	const bool bIsUsingGamepad = Controller == nullptr ? false : Controller->bIsUsingGamepad;
+	const bool bIsUsingGamepad = Controller->bIsUsingGamepad;
 
 	for (const UInputAction* Binding : Bindings)
 	{
-		// Find the mapping which pertains to this input action
-		TArray<FEnhancedActionKeyMapping> Found = Mappings.FilterByPredicate([Binding, bIsUsingGamepad](FEnhancedActionKeyMapping Mapping)
+		for (const FKey& Key : Subsystem->QueryKeysMappedToAction(Binding))
 		{
-			return Mapping.Action == Binding && Mapping.Key.IsGamepadKey() == bIsUsingGamepad;
-		});
-
-		for (const FEnhancedActionKeyMapping Mapping : Found)
-		{
-			if (Mapping.Key != EKeys::Invalid)
+			if (Key != EKeys::Invalid && Key.IsGamepadKey() == bIsUsingGamepad)
 			{
-				Keys.Add(Mapping.Key);
+				Keys.Add(Key);
 			}
 		}
 	}

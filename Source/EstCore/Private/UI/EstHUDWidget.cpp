@@ -99,7 +99,7 @@ const TSet<FKey> UEstHUDWidget::GetHintKeys() const
 {
 	if (Controller.IsValid())
 	{
-		return UEstGameplayStatics::GetHintKeys(Controller->FirstPersonMappingContext, HintBindings, Controller.Get());
+		return UEstGameplayStatics::GetHintKeys(HintBindings, Controller.Get());
 	}
 
 	return TSet<FKey>();
