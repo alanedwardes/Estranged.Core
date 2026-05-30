@@ -9,6 +9,7 @@
 #include "Gameplay/EstGameplayStatics.h"
 #include "Gameplay/EstPlayerController.h"
 #include "Framework/Application/SlateApplication.h"
+#include "EnhancedInputSubsystems.h"
 #include "EstCore.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstMenuWidget)
 
@@ -270,8 +271,9 @@ FReply UEstMenuWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const 
 
 FReply UEstMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-	const bool bWantsResume = InKeyEvent.GetKey() == EKeys::Escape || InKeyEvent.GetKey() == EKeys::Gamepad_Special_Right;
-	if (bWantsResume)
+	AEstPlayerController* PC = Cast<AEstPlayerController>(GetOwningPlayer());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (PC && Subsystem && Subsystem->QueryKeysMappedToAction(PC->MenuAction).Contains(InKeyEvent.GetKey()))
 	{
 		ResumeGame();
 		return FReply::Handled();
