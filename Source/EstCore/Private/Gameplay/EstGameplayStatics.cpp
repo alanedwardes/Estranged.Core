@@ -27,6 +27,8 @@
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "Misc/ConfigCacheIni.h"
+#include "SceneUtils.h"
+#include "RenderUtils.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Runtime/EngineSettings/Classes/GeneralProjectSettings.h"
 #include "Framework/Application/SlateApplication.h"
@@ -933,6 +935,30 @@ void UEstGameplayStatics::SetAntiAliasingMethod(int32 AntiAliasingMethod, bool b
 		GConfig->SetInt(ANTI_ALIASING_METHOD_INI_KEY, AntiAliasingMethod, GEngineIni);
 		GConfig->Flush(false, GEngineIni);
 	}
+}
+
+TMap<FString, int32> UEstGameplayStatics::GetAntiAliasingMethods()
+{
+	TMap<FString, int32> Result;
+	const UEnum* Enum = StaticEnum<EAntiAliasingMethod>();
+	const EShaderPlatform ShaderPlatform = GetFeatureLevelShaderPlatform(GMaxRHIFeatureLevel);
+
+	for (int32 i = 0; i < Enum->NumEnums() - 1; i++) // -1 to skip _MAX
+	{
+		const EAntiAliasingMethod Method = (EAntiAliasingMethod)Enum->GetValueByIndex(i);
+
+		if (Method == AAM_MSAA && !IsForwardShadingEnabled(ShaderPlatform))
+		{
+			continue;
+		}
+		if (Method == AAM_TSR && !SupportsTSR(ShaderPlatform))
+		{
+			continue;
+		}
+
+		Result.Add(FString(GetShortAntiAliasingName(Method)), (int32)Method);
+	}
+	return Result;
 }
 
 void UEstGameplayStatics::ParseVersion(FString Version, TArray<int32> &Components)

@@ -237,6 +237,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Configuration)
 	static void SetAntiAliasingMethod(int32 AntiAliasingMethod, bool bPersist);
 
+	/** Returns display name -> CVar int mappings for every valid EAntiAliasingMethod value, sourced from the engine enum at runtime. */
+	UFUNCTION(BlueprintPure, Category = Configuration)
+	static TMap<FString, int32> GetAntiAliasingMethods();
+
 	UFUNCTION(BlueprintPure, Category = Parsing)
 	static void ParseVersion(FString Version, TArray<int32> &Components);
 

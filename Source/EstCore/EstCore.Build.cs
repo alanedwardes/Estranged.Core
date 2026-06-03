@@ -26,6 +26,7 @@ namespace UnrealBuildTool.Rules
                     "AIModule",
                     "HTTP",
                     "RenderCore",
+                    "RHI",
                     "Chaos",
                     "ChaosSolverEngine",
                     "GeometryCollectionEngine",
