@@ -937,9 +937,11 @@ void UEstGameplayStatics::SetAntiAliasingMethod(int32 AntiAliasingMethod, bool b
 	}
 }
 
-TMap<FString, int32> UEstGameplayStatics::GetAntiAliasingMethods()
+void UEstGameplayStatics::GetAntiAliasingMethods(TArray<FText>& OutNames, TArray<int32>& OutIds)
 {
-	TMap<FString, int32> Result;
+	OutNames.Reset();
+	OutIds.Reset();
+
 	const UEnum* Enum = StaticEnum<EAntiAliasingMethod>();
 	const EShaderPlatform ShaderPlatform = GetFeatureLevelShaderPlatform(GMaxRHIFeatureLevel);
 
@@ -956,9 +958,9 @@ TMap<FString, int32> UEstGameplayStatics::GetAntiAliasingMethods()
 			continue;
 		}
 
-		Result.Add(FString(GetShortAntiAliasingName(Method)), (int32)Method);
+		OutNames.Add(FText::FromString(GetShortAntiAliasingName(Method)));
+		OutIds.Add((int32)Method);
 	}
-	return Result;
 }
 
 void UEstGameplayStatics::ParseVersion(FString Version, TArray<int32> &Components)
