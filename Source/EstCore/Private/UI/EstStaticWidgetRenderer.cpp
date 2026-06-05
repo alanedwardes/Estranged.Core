@@ -11,6 +11,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/DecalComponent.h"
+#include "Misc/DataValidation.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstStaticWidgetRenderer)
 
 // Sets default values
@@ -69,14 +70,35 @@ void AEstStaticWidgetRenderer::BeginPlay()
 		return;
 	}
 	
+	if (Material == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: No Material specified on %s"), *GetName());
+		return;
+	}
+
 	WidgetInstance = CreateWidget(GetWorld(), WidgetClass);
+	if (WidgetInstance == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: CreateWidget failed on %s"), *GetName());
+		return;
+	}
 	SlateWidgetInstance = WidgetInstance->TakeWidget();
 
 	RenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, CanvasRenderTarget2DClass, FMath::RoundToInt(WidgetSize.X), FMath::RoundToInt(WidgetSize.Y));
+	if (RenderTarget == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: CreateCanvasRenderTarget2D failed on %s"), *GetName());
+		return;
+	}
 	RenderTarget->Rename(*FString::Printf(TEXT("RT_%s_%s"), *GetName(), *WidgetInstance->GetName()), this);
 	RenderTarget->UpdateResource();
 
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
+	if (DynamicMaterial == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEstStaticWidgetRenderer::BeginPlay: CreateMaterialInstanceDynamic failed on %s"), *GetName());
+		return;
+	}
 	DynamicMaterial->SetTextureParameterValue(MaterialTextureParameterName, RenderTarget);
 
 	WidgetRenderer = new FWidgetRenderer(true);
@@ -112,6 +134,33 @@ void AEstStaticWidgetRenderer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	SlateWidgetInstance = nullptr;
 	delete WidgetRenderer;
 }
+
+#if WITH_EDITOR
+EDataValidationResult AEstStaticWidgetRenderer::IsDataValid(FDataValidationContext& Context) const
+{
+	EDataValidationResult Result = Super::IsDataValid(Context);
+
+	if (WidgetClass.Get() == nullptr)
+	{
+		Context.AddError(FText::FromString(FString::Printf(TEXT("%s: WidgetClass is not set"), *GetName())));
+		Result = EDataValidationResult::Invalid;
+	}
+
+	if (Material == nullptr)
+	{
+		Context.AddError(FText::FromString(FString::Printf(TEXT("%s: Material is not set"), *GetName())));
+		Result = EDataValidationResult::Invalid;
+	}
+
+	if (WidgetSize.IsZero())
+	{
+		Context.AddError(FText::FromString(FString::Printf(TEXT("%s: WidgetSize is zero"), *GetName())));
+		Result = EDataValidationResult::Invalid;
+	}
+
+	return Result;
+}
+#endif
 
 void AEstStaticWidgetRenderer::RenderWidget()
 {

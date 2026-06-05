@@ -30,6 +30,10 @@ protected:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+#endif
+
 public:	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
