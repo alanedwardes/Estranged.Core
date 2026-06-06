@@ -97,7 +97,7 @@ public:
 	float AimingFieldOfView;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	class UPhysicsHandleComponent* CarryHandle;
+	class UEstCarryHandleComponent* CarryHandle;
 
 	/** Skeletal mesh for the current weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Fighting")

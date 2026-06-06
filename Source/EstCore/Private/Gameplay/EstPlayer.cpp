@@ -11,7 +11,7 @@
 #include "Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "Runtime/Engine/Classes/Components/SpotLightComponent.h"
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
-#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsHandleComponent.h"
+#include "Physics/EstCarryHandleComponent.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Gameplay/EstResourceComponent.h"
 #include "DrawDebugHelpers.h"
@@ -95,9 +95,7 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	ViewModelMesh->bCastInsetShadow = true;
 	ViewModelMesh->bCastShadowAsTwoSided = true;
 
-	CarryHandle = PCIP.CreateDefaultSubobject<UPhysicsHandleComponent>(this, TEXT("CarryHandle"));
-	CarryHandle->LinearStiffness = 1500.f;
-	CarryHandle->AngularStiffness = 3000.f;
+	CarryHandle = PCIP.CreateDefaultSubobject<UEstCarryHandleComponent>(this, TEXT("CarryHandle"));
 
 	AimInterpolationSpeed = 18.f;
 	AimingFieldOfView = 85.f;
@@ -436,6 +434,7 @@ void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 	}
 
 	const FVector HeldLocation = Camera->GetComponentLocation() + (CameraForward * (BoxExtent.GetMax() + PlayerInteractionHeldDistance));
+
 	const FVector DesiredLocation = HeldLocation - Origin - HeldPrimitiveTransform.GetLocation();
 	const FRotator DesiredRotation = (GetCapsuleComponent()->GetComponentRotation() + HeldPrimitiveTransform.Rotator());
 
@@ -878,8 +877,6 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	HeldActor = UEstGameplayStatics::MoveActorToLevel(ActorToHold, GetLevel());
 
 	HeldPrimitive = Cast<UPrimitiveComponent>(HeldActor->GetRootComponent());
-	HeldPrimitive->SetEnableGravity(false);
-	HeldPrimitive->SetAllUseCCD(true);
 
 	UEstCarryableUserData* CarryableUserData = UEstGameplayStatics::GetCarryableUserDataFromMesh(HeldPrimitive.Get());
 	HeldPrimitiveTransform = CarryableUserData == nullptr ? FTransform::Identity : CarryableUserData->CarryTransform;
@@ -897,13 +894,11 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 {
 	ensure(IsHoldingActor());
 
-	CarryHandle->ReleaseComponent();
+	const FVector ThrowLinear = GetRootComponent()->GetComponentVelocity() + LinearVelocity;
+	const float MaxLinear = GetCharacterMovement()->MaxWalkSpeed * 1.5f;
+	CarryHandle->ReleaseWithVelocity(ThrowLinear, AngularVelocity, MaxLinear);
 
 	GetCapsuleComponent()->IgnoreActorWhenMoving(HeldActor.Get(), false);
-
-	HeldPrimitive->SetEnableGravity(true);
-	HeldPrimitive->SetPhysicsLinearVelocity(GetRootComponent()->GetComponentVelocity() + LinearVelocity);
-	HeldPrimitive->SetPhysicsAngularVelocityInDegrees(AngularVelocity);
 
 	if (HeldActor->GetClass()->ImplementsInterface(UEstCarryable::StaticClass()))
 	{
@@ -915,6 +910,7 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 	HeldPrimitive.Reset();
 	HeldActor.Reset();
 }
+
 
 bool AEstPlayer::AddFlashlightPower(float Power)
 {
