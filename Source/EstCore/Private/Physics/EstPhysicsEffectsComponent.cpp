@@ -8,6 +8,9 @@
 #include "GameFramework/PhysicsVolume.h"
 #include "Physics/Experimental/PhysScene_Chaos.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
+#include "GeometryCollectionProxyData.h"
+#include "GeometryCollection/GeometryCollectionSimulationTypes.h"
+#include "GeometryCollection/GeometryCollection.h"
 #include "Gameplay/EstGameplayStatics.h"
 #include "Gameplay/EstGameInstance.h"
 #include "Volumes/EstWaterVolume.h"
@@ -270,12 +273,72 @@ void UEstPhysicsEffectsComponent::OnChaosPhysicsCollision(const FChaosPhysicsCol
 	Handler->HandlePhysicsCollisions_AssumesLocked(CollisionInfo);
 }
 
+static float GetDisplacedFracturePercentage(UGeometryCollectionComponent* GCComponent)
+{
+	const FGeometryDynamicCollection* DynCollection = GCComponent->GetDynamicCollection();
+	const UGeometryCollection* RestCollection = GCComponent->GetRestCollection();
+	if (DynCollection == nullptr || RestCollection == nullptr)
+	{
+		return 0.f;
+	}
+
+	TSharedPtr<const FGeometryCollection> GC = RestCollection->GetGeometryCollection();
+	if (!GC.IsValid())
+	{
+		return 0.f;
+	}
+
+	// Build component-space rest positions from local transforms + parent hierarchy.
+	// Assumes parent index < child index, which is guaranteed by the GC build process.
+	const TManagedArray<int32>& Parents = GCComponent->GetParentArrayRest();
+	const TManagedArray<FTransform3f>& LocalTransforms = GC->Transform;
+	const int32 Count = LocalTransforms.Num();
+
+	TArray<FTransform3f> RestCompSpace;
+	RestCompSpace.SetNum(Count);
+	for (int32 i = 0; i < Count; i++)
+	{
+		const int32 ParentIdx = Parents[i];
+		RestCompSpace[i] = ParentIdx == INDEX_NONE
+			? LocalTransforms[i]
+			: LocalTransforms[i] * RestCompSpace[ParentIdx];
+	}
+
+	const TArray<FTransform3f>& CurrentTransforms = GCComponent->GetComponentSpaceTransforms3f();
+	constexpr float DisplacementThresholdSq = 1.f; // 1 cm squared
+
+	int32 Total = 0;
+	int32 Displaced = 0;
+	for (int32 i = 0; i < DynCollection->SimulatableParticles.Num(); i++)
+	{
+		if (!DynCollection->SimulatableParticles[i])
+		{
+			continue;
+		}
+		Total++;
+		if (i < CurrentTransforms.Num())
+		{
+			const FVector3f RestPos = RestCompSpace[i].GetTranslation();
+			const FVector3f Delta = CurrentTransforms[i].GetTranslation() - RestPos;
+			if (Delta.SizeSquared() > DisplacementThresholdSq)
+			{
+				Displaced++;
+			}
+		}
+	}
+
+	return Total > 0 ? static_cast<float>(Displaced) / static_cast<float>(Total) : 0.f;
+}
+
 void UEstPhysicsEffectsComponent::OnChaosBreak(const FChaosBreakEvent& BreakEvent)
 {
 	if (UGeometryCollectionComponent* GeometryCollectionComponent = Cast<UGeometryCollectionComponent>(BreakEvent.Component))
 	{
-		GeometryCollectionComponent->BodyInstance.SetCollisionProfileName(FName(PROFILE_DEBRIS));
-		GeometryCollectionComponent->SetCollisionObjectType(GeometryCollectionComponent->GetCollisionObjectType());
+		if (GetDisplacedFracturePercentage(GeometryCollectionComponent) >= 0.25f)
+		{
+			GeometryCollectionComponent->BodyInstance.SetCollisionProfileName(FName(PROFILE_DEBRIS));
+			GeometryCollectionComponent->SetCollisionObjectType(GeometryCollectionComponent->GetCollisionObjectType());
+		}
 	}
 
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
