@@ -302,6 +302,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FTransform HeldPrimitiveTransform;
 
+	float HeldPrimitiveOriginalMass;
+
 	/** Actor the player is currently using */
 	TWeakObjectPtr<class UObject> UsingObject;
 

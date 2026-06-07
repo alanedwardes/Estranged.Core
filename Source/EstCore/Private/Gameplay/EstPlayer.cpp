@@ -881,6 +881,8 @@ void AEstPlayer::PickUpActor(AActor* ActorToHold)
 	UEstCarryableUserData* CarryableUserData = UEstGameplayStatics::GetCarryableUserDataFromMesh(HeldPrimitive.Get());
 	HeldPrimitiveTransform = CarryableUserData == nullptr ? FTransform::Identity : CarryableUserData->CarryTransform;
 
+	HeldPrimitiveOriginalMass = HeldPrimitive->GetMass();
+	HeldPrimitive->SetMassOverrideInKg(NAME_None, 1.f, true);
 	CarryHandle->GrabComponentAtLocationWithRotation(HeldPrimitive.Get(), NAME_None, HeldPrimitive->GetComponentLocation(), HeldPrimitive->GetComponentRotation());
 
 	// Must be last, the act of picking up an actor may make it self destruct
@@ -896,6 +898,7 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 
 	const FVector ThrowLinear = GetRootComponent()->GetComponentVelocity() + LinearVelocity;
 	const float MaxLinear = GetCharacterMovement()->MaxWalkSpeed * 1.5f;
+	HeldPrimitive->SetMassOverrideInKg(NAME_None, HeldPrimitiveOriginalMass, true);
 	CarryHandle->ReleaseWithVelocity(ThrowLinear, AngularVelocity, MaxLinear);
 
 	GetCapsuleComponent()->IgnoreActorWhenMoving(HeldActor.Get(), false);
