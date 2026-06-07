@@ -12,6 +12,7 @@
 #include "Gameplay/EstGameInstance.h"
 #include "Volumes/EstWaterVolume.h"
 #include "UserData/EstPhysicsUserData.h"
+#include "EstConstants.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstPhysicsEffectsComponent)
 
 DEFINE_LOG_CATEGORY(LogEstPhysicsEffectsComponent);
@@ -271,6 +272,12 @@ void UEstPhysicsEffectsComponent::OnChaosPhysicsCollision(const FChaosPhysicsCol
 
 void UEstPhysicsEffectsComponent::OnChaosBreak(const FChaosBreakEvent& BreakEvent)
 {
+	if (UGeometryCollectionComponent* GeometryCollectionComponent = Cast<UGeometryCollectionComponent>(BreakEvent.Component))
+	{
+		GeometryCollectionComponent->BodyInstance.SetCollisionProfileName(FName(PROFILE_DEBRIS));
+		GeometryCollectionComponent->SetCollisionObjectType(GeometryCollectionComponent->GetCollisionObjectType());
+	}
+
 	UEstPhysicsCollisionHandler* Handler = Cast<UEstPhysicsCollisionHandler>(GetWorld()->PhysicsCollisionHandler);
 	if (Handler == nullptr)
 	{
