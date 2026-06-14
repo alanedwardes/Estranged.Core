@@ -47,11 +47,6 @@ void AEstPlayerCameraManager::SetPlayerHidden(bool bIsHidden)
 	{
 		Player->EquippedWeapon->SetActorHiddenInGame(bIsHidden);
 	}
-
-	if (Player->IsHoldingActor())
-	{
-		Player->HeldActor->SetActorHiddenInGame(bIsHidden);
-	}
 }
 
 void AEstPlayerCameraManager::SetViewportHidden(bool bIsHidden)

@@ -28,6 +28,8 @@
 #include "Gameplay/EstSaveStatics.h"
 #include "Saves/EstGameSettingsSave.h"
 #include "Interfaces/EstLadder.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
+#include "PhysicsEngine/PhysicsObjectExternalInterface.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstPlayer)
 
 DEFINE_LOG_CATEGORY(LogEstPlayer);
@@ -54,6 +56,9 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	PlayerThrowLinearVelocity = 1000.f;
 	PlayerMaximumCarryMass = 100.f;
 	PlayerMaximumCarryRadius = 100.f;
+	PlayerShardHoldStiffness = 1500.f;
+	PlayerShardHoldMaxAcceleration = 75000.f;
+	PlayerShardHoldDamping = 35.f;
 
 	FlashlightPowerBurst = 1.f;
 	FlashlightIntensity = 8.f;
@@ -231,14 +236,8 @@ float AEstPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACon
 
 	if (IsHoldingActor() && !DamageEvent.DamageTypeClass.GetDefaultObject()->bCausedByWorld)
 	{
-		if (EventInstigator == nullptr || DamageCauser == nullptr)
-		{
-			DropHeldActor();
-		}
-		else
-		{
-			DropHeldActor(DamageCauser->GetActorForwardVector() * DamageSeverity);
-		}
+		const FVector DropVelocity = (EventInstigator && DamageCauser) ? DamageCauser->GetActorForwardVector() * DamageSeverity : FVector::ZeroVector;
+		DropHeldObject(DropVelocity);
 	}
 
 	if (IsUsingObject())
@@ -307,6 +306,7 @@ void AEstPlayer::Tick(float DeltaSeconds)
 	UpdatePostProcessingTick(DeltaSeconds);
 	UpdateCameraTick(DeltaSeconds);
 	UpdateHeldActorTick(DeltaSeconds);
+	UpdateHeldShardTick(DeltaSeconds);
 	UpdateFlashlightTick(DeltaSeconds);
 	UpdateZoomTick(DeltaSeconds);
 	UpdateViewModelTick(DeltaSeconds);
@@ -378,7 +378,7 @@ void AEstPlayer::BeginPlay()
 
 void AEstPlayer::UpdateHeldActorTick(float DeltaSeconds)
 {
-	if (!IsHoldingActor())
+	if (!IsHoldingActor() || IsHoldingShard())
 	{
 		return;
 	}
@@ -748,7 +748,7 @@ void AEstPlayer::InteractPressedInput()
 
 	if (IsHoldingActor())
 	{
-		DropHeldActor();
+		DropHeldObject();
 		return;
 	}
 
@@ -857,6 +857,30 @@ bool AEstPlayer::DoInteractionTrace(float TraceSphereRadius, FHitResult& Result)
 			return false;
 		}
 
+		// A broken Geometry Collection shard isn't an actor we can carry, so pick up the contacted particle directly.
+		if (UGeometryCollectionComponent* GeometryCollection = Cast<UGeometryCollectionComponent>(OutHit.GetComponent()))
+		{
+			if (GeometryCollection->IsRootBroken() && OutHit.PhysicsObject != nullptr && IsViewTarget())
+			{
+				float ShardMass = 0.f;
+				{
+					const TArray<Chaos::FPhysicsObjectHandle> Leaf = { OutHit.PhysicsObject };
+					FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(Leaf);
+					if (Chaos::FPhysicsObjectHandle Root = Read.GetInterface().GetRootObject(OutHit.PhysicsObject))
+					{
+						const TArray<Chaos::FConstPhysicsObjectHandle> Roots = { Root };
+						ShardMass = Read.GetInterface().GetMass(Roots);
+					}
+				}
+
+				if (ShardMass > 0.f && ShardMass <= PlayerMaximumCarryMass)
+				{
+					PickUpShard(GeometryCollection, OutHit.PhysicsObject);
+					return true;
+				}
+			}
+		}
+
 		const bool bCanHumanPickUp = UEstGameplayStatics::CanHumanPickUpActor(this, OutHit.GetActor(), PlayerMaximumCarryMass, PlayerMaximumCarryRadius);
 		if (bCanHumanPickUp && IsViewTarget())
 		{
@@ -914,6 +938,151 @@ void AEstPlayer::DropHeldActor(FVector LinearVelocity, FVector AngularVelocity)
 	HeldActor.Reset();
 }
 
+void AEstPlayer::PickUpShard(UGeometryCollectionComponent* GeometryCollection, Chaos::FPhysicsObject* Shard)
+{
+	HeldGeometryCollection = GeometryCollection;
+	HeldShard = Shard;
+	HeldActor = GeometryCollection->GetOwner();
+	HeldPrimitive = GeometryCollection;
+}
+
+void AEstPlayer::UpdateHeldShardTick(float DeltaSeconds)
+{
+	if (!IsHoldingShard())
+	{
+		return;
+	}
+
+	if (!IsViewTarget() || !HeldGeometryCollection.IsValid())
+	{
+		DropHeldShard();
+		return;
+	}
+
+	FVector CameraForward = Camera->GetForwardVector();
+	const FRotator CameraRotation = Camera->GetComponentRotation();
+	if (CameraRotation.Pitch < PlayerInteractionMaxHeldPitch)
+	{
+		FRotator ClampedRotation = CameraRotation;
+		ClampedRotation.Pitch = PlayerInteractionMaxHeldPitch;
+		CameraForward = ClampedRotation.Vector();
+	}
+
+	const FVector HoldLocation = Camera->GetComponentLocation() + CameraForward * PlayerInteractionHeldDistance;
+
+	Chaos::FPhysicsObjectHandle Root = nullptr;
+	FVector ShardLocation = FVector::ZeroVector;
+	float ShardMass = 0.f;
+	{
+		const TArray<Chaos::FPhysicsObjectHandle> Leaf = { HeldShard };
+		FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(Leaf);
+		Root = Read.GetInterface().GetRootObject(HeldShard);
+		if (Root != nullptr)
+		{
+			ShardLocation = Read.GetInterface().GetX(Root);
+			const TArray<Chaos::FConstPhysicsObjectHandle> Roots = { Root };
+			ShardMass = Read.GetInterface().GetMass(Roots);
+		}
+	}
+
+	if (Root == nullptr || ShardMass <= 0.f)
+	{
+		DropHeldShard();
+		return;
+	}
+
+	if (FVector::Dist(ShardLocation, Camera->GetComponentLocation()) > PlayerInteractionMaxHeldObjectDistance)
+	{
+		DropHeldShard();
+		return;
+	}
+
+	FVector Acceleration = ((HoldLocation - ShardLocation) * PlayerShardHoldStiffness).GetClampedToMaxSize(PlayerShardHoldMaxAcceleration);
+
+	const float SubstepDt = 1.f / 120.f;
+	const float DragRate = -FMath::Loge(FMath::Max(0.05f, 1.f - PlayerShardHoldDamping * SubstepDt)) / SubstepDt;
+	Acceleration += GetVelocity() * DragRate;
+
+	Acceleration.Z -= GetWorld()->GetGravityZ();
+
+	const TArray<Chaos::FPhysicsObjectHandle> Targets = { Root };
+	FLockedWritePhysicsObjectExternalInterface Write = FPhysicsObjectExternalInterface::LockWrite(Targets);
+	Write.GetInterface().SetLinearEtherDrag(Targets, PlayerShardHoldDamping);
+	Write.GetInterface().SetAngularEtherDrag(Targets, PlayerShardHoldDamping);
+	Write.GetInterface().AddForce(Targets, Acceleration * ShardMass, true);
+	Write.GetInterface().WakeUp(Targets);
+}
+
+void AEstPlayer::DropHeldShard(FVector LinearVelocity, FVector AngularVelocity)
+{
+	if (!IsHoldingShard())
+	{
+		return;
+	}
+
+	if (HeldGeometryCollection.IsValid())
+	{
+		const FVector ReleaseVelocity = GetRootComponent()->GetComponentVelocity() + LinearVelocity;
+
+		Chaos::FPhysicsObjectHandle Root = nullptr;
+		{
+			const TArray<Chaos::FPhysicsObjectHandle> Leaf = { HeldShard };
+			FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(Leaf);
+			Root = Read.GetInterface().GetRootObject(HeldShard);
+		}
+
+		if (Root != nullptr)
+		{
+			const TArray<Chaos::FPhysicsObjectHandle> Targets = { Root };
+			FLockedWritePhysicsObjectExternalInterface Write = FPhysicsObjectExternalInterface::LockWrite(Targets);
+			Write.GetInterface().SetLinearEtherDrag(Targets, 0.f);
+			Write.GetInterface().SetAngularEtherDrag(Targets, 0.f);
+			Write.GetInterface().SetLinearVelocity(Targets, ReleaseVelocity, false);
+			Write.GetInterface().SetAngularVelocityInRadians(Targets, FVector::DegreesToRadians(AngularVelocity), false);
+			Write.GetInterface().WakeUp(Targets);
+		}
+	}
+
+	HeldGeometryCollection.Reset();
+	HeldShard = nullptr;
+	HeldActor.Reset();
+	HeldPrimitive.Reset();
+}
+
+void AEstPlayer::DropHeldObject(FVector LinearVelocity, FVector AngularVelocity)
+{
+	if (IsHoldingShard())
+	{
+		DropHeldShard(LinearVelocity, AngularVelocity);
+	}
+	else if (IsHoldingActor())
+	{
+		DropHeldActor(LinearVelocity, AngularVelocity);
+	}
+}
+
+float AEstPlayer::GetHeldObjectMass()
+{
+	if (IsHoldingShard())
+	{
+		const TArray<Chaos::FPhysicsObjectHandle> Leaf = { HeldShard };
+		FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(Leaf);
+		Chaos::FPhysicsObjectHandle Root = Read.GetInterface().GetRootObject(HeldShard);
+		if (Root != nullptr)
+		{
+			const TArray<Chaos::FConstPhysicsObjectHandle> Roots = { Root };
+			return Read.GetInterface().GetMass(Roots);
+		}
+		return 0.f;
+	}
+
+	if (IsHoldingActor())
+	{
+		return HeldPrimitive->GetMass();
+	}
+
+	return 0.f;
+}
 
 bool AEstPlayer::AddFlashlightPower(float Power)
 {
@@ -1238,12 +1407,12 @@ void AEstPlayer::PrimaryAttackPressedInput()
 
 	if (IsHoldingActor())
 	{
-		const float VelocityScale = UKismetMathLibrary::MapRangeClamped(HeldPrimitive->GetMass(), 0.f, PlayerMaximumCarryMass, 1.f, 0.1f);
-		
+		const float VelocityScale = UKismetMathLibrary::MapRangeClamped(GetHeldObjectMass(), 0.f, PlayerMaximumCarryMass, 1.f, 0.1f);
+
 		const FVector ScaledLinearVelocity = Camera->GetForwardVector() * PlayerThrowLinearVelocity * VelocityScale;
 		const FVector ScaledAngularVelocity = PlayerThrowAngularVelocity * VelocityScale;
-		
-		DropHeldActor(ScaledLinearVelocity, ScaledAngularVelocity);
+
+		DropHeldObject(ScaledLinearVelocity, ScaledAngularVelocity);
 		return;
 	}
 
@@ -1279,7 +1448,7 @@ void AEstPlayer::SecondaryAttackPressedInput()
 
 	if (IsHoldingActor())
 	{
-		DropHeldActor();
+		DropHeldObject();
 		return;
 	}
 

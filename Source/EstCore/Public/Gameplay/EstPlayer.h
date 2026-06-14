@@ -4,6 +4,9 @@
 #include "EstBaseCharacter.h"
 #include "EstPlayer.generated.h"
 
+namespace Chaos { struct FPhysicsObject; }
+class UGeometryCollectionComponent;
+
 DECLARE_LOG_CATEGORY_EXTERN(LogEstPlayer, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowHintDelegate, TArray<class UInputAction*>, Bindings, FText, Label, float, ShowTime, FVector, WorldLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLandedDelegate, FHitResult, HitResult, float, SmoothZVelocity);
@@ -128,6 +131,18 @@ public:
 	/** Maximum distance for held objects */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerInteractionMaxHeldObjectDistance;
+
+	/** Spring stiffness for held shards */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0"))
+	float PlayerShardHoldStiffness;
+
+	/** Maximum spring acceleration for held shards */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0", Units = "CentimetersPerSecondSquared"))
+	float PlayerShardHoldMaxAcceleration;
+
+	/** Damping for held shards */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0"))
+	float PlayerShardHoldDamping;
 
 	/** Maximum pitch for held objects */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
@@ -268,12 +283,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void DropHeldActor(FVector LinearVelocity = FVector::ZeroVector, FVector AngularVelocity = FVector::ZeroVector);
 
+	/** Pick up a Geometry Collection shard. */
+	virtual void PickUpShard(UGeometryCollectionComponent* GeometryCollection, Chaos::FPhysicsObject* Shard);
+
+	/** Make the player drop the held shard. */
+	virtual void DropHeldShard(FVector LinearVelocity = FVector::ZeroVector, FVector AngularVelocity = FVector::ZeroVector);
+
+	/** Make the player drop whatever they're holding. */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void DropHeldObject(FVector LinearVelocity = FVector::ZeroVector, FVector AngularVelocity = FVector::ZeroVector);
+
+	/** Mass of whatever the player is holding. */
+	virtual float GetHeldObjectMass();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Interaction")
 	void OnDropHeldActor(AActor* InHeldActor);
 
 	/** Is holding object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
 	virtual bool IsHoldingActor() { return HeldActor.IsValid() && HeldPrimitive.IsValid(); }
+
+	/** Is holding shard */
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	virtual bool IsHoldingShard() const { return HeldGeometryCollection.IsValid() && HeldShard != nullptr; }
 
 	/** Is using object */
 	UFUNCTION(BlueprintPure, Category = "Interaction")
@@ -304,12 +336,23 @@ public:
 
 	float HeldPrimitiveOriginalMass;
 
+	/** Held shard's Geometry Collection */
+	UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+	TWeakObjectPtr<UGeometryCollectionComponent> HeldGeometryCollection;
+
+	/** Held shard */
+	Chaos::FPhysicsObject* HeldShard = nullptr;
+
 	/** Actor the player is currently using */
 	TWeakObjectPtr<class UObject> UsingObject;
 
 	/** Update the held actor */
 	UFUNCTION(BlueprintCallable, Category = "Tick")
 	virtual void UpdateHeldActorTick(float DeltaSeconds);
+
+	/** Drive the held shard toward the hold point */
+	UFUNCTION(BlueprintCallable, Category = "Tick")
+	virtual void UpdateHeldShardTick(float DeltaSeconds);
 
 	/** Update the flashlight intensity */
 	UFUNCTION(BlueprintCallable, Category = "Tick")
