@@ -89,6 +89,20 @@ public:
 
 	float ImmersionDepth() const override;
 
+	/** Max speed (cm/s) the player can shove broken Geometry Collection pieces aside as they wade through. */
+	UPROPERTY(Category = "Character Movement: Physics Interaction", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
+	float GeometryCollectionMaxPushSpeed;
+
+	/** Strength of the strain field that breaks nearby pieces free; must exceed their internal strain. */
+	UPROPERTY(Category = "Character Movement: Physics Interaction", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
+	float GeometryCollectionPushStrain;
+
+	/** Radius of the strain field; smaller keeps the break local to the pieces the player touches. */
+	UPROPERTY(Category = "Character Movement: Physics Interaction", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
+	float GeometryCollectionPushStrainRadius;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 protected:
 	/** Handle ladder climbing movement physics */
 	virtual void PhysLadder(float deltaTime, int32 Iterations);
@@ -125,4 +139,14 @@ private:
 
 	/** The player's position relative to the ladder when they first mounted it */
 	FVector InitialLadderRelativePosition;
+
+	/** Lazily created field system component used to apply cluster strain to Geometry Collections on contact. */
+	UPROPERTY(Transient)
+	TObjectPtr<class UFieldSystemComponent> GeometryCollectionStrainField;
+
+	/** Get (creating on first use) the field system component used for Geometry Collection strain. */
+	class UFieldSystemComponent* GetGeometryCollectionStrainField();
+
+	/** While moving, strain-break and speed-cap-push any broken Geometry Collection pieces overlapping the capsule. */
+	void PushOverlappingBrokenGeometryCollections();
 };

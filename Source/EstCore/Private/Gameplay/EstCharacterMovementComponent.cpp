@@ -9,6 +9,12 @@
 #include "Interfaces/EstLadder.h"
 #include "Kismet/GameplayStatics.h"
 #include "Volumes/EstWaterVolume.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Field/FieldSystemComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/Character.h"
+#include "Engine/OverlapResult.h"
+#include "PhysicsEngine/PhysicsObjectExternalInterface.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstCharacterMovementComponent)
 
 UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObjectInitializer& PCIP)
@@ -20,6 +26,151 @@ UEstCharacterMovementComponent::UEstCharacterMovementComponent(const class FObje
 	bCanSprint = true;
 
 	LadderClimbSpeed = 128.f;
+
+	GeometryCollectionMaxPushSpeed = 250.f;
+	GeometryCollectionPushStrain = 10000.f;
+	GeometryCollectionPushStrainRadius = 50.f;
+}
+
+UFieldSystemComponent* UEstCharacterMovementComponent::GetGeometryCollectionStrainField()
+{
+	if (GeometryCollectionStrainField != nullptr)
+	{
+		return GeometryCollectionStrainField;
+	}
+
+	AActor* Owner = GetOwner();
+	if (Owner == nullptr)
+	{
+		return nullptr;
+	}
+
+	// Fields act on any Geometry Collection within their region, so the pawn can own a single shared one.
+	GeometryCollectionStrainField = NewObject<UFieldSystemComponent>(Owner);
+	if (USceneComponent* Root = Owner->GetRootComponent())
+	{
+		GeometryCollectionStrainField->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	GeometryCollectionStrainField->RegisterComponent();
+	return GeometryCollectionStrainField;
+}
+
+void UEstCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	PushOverlappingBrokenGeometryCollections();
+}
+
+void UEstCharacterMovementComponent::PushOverlappingBrokenGeometryCollections()
+{
+	if (!bEnablePhysicsInteraction)
+	{
+		return;
+	}
+
+	// The player walks through broken (debris-profile) Geometry Collections, but a kinematic capsule
+	// imparts no impulse to Chaos so the pieces just sit there. Push them aside ourselves. Use movement
+	// input rather than Velocity for the direction - Velocity can be damped to zero by a resisting piece.
+	const FVector PushDirection = GetCurrentAcceleration().GetSafeNormal();
+	if (PushDirection.IsNearlyZero())
+	{
+		return;
+	}
+
+	const ACharacter* Character = Cast<ACharacter>(CharacterOwner);
+	const UCapsuleComponent* Capsule = Character != nullptr ? Character->GetCapsuleComponent() : nullptr;
+	UWorld* World = GetWorld();
+	if (Capsule == nullptr || World == nullptr)
+	{
+		return;
+	}
+
+	const FVector Location = Capsule->GetComponentLocation();
+	const FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(
+		Capsule->GetScaledCapsuleRadius(),
+		Capsule->GetScaledCapsuleHalfHeight());
+
+	FCollisionObjectQueryParams ObjectParams(FCollisionObjectQueryParams::AllObjects);
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(EstGeometryCollectionPush), false, GetOwner());
+
+	TArray<FOverlapResult> Overlaps;
+	if (!World->OverlapMultiByObjectType(Overlaps, Location, Capsule->GetComponentQuat(), ObjectParams, CapsuleShape, QueryParams))
+	{
+		return;
+	}
+
+	TSet<UGeometryCollectionComponent*> StrainedComponents;
+	TArray<Chaos::FPhysicsObjectHandle> ContactedPieces;
+	for (const FOverlapResult& Overlap : Overlaps)
+	{
+		UGeometryCollectionComponent* GeometryCollectionComponent = Cast<UGeometryCollectionComponent>(Overlap.GetComponent());
+		if (GeometryCollectionComponent == nullptr || !GeometryCollectionComponent->IsRootBroken())
+		{
+			continue;
+		}
+
+		bool bAlreadyStrained = false;
+		StrainedComponents.Add(GeometryCollectionComponent, &bAlreadyStrained);
+		if (!bAlreadyStrained)
+		{
+			if (UFieldSystemComponent* StrainField = GetGeometryCollectionStrainField())
+			{
+				StrainField->ApplyStrainField(true, Location, GeometryCollectionPushStrainRadius, GeometryCollectionPushStrain, 0);
+			}
+		}
+
+		if (Overlap.PhysicsObject != nullptr)
+		{
+			ContactedPieces.Add(Overlap.PhysicsObject);
+		}
+	}
+
+	if (ContactedPieces.IsEmpty())
+	{
+		return;
+	}
+
+	// Resolve each piece to its active cluster so a still-bonded chunk moves as one body, not per-leaf.
+	TArray<Chaos::FPhysicsObjectHandle> PushTargets;
+	TArray<FVector> CurrentVelocities;
+	{
+		FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(ContactedPieces);
+		for (const Chaos::FPhysicsObjectHandle Piece : ContactedPieces)
+		{
+			Chaos::FPhysicsObjectHandle Root = Read.GetInterface().GetRootObject(Piece);
+			if (Root == nullptr || PushTargets.Contains(Root))
+			{
+				continue;
+			}
+			PushTargets.Add(Root);
+			CurrentVelocities.Add(Read.GetInterface().GetV(Root));
+		}
+	}
+
+	if (PushTargets.IsEmpty())
+	{
+		return;
+	}
+
+	// Set (don't add) the velocity, capped along the push direction: contact every tick can't accumulate
+	// into a flick, and the perpendicular component (gravity etc.) is left untouched.
+	{
+		FLockedWritePhysicsObjectExternalInterface Write = FPhysicsObjectExternalInterface::LockWrite(PushTargets);
+		for (int32 Index = 0; Index < PushTargets.Num(); ++Index)
+		{
+			const float CurrentPushSpeed = FVector::DotProduct(CurrentVelocities[Index], PushDirection);
+			if (CurrentPushSpeed >= GeometryCollectionMaxPushSpeed)
+			{
+				continue;
+			}
+
+			const FVector NewVelocity = CurrentVelocities[Index] + PushDirection * (GeometryCollectionMaxPushSpeed - CurrentPushSpeed);
+			const TArrayView<const Chaos::FPhysicsObjectHandle> Single = MakeArrayView(&PushTargets[Index], 1);
+			Write.GetInterface().SetLinearVelocity(Single, NewVelocity, false);
+			Write.GetInterface().WakeUp(Single);
+		}
+	}
 }
 
 void UEstCharacterMovementComponent::OnPreSave_Implementation()

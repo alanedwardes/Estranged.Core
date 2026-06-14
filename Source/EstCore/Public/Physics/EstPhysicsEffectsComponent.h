@@ -46,7 +46,7 @@ class ESTCORE_API UEstPhysicsEffectsComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UEstPhysicsEffectsComponent();
 
 protected:
