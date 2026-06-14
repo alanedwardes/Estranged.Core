@@ -144,6 +144,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0"))
 	float PlayerShardHoldDamping;
 
+	/** Rotational spring stiffness for held shards */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0"))
+	float PlayerShardHoldRotationStiffness;
+
+	/** Maximum rotational spring acceleration for held shards */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0"))
+	float PlayerShardHoldMaxRotationAcceleration;
+
+	/** Rotational damping (ether drag) for held shards */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (ClampMin = "0", UIMin = "0"))
+	float PlayerShardHoldRotationDamping;
+
 	/** Maximum pitch for held objects */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float PlayerInteractionMaxHeldPitch;
@@ -342,6 +354,9 @@ public:
 
 	/** Held shard */
 	Chaos::FPhysicsObject* HeldShard = nullptr;
+
+	/** Held shard's orientation relative to the player capsule, captured at pickup */
+	FQuat HeldShardRelativeRotation = FQuat::Identity;
 
 	/** Actor the player is currently using */
 	TWeakObjectPtr<class UObject> UsingObject;

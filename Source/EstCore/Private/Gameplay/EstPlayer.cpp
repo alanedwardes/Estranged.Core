@@ -59,6 +59,9 @@ AEstPlayer::AEstPlayer(const class FObjectInitializer& PCIP)
 	PlayerShardHoldStiffness = 1500.f;
 	PlayerShardHoldMaxAcceleration = 75000.f;
 	PlayerShardHoldDamping = 35.f;
+	PlayerShardHoldRotationStiffness = 1500.f;
+	PlayerShardHoldMaxRotationAcceleration = 4000.f;
+	PlayerShardHoldRotationDamping = 35.f;
 
 	FlashlightPowerBurst = 1.f;
 	FlashlightIntensity = 8.f;
@@ -944,6 +947,18 @@ void AEstPlayer::PickUpShard(UGeometryCollectionComponent* GeometryCollection, C
 	HeldShard = Shard;
 	HeldActor = GeometryCollection->GetOwner();
 	HeldPrimitive = GeometryCollection;
+
+	HeldShardRelativeRotation = FQuat::Identity;
+	{
+		const TArray<Chaos::FPhysicsObjectHandle> Leaf = { HeldShard };
+		FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(Leaf);
+		const Chaos::FPhysicsObjectHandle Root = Read.GetInterface().GetRootObject(HeldShard);
+		if (Root != nullptr)
+		{
+			const FQuat CapsuleRotation = GetCapsuleComponent()->GetComponentQuat();
+			HeldShardRelativeRotation = CapsuleRotation.Inverse() * Read.GetInterface().GetR(Root);
+		}
+	}
 }
 
 void AEstPlayer::UpdateHeldShardTick(float DeltaSeconds)
@@ -973,6 +988,7 @@ void AEstPlayer::UpdateHeldShardTick(float DeltaSeconds)
 	Chaos::FPhysicsObjectHandle Root = nullptr;
 	FVector ShardLocation = FVector::ZeroVector;
 	float ShardMass = 0.f;
+	FQuat ShardRotation = FQuat::Identity;
 	{
 		const TArray<Chaos::FPhysicsObjectHandle> Leaf = { HeldShard };
 		FLockedReadPhysicsObjectExternalInterface Read = FPhysicsObjectExternalInterface::LockRead(Leaf);
@@ -980,6 +996,7 @@ void AEstPlayer::UpdateHeldShardTick(float DeltaSeconds)
 		if (Root != nullptr)
 		{
 			ShardLocation = Read.GetInterface().GetX(Root);
+			ShardRotation = Read.GetInterface().GetR(Root);
 			const TArray<Chaos::FConstPhysicsObjectHandle> Roots = { Root };
 			ShardMass = Read.GetInterface().GetMass(Roots);
 		}
@@ -1005,11 +1022,26 @@ void AEstPlayer::UpdateHeldShardTick(float DeltaSeconds)
 
 	Acceleration.Z -= GetWorld()->GetGravityZ();
 
+	const FQuat DesiredRotation = GetCapsuleComponent()->GetComponentQuat() * HeldShardRelativeRotation;
+	FQuat DeltaRotation = DesiredRotation * ShardRotation.Inverse();
+	DeltaRotation.Normalize();
+	if (DeltaRotation.W < 0.f)
+	{
+		DeltaRotation = -DeltaRotation;
+	}
+
+	FVector RotationAxis;
+	float RotationAngle;
+	DeltaRotation.ToAxisAndAngle(RotationAxis, RotationAngle);
+
+	const FVector AngularAcceleration = (RotationAxis * RotationAngle * PlayerShardHoldRotationStiffness).GetClampedToMaxSize(PlayerShardHoldMaxRotationAcceleration);
+
 	const TArray<Chaos::FPhysicsObjectHandle> Targets = { Root };
 	FLockedWritePhysicsObjectExternalInterface Write = FPhysicsObjectExternalInterface::LockWrite(Targets);
 	Write.GetInterface().SetLinearEtherDrag(Targets, PlayerShardHoldDamping);
-	Write.GetInterface().SetAngularEtherDrag(Targets, PlayerShardHoldDamping);
+	Write.GetInterface().SetAngularEtherDrag(Targets, PlayerShardHoldRotationDamping);
 	Write.GetInterface().AddForce(Targets, Acceleration * ShardMass, true);
+	Write.GetInterface().AddTorque(Targets, AngularAcceleration, true, true);
 	Write.GetInterface().WakeUp(Targets);
 }
 
