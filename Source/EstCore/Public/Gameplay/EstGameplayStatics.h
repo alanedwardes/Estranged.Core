@@ -323,4 +323,16 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Physics)
 	static bool IsTreadingWater(class UCharacterMovementComponent* CharacterMovement);
+
+	UFUNCTION(BlueprintCallable, Category = Physics)
+	static void IgnorePhysicsBody(class UPrimitiveComponent* Component, class UPrimitiveComponent* OtherComponent);
+
+	UFUNCTION(BlueprintCallable, Category = Physics)
+	static void StopIgnoringPhysicsBody(class UPrimitiveComponent* Component, class UPrimitiveComponent* OtherComponent);
+
+	UFUNCTION(BlueprintCallable, Category = Physics)
+	static void IgnorePhysicsActor(AActor* Actor, AActor* OtherActor);
+
+	UFUNCTION(BlueprintCallable, Category = Physics)
+	static void StopIgnoringPhysicsActor(AActor* Actor, AActor* OtherActor);
 };

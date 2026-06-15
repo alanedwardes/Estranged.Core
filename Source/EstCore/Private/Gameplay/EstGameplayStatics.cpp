@@ -47,6 +47,11 @@
 #include "SceneView.h"
 #include "ShaderPipelineCache.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PBDRigidsSolver.h"
+#include "Chaos/PBDRigidsEvolutionGBF.h"
+#include "Chaos/Collision/SpatialAccelerationBroadPhase.h"
+#include "Chaos/Collision/CollisionConstraintFlags.h"
+#include "PhysicsProxy/SingleParticlePhysicsProxy.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstGameplayStatics)
 
 extern ENGINE_API float GAverageFPS;
@@ -1247,6 +1252,88 @@ float UEstGameplayStatics::CalculateOverlappingMass(AActor* Actor)
 	}
 
 	return OverlappingMass;
+}
+
+namespace
+{
+	template <typename TFunc>
+	bool RunIgnoreCollisionCommand(UPrimitiveComponent* Component, UPrimitiveComponent* OtherComponent, TFunc&& Func)
+	{
+		if (Component == nullptr || OtherComponent == nullptr)
+		{
+			return false;
+		}
+
+		FBodyInstance* BodyA = Component->GetBodyInstance();
+		FBodyInstance* BodyB = OtherComponent->GetBodyInstance();
+		if (BodyA == nullptr || BodyB == nullptr)
+		{
+			return false;
+		}
+
+		const FPhysicsActorHandle& ProxyA = BodyA->GetPhysicsActorHandle();
+		const FPhysicsActorHandle& ProxyB = BodyB->GetPhysicsActorHandle();
+		if (ProxyA == nullptr || ProxyB == nullptr)
+		{
+			return false;
+		}
+
+		Chaos::FPBDRigidsSolver* Solver = ProxyA->GetSolver<Chaos::FPBDRigidsSolver>();
+		if (Solver == nullptr)
+		{
+			return false;
+		}
+
+		Solver->RegisterSimOneShotCallback([ProxyA, ProxyB, Solver, Func = Forward<TFunc>(Func)]()
+		{
+			Chaos::FGeometryParticleHandle* P0 = ProxyA->GetHandle_LowLevel();
+			Chaos::FGeometryParticleHandle* P1 = ProxyB->GetHandle_LowLevel();
+			if (P0 != nullptr && P1 != nullptr)
+			{
+				Func(Solver->GetEvolution()->GetBroadPhase().GetIgnoreCollisionManager(), P0, P1);
+			}
+		});
+
+		return true;
+	}
+}
+
+void UEstGameplayStatics::IgnorePhysicsBody(UPrimitiveComponent* Component, UPrimitiveComponent* OtherComponent)
+{
+	const bool bEnqueued = RunIgnoreCollisionCommand(Component, OtherComponent,
+		[](Chaos::FIgnoreCollisionManager& Manager, Chaos::FGeometryParticleHandle* P0, Chaos::FGeometryParticleHandle* P1)
+		{
+			Manager.AddIgnoreCollisions(P0, P1);
+		});
+
+	if (!bEnqueued)
+	{
+		UE_LOG(LogEstGameplayStatics, Warning, TEXT("IgnorePhysicsBody: %s and/or %s have no physics state - ignore not applied"),
+			*GetNameOrNull(Component), *GetNameOrNull(OtherComponent));
+	}
+}
+
+void UEstGameplayStatics::StopIgnoringPhysicsBody(UPrimitiveComponent* Component, UPrimitiveComponent* OtherComponent)
+{
+	RunIgnoreCollisionCommand(Component, OtherComponent,
+		[](Chaos::FIgnoreCollisionManager& Manager, Chaos::FGeometryParticleHandle* P0, Chaos::FGeometryParticleHandle* P1)
+		{
+			Manager.RemoveIgnoreCollisions(P0, P1);
+		});
+}
+
+void UEstGameplayStatics::IgnorePhysicsActor(AActor* Actor, AActor* OtherActor)
+{
+	UPrimitiveComponent* CompA = Actor ? Cast<UPrimitiveComponent>(Actor->GetRootComponent()) : nullptr;
+	UPrimitiveComponent* CompB = OtherActor ? Cast<UPrimitiveComponent>(OtherActor->GetRootComponent()) : nullptr;
+	IgnorePhysicsBody(CompA, CompB);
+}
+
+void UEstGameplayStatics::StopIgnoringPhysicsActor(AActor* Actor, AActor* OtherActor)
+{
+	UPrimitiveComponent* CompA = Actor ? Cast<UPrimitiveComponent>(Actor->GetRootComponent()) : nullptr;
+	UPrimitiveComponent* CompB = OtherActor ? Cast<UPrimitiveComponent>(OtherActor->GetRootComponent()) : nullptr;
+	StopIgnoringPhysicsBody(CompA, CompB);
 }
 
 TMap<FString, UEnhancedPlayerMappableKeyProfile*> UEstGameplayStatics::GetAllKeyProfiles(UEnhancedInputUserSettings* UserSettings)
