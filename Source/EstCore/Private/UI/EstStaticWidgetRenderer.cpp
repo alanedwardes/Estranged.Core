@@ -3,6 +3,7 @@
 #include "UI/EstStaticWidgetRenderer.h"
 #include "Components/BillboardComponent.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Engine/Texture2D.h"
 #include "SceneManagement.h"
 #include "Kismet/GameplayStatics.h"
 #include "Slate/WidgetRenderer.h"

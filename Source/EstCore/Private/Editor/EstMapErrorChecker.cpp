@@ -9,6 +9,8 @@
 #include "Logging/MessageLog.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
+#include "StaticMeshResources.h"
+#include "Materials/MaterialInterface.h"
 #include "Misc/UObjectToken.h"
 #include "Interfaces/EstSaveRestore.h"
 #include "Misc/MapErrors.h"
