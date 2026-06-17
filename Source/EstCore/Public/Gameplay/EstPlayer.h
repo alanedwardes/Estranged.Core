@@ -2,6 +2,7 @@
 
 #include "Components/PrimitiveComponent.h"
 #include "EstBaseCharacter.h"
+#include "Camera/CameraShakeBase.h"
 #include "EstPlayer.generated.h"
 
 namespace Chaos { struct FPhysicsObject; }

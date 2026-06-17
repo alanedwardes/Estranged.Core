@@ -43,6 +43,7 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "Engine/GameViewportClient.h"
+#include "UnrealClient.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "SceneView.h"
 #include "ShaderPipelineCache.h"

@@ -9,6 +9,7 @@
 #include "EstWeaponAnimationManifest.h"
 #include "EstWeaponSoundManifest.h"
 #include "Gameplay/EstGameplayStatics.h"
+#include "Camera/CameraShakeBase.h"
 #include "EstBaseWeapon.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquippedDelegate);

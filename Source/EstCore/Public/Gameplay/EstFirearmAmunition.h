@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Interfaces/EstSaveRestore.h"
+#include "GameFramework/Pawn.h"
 #include "EstFirearmAmunition.generated.h"
 
 /** A base for all firearm ammunition in Estranged */
