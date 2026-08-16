@@ -1,7 +1,10 @@
 #include "Gameplay/EstAIController.h"
 #include "EstConstants.h"
+#include "EstLog.h"
 #include "Runtime/AIModule/Classes/BrainComponent.h"
 #include "Runtime/AIModule/Classes/BehaviorTree/BlackboardComponent.h"
+#include "Runtime/AIModule/Classes/Navigation/PathFollowingComponent.h"
+#include "Engine/World.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(EstAIController)
 
 AEstAIController::AEstAIController(const class FObjectInitializer& ObjectInitializer)
@@ -78,4 +81,23 @@ AActor* AEstAIController::GetBlackboardFocusActor()
 	}
 
 	return Cast<AActor>(FocusActor);
+}
+
+FPathFollowingRequestResult AEstAIController::MoveTo(const FAIMoveRequest& MoveRequest, FNavPathSharedPtr* OutPath)
+{
+	MoveToStartTime = GetWorld()->GetTimeSeconds();
+	EST_LOG(GetPawn(), Trace, "MoveTo started");
+
+	return Super::MoveTo(MoveRequest, OutPath);
+}
+
+void AEstAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	const double Duration = GetWorld()->GetTimeSeconds() - MoveToStartTime;
+	const EEstLoggerLevel Level = Result.IsSuccess() ? EEstLoggerLevel::Normal : EEstLoggerLevel::Warning;
+
+	GEstLogMessage(GetPawn(), Level, FString::Printf(TEXT("MoveTo finished: %s in %.2fs"),
+		*StaticEnum<EPathFollowingResult::Type>()->GetNameStringByValue(Result.Code), Duration));
+
+	Super::OnMoveCompleted(RequestID, Result);
 }

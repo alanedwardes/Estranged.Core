@@ -37,7 +37,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AI)
 	UBehaviorTree* BehaviorTree;
+
+	virtual FPathFollowingRequestResult MoveTo(const FAIMoveRequest& MoveRequest, FNavPathSharedPtr* OutPath = nullptr) override;
+	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 private:
 	UPROPERTY(SaveGame)
 	FGuid FocusActorSaveId;
+
+	double MoveToStartTime = 0.0;
 };
